@@ -14,7 +14,7 @@ export default function AboutHero() {
                 <h1 className="f-display text-7xl">About</h1>
             </motion.div>
 
-            <div className="flex flex-col md:flex-row md:items-end md:justify-end max-w-7xl mx-auto w-full gap-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-end max-w-7xl mx-auto w-full gap-8 mt-16 md:mt-0">
                 <div className="md:mb-4">
                     <motion.p
                         initial={{ y: 16, opacity: 0 }}

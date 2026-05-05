@@ -2,14 +2,15 @@
 // rsd.exe — Root Layout
 // Next.js 16 App Router | Mobile-first | Lenis + Framer Motion
 
-import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Mono, Instrument_Serif } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { Cormorant_Garamond, DM_Mono, Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
 import LenisProvider    from "@/components/providers/LenisProvider";
 import CustomCursor     from "@/components/ui/CustomCursor";
 import GrainOverlay     from "@/components/ui/GrainOverlay";
 import Navbar           from "@/components/layout/Navbar";
-import GlobalFooter     from "@/components/layout/GlobalFooter";
+import ConditionalFooter from "@/components/layout/ConditionalFooter";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 const cormorant = Cormorant_Garamond({
@@ -39,36 +40,51 @@ const instrumentSerif = Instrument_Serif({
   preload: true,
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: false,
+});
+
 /* ── Metadata ────────────────────────────────────────────────── */
+export const viewport: Viewport = {
+  themeColor: "#F5F4F0",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   title: {
-    default: "rsd.exe — Sudharshan R",
+    default: "rsd.exe",
     template: "%s — rsd.exe",
   },
   description:
-    "Portfolio of Sudharshan R — EIE engineer at KCT, full-stack developer, builder of SkillSync. Aspiring SDE.",
+    "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development. Aspiring SDE & Builder.",
   keywords: [
-    "Sudharshan R", "rsd.exe", "portfolio", "developer",
-    "engineer", "KCT Coimbatore", "SkillSync", "Next.js",
+    "Sudharshan R", "R Sudharshan", "rsd.exe", "portfolio", "Full-Stack Developer in India",
+    "React Developer", "Coder", "Entrepreneur", "Builder", "SDE", "AIML",
+    "Machine Learning Enthusiast", "Cloud Computing", "Software Developer", "Full-Stack",
+    "Creative Coding", "Next.js Developer"
   ],
   authors: [{ name: "Sudharshan R", url: "https://rsd.exe" }],
-  themeColor: "#F5F4F0",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5, // allow user zoom — accessibility
-  },
   openGraph: {
     title: "rsd.exe",
-    description: "Aspiring SDE · Student · Builder",
+    description: "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
     type: "website",
     locale: "en_IN",
     siteName: "rsd.exe",
+    url: "https://rsd.exe",
   },
   twitter: {
     card: "summary_large_image",
-    title: "rsd.exe — Sudharshan R",
-    description: "Aspiring SDE · Student · Builder",
+    title: "rsd.exe",
+    description: "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   robots: {
     index: true,
@@ -78,6 +94,19 @@ export const metadata: Metadata = {
 
 /* ── Root Layout ─────────────────────────────────────────────── */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const schemaMarkup = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sudharshan R",
+    "alternateName": "R Sudharshan",
+    "url": "https://rsd.exe",
+    "jobTitle": "Full-Stack Developer",
+    "description": "A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
+    "sameAs": [
+      "https://github.com/rsd-exe"
+    ]
+  };
+
   return (
     <html
       lang="en"
@@ -85,10 +114,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ${cormorant.variable}
         ${dmMono.variable}
         ${instrumentSerif.variable}
+        ${inter.variable}
       `}
       suppressHydrationWarning
     >
       <body className="bg-bg text-text antialiased overflow-x-hidden" suppressHydrationWarning>
+        {/* Google Analytics via Environment Variable */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        )}
+
+        {/* JSON-LD Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+        />
+
         {/*
           Layout structure:
           ┌──────────────────────────────┐
@@ -118,7 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           {/* Global curved footer — present on every page */}
-          <GlobalFooter />
+          <ConditionalFooter />
 
           {/* Cursor rendered last to ensure perfect mix-blend-mode calculation */}
           <CustomCursor />

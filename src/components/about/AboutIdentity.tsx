@@ -13,14 +13,20 @@ const ELABORATIONS = [
 
 export default function AboutIdentity() {
     const [index, setIndex] = useState(0);
+    const [isMobile, setIsMobile] = useState(true); // SSR-safe default
     const containerRef = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start end", "end start"]
     });
     
-    // Parallax effect for the right side text
-    const textY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+    // Parallax only on desktop — skip on mobile to avoid live scroll listener overhead
+    const rawTextY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+    const textY = isMobile ? 0 : rawTextY;
+
+    useEffect(() => {
+        setIsMobile(window.matchMedia("(max-width: 767px)").matches);
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -30,8 +36,8 @@ export default function AboutIdentity() {
     }, []);
 
     return (
-        <section ref={containerRef} className="w-full flex flex-col justify-center px-[var(--page-px)] pt-12 pb-20 bg-base-bg">
-            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+        <section ref={containerRef} className="relative w-full flex flex-col justify-center px-[var(--page-px)] pt-12 pb-20 bg-base-bg">
+            <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-24 md:gap-20 items-center">
                 
                 {/* LEFT: Photo Composition */}
                 <motion.div
@@ -84,10 +90,16 @@ export default function AboutIdentity() {
                             </AnimatePresence>
                         </div>
 
-                        <p className="max-w-[55ch] f-mono text-sm md:text-base opacity-90 text-text-primary leading-relaxed">
+                        <motion.p 
+                            initial={{ opacity: 0, filter: "blur(8px)", y: 15 }}
+                            whileInView={{ opacity: 0.8, filter: "blur(0px)", y: 0 }}
+                            viewport={{ once: true, margin: "-20px" }}
+                            transition={{ duration: 0.6, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
+                            className="max-w-[50ch] font-inter font-light text-xl md:text-2xl text-text-primary leading-relaxed"
+                        >
                             If I'm not working, I'm probably out taking photos, catching up on movies, or exploring new music. 
                             I believe curiosity doesn't stop at code; it extends to everything around us.
-                        </p>
+                        </motion.p>
                     </div>
                 </motion.div>
 

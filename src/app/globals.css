@@ -303,6 +303,11 @@ body {
 
   --z-nav: 100;
   --z-loader: 999;
+
+  /* Contact page dark tokens */
+  --nav-h: 5rem;
+  --color-bg-dark: #111111;
+  --color-text-inv: #F5F4F0;
 }
 
 /* Hide scrollbar utility */
@@ -314,11 +319,19 @@ body {
   display: none;
 }
 
-/* Horizontal divider utility */
+/* Horizontal divider utility — light bg pages */
 .rule {
   width: 100%;
   height: 1px;
   background: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Horizontal divider utility — dark bg pages */
+.rule-dark {
+  width: 100%;
+  height: 1px;
+  background: rgba(245, 244, 240, 0.15);
   flex-shrink: 0;
 }
 
@@ -357,7 +370,17 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, color 0.3s ease;
+}
+
+/* Dark-page nav override (e.g. /contact) */
+.nav-global.nav-dark {
+  color: var(--color-text-inv);
+}
+
+/* Hamburger bars invert on dark page */
+.nav-global.nav-dark .nav-hamburger span {
+  background-color: var(--color-text-inv);
 }
 
 .footer-global {
@@ -527,6 +550,7 @@ body {
   font-weight: 300;
   line-height: 1;
 }
+
 
 .footer-connect-line {
   margin-top: 2rem;

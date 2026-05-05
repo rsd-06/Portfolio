@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400&amp;display=swap');
+    </style>
+  </defs>
+  <text
+    x="100"
+    y="36"
+    font-family="'Cormorant Garamond', 'Cormorant', Georgia, serif"
+    font-weight="400"
+    font-style="normal"
+    font-size="36"
+    fill="#000000"
+    text-anchor="middle"
+    dominant-baseline="auto"
+    letter-spacing="0.5"
+  >rsd.exe</text>
+</svg>

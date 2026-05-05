@@ -63,7 +63,7 @@ export default function HeroStatic() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.0, duration: 0.9, ease: [0.19, 1, 0.22, 1] }} // Starts after loader exit (1s)
         >
-          <img src="/assets/hero.jpg" alt="Sudharshan R" className="hero-photo w-full h-full object-cover" />
+          <img src="/hero.jpg" alt="Sudharshan R" className="hero-photo w-full h-full object-cover" />
         </motion.div>
 
         {/* Right Side Cinematic Para */}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { SiGithub } from "react-icons/si";
 import { FiArrowUpRight } from "react-icons/fi";
+import RepoActivityGrid from "./RepoActivityGrid";
 
 export default function ProjectDetailHero({ project }: { project: Project }) {
   const titleText = project.title.split("");
@@ -107,6 +108,16 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
                   +{project.techStack.flatMap(ts => ts.items).length - 5} more
                 </span>
               )}
+            </motion.div>
+
+            {/* Repo Activity under Tech Stack */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.9, ease: [0.19, 1, 0.22, 1] }}
+              className="mt-4"
+            >
+              <RepoActivityGrid repoUrl={project.repoUrl} />
             </motion.div>
           </div>
 

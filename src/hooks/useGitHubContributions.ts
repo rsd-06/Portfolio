@@ -1,68 +1,49 @@
 import { useState, useEffect } from "react";
 
-export interface ContributionData {
-  total: {
-    [year: number]: number;
-    lastYear: number;
-  };
-  contributions: {
-    date: string;
-    count: number;
-    level: number;
-  }[];
+export interface ContributionDay {
+  date: string;
+  count: number;
+  color: string;
 }
 
-export function useGitHubContributions(username: string) {
-  const [data, setData] = useState<ContributionData | null>(null);
+export interface GitHubData {
+  thisYearTotal: number;
+  last90Total: number;
+  streak: number;
+  days: ContributionDay[];
+}
+
+const CACHE_KEY = "gh-contributions-gql-v1";
+const TTL = 86_400_000; // 24 hours
+
+export function useGitHubContributions() {
+  const [data, setData] = useState<GitHubData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check localStorage cache first (1 hour TTL)
-    const cacheKey = `gh-contributions-${username}`;
-    const cached = localStorage.getItem(cacheKey);
-
-    if (cached) {
-      const { data: cachedData, timestamp } = JSON.parse(cached);
-      if (Date.now() - timestamp < 3600000) {
-        setData(cachedData);
-        setLoading(false);
-        return;
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        const { data: cached, ts } = JSON.parse(raw);
+        if (Date.now() - ts < TTL) {
+          setData(cached);
+          setLoading(false);
+          return;
+        }
       }
-    }
+    } catch { /* ignore */ }
 
-    fetch(`/api/github`)
-      .then(r => {
-        if (!r.ok) throw new Error("Network response was not ok");
-        return r.json();
-      })
-      .then(d => {
+    fetch("/api/github")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.error) throw new Error(d.error);
         setData(d);
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: d,
-          timestamp: Date.now()
-        }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data: d, ts: Date.now() }));
       })
-      .catch(() => setError("GitHub data unavailable"))
+      .catch((e) => setError(e.message ?? "GitHub data unavailable"))
       .finally(() => setLoading(false));
-  }, [username]);
+  }, []);
 
   return { data, loading, error };
-}
-
-export function computeStreak(contributions: { date: string; count: number }[]): number {
-  if (!contributions || contributions.length === 0) return 0;
-  
-  const today = new Date().toISOString().split("T")[0];
-  let streak = 0;
-
-  for (let i = contributions.length - 1; i >= 0; i--) {
-    if (contributions[i].count > 0) {
-      streak++;
-    } else if (contributions[i].date !== today) {
-      break;
-    }
-  }
-
-  return streak;
 }

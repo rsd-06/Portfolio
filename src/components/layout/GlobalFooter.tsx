@@ -12,13 +12,13 @@ import { useRef } from "react";
 
 // ── Social links ───────────────────────────────────────────────
 const SOCIALS = [
-  { label: "GitHub",   href: "https://github.com/rsd-exe" },     // update
-  { label: "LinkedIn", href: "https://linkedin.com/in/rsd-exe" }, // update
-  { label: "Twitter",  href: "https://x.com/rsd_exe" },           // update
-  { label: "Instagram",href: "https://instagram.com/rsd.exe" },   // update
+  { label: "GitHub",    href: "https://github.com/rsd-06" },
+  { label: "LinkedIn",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/" },
+  { label: "Twitter",   href: "https://x.com/rsd_2006" },
+  { label: "Instagram", href: "https://www.instagram.com/rsd_exe/" },
 ];
 
-const BIG_WORDS = ["Growth.", "Code.", "Build."];
+const BIG_WORDS = ["Code.", "Build.", "Grow."];
 
 // ── Stagger container variants ─────────────────────────────────
 const containerVariants = {
@@ -63,6 +63,8 @@ export default function GlobalFooter() {
         ))}
       </motion.div>
 
+
+
       {/* ── Connect link ── */}
       <motion.div
         className="footer-connect-line"
@@ -71,9 +73,9 @@ export default function GlobalFooter() {
         transition={{ delay: 0.5, duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
       >
         <Link
-          href="mailto:sudharshan@example.com"   /* update */
+          href="/contact"
           className="footer-connect"
-          aria-label="Send me an email"
+          aria-label="Go to contact page"
         >
           Let&apos;s connect →
         </Link>

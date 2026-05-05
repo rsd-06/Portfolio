@@ -31,7 +31,7 @@ const IPHONE = {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-const VIDEO_SRC = "/assets/heroVideo.mp4";
+const VIDEO_SRC = "/heroVideo.mp4";
 
 export default function MacMonitorSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -69,9 +69,9 @@ export default function MacMonitorSection() {
       const sH_m  = cS_m * 0.80;
       const vh    = window.innerHeight;
       const sW_m  = cS_m * 0.37;
-      const scaleH = (vh / sH_m) * 1.35;  // 35% buffer — corners pushed well off-screen
-      const scaleW = (window.innerWidth / sW_m) * 1.35;
-      setMaxScaleMobile(Math.min(scaleH, scaleW));
+      const scaleH = (vh / sH_m) * 1.8;  // Increased buffer to massively push corners and notch off-screen
+      const scaleW = (window.innerWidth / sW_m) * 1.8;
+      setMaxScaleMobile(Math.max(scaleH, scaleW));
     };
 
     recalc();
@@ -129,7 +129,7 @@ export default function MacMonitorSection() {
 
   // ─── Derived device values (safe: defaults to MacBook on SSR) ───────────
   const device    = mounted && isMobile ? IPHONE   : MACBOOK;
-  const mockupSrc = mounted && isMobile ? "/assets/iPhone14.png" : "/assets/macbook.png";
+  const mockupSrc = mounted && isMobile ? "/assets/homePageImages/iPhone14.png" : "/assets/homePageImages/macbook.png";
 
   return (
     <section
@@ -201,25 +201,28 @@ export default function MacMonitorSection() {
                 />
               </div>
 
-              {/* Device frame PNG ON TOP of the video (z-10) */}
-              {/* No drop-shadow: at high scale a blur filter blooms into dark side bars */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={mockupSrc}
-                alt={mounted && isMobile ? "iPhone 14 frame" : "MacBook Pro frame"}
-                draggable={false}
+              <motion.div
                 style={{
                   position: "absolute",
                   inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
                   zIndex: 10,
                   pointerEvents: "none",
                   userSelect: "none",
-                  opacity: imgOpacity as unknown as number,
+                  // Opacity removed to ensure frame is always visible
                 }}
-              />
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={mockupSrc}
+                  alt={mounted && isMobile ? "iPhone 14 frame" : "MacBook Pro frame"}
+                  draggable={false}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </motion.div>
             </div>
           </motion.div>
         </div>

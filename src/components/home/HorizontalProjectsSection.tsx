@@ -5,11 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   motion,
-  useMotionValue,
   useSpring,
   AnimatePresence,
+  useScroll,
+  useTransform
 } from "framer-motion";
-import { useLenis } from "@/components/providers/LenisProvider";
+import IdentityStatement from "./IdentityStatement";
 
 /* ─── Project Data ─── */
 const PROJECTS = [
@@ -762,46 +763,23 @@ function ExpandedOverlay({ project, onClose }: OverlayProps) {
 }
 
 export default function HorizontalProjectsSection() {
-  const trackRef       = useRef<HTMLDivElement>(null);
-  const sectionRef     = useRef<HTMLDivElement>(null);
-  const lenis          = useLenis();
-
-  const rawX           = useMotionValue(0);
-  const negX           = useMotionValue(0);
-
-  const [isActive, setIsActive]     = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  
-  const maxScrollRef   = useRef(0);
-  const lastScrollY    = useRef(0);
+  const containerRef = useRef<HTMLElement>(null);
+  const trackRef     = useRef<HTMLDivElement>(null);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedProject = PROJECTS.find((p) => p.id === selectedId) ?? null;
+  const [scrollRange, setScrollRange] = useState(0);
 
-  // Sync negX
-  useEffect(() => {
-    return rawX.on("change", (v) => {
-      negX.set(-v);
-    });
-  }, [rawX, negX]);
-
-  const smoothNegX = useSpring(negX, { stiffness: 120, damping: 35, restDelta: 0.5 });
-
-  // Calculate Max Scroll dynamically with ResizeObserver
   useEffect(() => {
     if (!trackRef.current) return;
-    const trackEl = trackRef.current;
-
     const updateMax = () => {
-      maxScrollRef.current = trackEl.scrollWidth - window.innerWidth;
+      if (trackRef.current) {
+        setScrollRange(trackRef.current.scrollWidth - window.innerWidth);
+      }
     };
-
     updateMax();
-
-    const observer = new ResizeObserver(() => {
-      updateMax();
-    });
-    observer.observe(trackEl);
+    const observer = new ResizeObserver(() => updateMax());
+    observer.observe(trackRef.current);
     
     window.addEventListener("resize", updateMax);
     return () => {
@@ -810,322 +788,143 @@ export default function HorizontalProjectsSection() {
     };
   }, []);
 
-  // Window scroll handler to lock section when it hits the viewport top
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const scrollingDown = currentScrollY > lastScrollY.current;
-      lastScrollY.current = currentScrollY;
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
 
-      if (!sectionRef.current || isActive) return;
-
-      const rect = sectionRef.current.getBoundingClientRect();
-      const tolerance = 5;
-
-      if (scrollingDown) {
-        // Approaching from top. Lock when top hits ~0
-        if (!isComplete && rect.top <= tolerance && rect.top >= -50) {
-          if (lenis) lenis.scrollTo(sectionRef.current, { immediate: true });
-          setIsActive(true);
-        }
-      } else {
-        // Approaching from bottom. Lock when top hits ~0
-        if (isComplete && rect.top >= -tolerance && rect.top <= 50) {
-          if (lenis) lenis.scrollTo(sectionRef.current, { immediate: true });
-          setIsActive(true);
-          setIsComplete(false);
-          rawX.set(maxScrollRef.current);
-        }
-      }
-
-      // Reset state if we scroll completely out of view (upwards, so we are at hero section)
-      if (rect.top > window.innerHeight) {
-        setIsComplete(false);
-        rawX.set(0);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isActive, isComplete, lenis, rawX]);
-
-  // Handle Lenis start/stop
-  useEffect(() => {
-    if (!lenis) return;
-    if (isActive) {
-      lenis.stop();
-    } else {
-      lenis.start();
-    }
-    return () => lenis.start();
-  }, [isActive, lenis]);
-
-  // Intercept Wheel
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if (!isActive) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-
-      const delta = e.deltaY || e.deltaX;
-      const current = rawX.get();
-
-      // Release boundaries
-      if (current <= 0 && delta < 0) {
-        setIsActive(false);
-        return;
-      }
-      if (current >= maxScrollRef.current && delta > 0) {
-        setIsComplete(true);
-        setIsActive(false);
-        return;
-      }
-
-      const next = Math.max(0, Math.min(current + delta, maxScrollRef.current));
-      rawX.set(next);
-    };
-
-    const el = sectionRef.current;
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [isActive, rawX]);
-
-  // Intercept Touch
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    let startX = 0;
-    let startY = 0;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isActive) return;
-
-      const dx = startX - e.touches[0].clientX;
-      const dy = startY - e.touches[0].clientY;
-
-      if (Math.abs(dx) > Math.abs(dy) || isActive) {
-        e.preventDefault();
-        
-        const current = rawX.get();
-        
-        if (current <= 0 && dx < 0) {
-          setIsActive(false);
-          return;
-        }
-        if (current >= maxScrollRef.current && dx > 0) {
-          setIsComplete(true);
-          setIsActive(false);
-          return;
-        }
-
-        const next = Math.max(0, Math.min(current + dx * 1.5, maxScrollRef.current));
-        rawX.set(next);
-        startX = e.touches[0].clientX;
-      }
-    };
-
-    const el = sectionRef.current;
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false });
-    return () => {
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-    };
-  }, [isActive, rawX]);
-
-  // Intercept Keyboard
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (!isActive) return;
-
-      const current = rawX.get();
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        if (current >= maxScrollRef.current) {
-          setIsComplete(true);
-          setIsActive(false);
-        } else {
-          rawX.set(Math.min(current + 200, maxScrollRef.current));
-        }
-      }
-
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (current <= 0) {
-          setIsActive(false);
-        } else {
-          rawX.set(Math.max(current - 200, 0));
-        }
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isActive, rawX]);
-
-  // Progress Bar
-  const progressBarScaleX = useSpring(0, { stiffness: 120, damping: 35 });
-  useEffect(() => {
-    return rawX.on("change", (v) => {
-      if (maxScrollRef.current > 0) {
-        progressBarScaleX.set(v / maxScrollRef.current);
-      }
-    });
-  }, [rawX, progressBarScaleX]);
+  const rawX = useTransform(scrollYProgress, [0, 1], [0, -scrollRange]);
+  const smoothX = useSpring(rawX, { stiffness: 120, damping: 25, restDelta: 0.5 });
 
   return (
     <>
-      <div
-        ref={sectionRef}
+      <section
+        ref={containerRef}
         style={{
           position: "relative",
           width: "100%",
-          height: "100dvh",
-          overflow: "hidden",
-          touchAction: "pan-x",
+          height: `calc(100vh + ${scrollRange}px)`,
+          backgroundColor: "var(--color-bg)",
         }}
       >
-        {/* ── Section header bar ────────────────────────────── */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0, left: 0, right: 0,
-            zIndex: 10,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            padding: "clamp(1.2rem, 3vw, 2rem) var(--page-px)",
-            borderBottom: "1px solid var(--color-border)",
-            pointerEvents: "none",
-          }}
+        <div 
+          className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
         >
-          <p
-            className="f-mono uppercase"
-            style={{
-              fontSize: "var(--text-2xs)",
-              letterSpacing: "0.2em",
-              opacity: 0.35,
-            }}
-          >
-            selected work
-          </p>
-          <p
-            className="f-mono uppercase"
-            style={{
-              fontSize: "var(--text-2xs)",
-              letterSpacing: "0.2em",
-              opacity: 0.35,
-            }}
-          >
-            03 projects
-          </p>
-        </div>
-
-        {/* ── Horizontal track ──────────────────────────────── */}
-        <motion.div
-          ref={trackRef}
-          style={{
-            x: smoothNegX,
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "stretch",
-            height: "100%",
-            willChange: "transform",
-            paddingTop: "clamp(3.5rem, 6vw, 5rem)",
-          }}
-        >
-          {/* ── Featured Projects label card ── */}
-          <div
-            style={{
-              flexShrink: 0,
-              width: "clamp(280px, 40vw, 560px)",
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              paddingLeft: "var(--page-px)",
-              paddingRight: "clamp(2rem, 4vw, 4rem)",
-              borderRight: "1px solid var(--color-border)",
-            }}
-          >
-            <p
-              className="f-mono uppercase"
+            {/* ── Section header bar (Only show if scrolled past Identity Statement maybe? Or keep static) ── */}
+            <div
               style={{
-                fontSize: "var(--text-2xs)",
-                letterSpacing: "0.2em",
+                position: "absolute",
+                top: 0, left: 0, right: 0,
+                zIndex: 10,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                padding: "clamp(1.2rem, 3vw, 2rem) var(--page-px)",
+                borderBottom: "1px solid var(--color-border)",
+                pointerEvents: "none",
                 opacity: 0.35,
-                marginBottom: "clamp(1rem, 2vw, 1.5rem)",
               }}
             >
-              featured
-            </p>
-            <h2
-              className="f-display"
+              <p
+                className="f-mono uppercase"
+                style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.2em" }}
+              >
+                selected work
+              </p>
+              <p
+                className="f-mono uppercase"
+                style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.2em" }}
+              >
+                03 projects
+              </p>
+            </div>
+
+            {/* ── Horizontal track ──────────────────────────────── */}
+            <motion.div
+              ref={trackRef}
               style={{
-                fontSize: "var(--text-3xl)",
-                fontWeight: 300,
-                letterSpacing: "-0.04em",
-                lineHeight: 1,
+                x: smoothX,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "stretch",
+                height: "100%",
+                willChange: "transform",
+                // Remove paddingTop if we want IdentityStatement to be vertically centered properly, 
+                // but we can let IdentityStatement handle its own centering.
               }}
             >
-              Selected<br />Work.
-            </h2>
-            <p
-              className="f-accent"
-              style={{
-                fontSize: "var(--text-sm)",
-                fontStyle: "italic",
-                opacity: 0.45,
-                marginTop: "clamp(1rem, 2vw, 1.5rem)",
-              }}
-            >
-              Scroll right to explore →
-            </p>
-          </div>
+              {/* ── 1. Identity Statement (Starts here now) ── */}
+              <div style={{ flexShrink: 0, width: "100vw", height: "100%" }}>
+                <IdentityStatement />
+              </div>
 
-          {/* ── 3 Project Cards ── */}
-          {PROJECTS.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onExpand={() => setSelectedId(project.id)}
-            />
-          ))}
+              {/* ── 2. Featured Projects label card ── */}
+              <div
+                style={{
+                  flexShrink: 0,
+                  width: "clamp(280px, 40vw, 560px)",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  paddingLeft: "var(--page-px)",
+                  paddingRight: "clamp(2rem, 4vw, 4rem)",
+                  borderRight: "1px solid var(--color-border)",
+                  paddingTop: "clamp(3.5rem, 6vw, 5rem)",
+                }}
+              >
+                <p
+                  className="f-mono uppercase"
+                  style={{
+                    fontSize: "var(--text-2xs)",
+                    letterSpacing: "0.2em",
+                    opacity: 0.35,
+                    marginBottom: "clamp(1rem, 2vw, 1.5rem)",
+                  }}
+                >
+                  featured
+                </p>
+                <h2
+                  className="f-display"
+                  style={{
+                    fontSize: "var(--text-3xl)",
+                    fontWeight: 300,
+                    letterSpacing: "-0.04em",
+                    lineHeight: 1,
+                  }}
+                >
+                  Selected<br />Work.
+                </h2>
+                <p
+                  className="f-accent"
+                  style={{
+                    fontSize: "var(--text-sm)",
+                    fontStyle: "italic",
+                    opacity: 0.45,
+                    marginTop: "clamp(1rem, 2vw, 1.5rem)",
+                  }}
+                >
+                  Scroll right to explore →
+                </p>
+              </div>
 
-          {/* ── End card ── */}
-          <EndCard />
-        </motion.div>
+              {/* ── 3 Project Cards ── */}
+              {PROJECTS.map((project) => (
+                <div key={project.id} style={{ paddingTop: "clamp(3.5rem, 6vw, 5rem)" }}>
+                    <ProjectCard
+                      project={project}
+                      onExpand={() => setSelectedId(project.id)}
+                    />
+                </div>
+              ))}
 
-
-
-        {/* ── Progress bar ──────────────────────────────────── */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0, left: 0, right: 0,
-            height: "1px",
-            background: "var(--color-border)",
-          }}
-        >
-          <motion.div
-            style={{
-              height: "100%",
-              background: "var(--color-text)",
-              transformOrigin: "left",
-              scaleX: progressBarScaleX,
-              opacity: 0.4,
-            }}
-          />
+              {/* ── End card ── */}
+              <div style={{ paddingTop: "clamp(3.5rem, 6vw, 5rem)" }}>
+                  <EndCard />
+              </div>
+            </motion.div>
         </div>
-      </div>
+      </section>
 
       {/* Expanded overlay — rendered outside section to avoid scroll context issues */}
       <ExpandedOverlay

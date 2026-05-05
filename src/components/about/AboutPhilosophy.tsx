@@ -20,7 +20,7 @@ export default function AboutPhilosophy() {
                 philosophy
             </motion.div>
 
-            <div className="flex flex-col gap-[clamp(1rem,3vw,2.5rem)] text-center max-w-7xl mx-auto w-full">
+            <div className="flex flex-col gap-[clamp(1rem,3vw,2.5rem)] text-center max-w-7xl mx-auto w-full mt-[12vh]">
                 {STATEMENTS.map((stmt, i) => (
                     <motion.div
                         key={i}

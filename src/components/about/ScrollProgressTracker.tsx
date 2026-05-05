@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState, RefObject } from "react";
 
-export default function ScrollProgressTracker({ galleryRef }: { galleryRef: RefObject<HTMLElement | null> }) {
+export default function ScrollProgressTracker() {
     const { scrollYProgress } = useScroll();
     const fillHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
     

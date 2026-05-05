@@ -7,11 +7,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 // ── Rotating words data ────────────────────────────────────────
-const WORDS = ["SDE Aspired.", "Student.", "Entrepreneur.", "Builder.", "Engineer."];
+const WORDS = ["SDE Aspirant.", "Student.", "Entrepreneur.", "Learner.", "Engineer."];
 
 // ── Navbar component ───────────────────────────────────────────
 export default function Navbar() {
   const pathname    = usePathname();
+  const isDarkPage  = pathname === "/contact";
   const [menuOpen,  setMenuOpen] = useState(false);
   const [wordIdx,   setWordIdx]  = useState(0);
 
@@ -42,7 +43,7 @@ export default function Navbar() {
       `}</style>
       {/* ── Main Navbar ── */}
       <header
-        className="nav-global"
+        className={`nav-global${isDarkPage ? " nav-dark" : ""}`}
         aria-label="Main navigation"
       >
         {/* Logo */}
@@ -100,8 +101,12 @@ export default function Navbar() {
             <AnimatePresence mode="wait">
               <motion.span
                 key={wordIdx}
-                className="f-accent absolute left-3 right-3 text-center text-[var(--text-primary)]"
-                style={{ fontSize: "var(--text-base)", letterSpacing: "0.04em" }}
+                className="f-accent absolute left-3 right-3 text-center"
+                style={{
+                  fontSize: "var(--text-base)",
+                  letterSpacing: "0.04em",
+                  color: isDarkPage ? "var(--color-text-inv)" : "var(--text-primary)",
+                }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{    opacity: 0, y: -10 }}
@@ -145,6 +150,7 @@ export default function Navbar() {
           <motion.nav
             className="nav-mobile-overlay"
             aria-label="Mobile navigation"
+            style={isDarkPage ? { background: "#111111", color: "#F5F4F0" } : {}}
             initial={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
             animate={{ opacity: 1, clipPath: "inset(0 0 0% 0)" }}
             exit={{    opacity: 0, clipPath: "inset(0 0 100% 0)" }}
