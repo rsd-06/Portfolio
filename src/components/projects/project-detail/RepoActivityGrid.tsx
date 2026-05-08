@@ -13,7 +13,7 @@ function countToGreen(count: number): string {
   return "#216e39";
 }
 
-export default function RepoActivityGrid({ repoUrl }: { repoUrl: string }) {
+export default function RepoActivityGrid({ repoUrl, boxSize = 14 }: { repoUrl: string; boxSize?: number }) {
   const { data, loading, error } = useRepoActivity(repoUrl);
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
@@ -40,25 +40,27 @@ export default function RepoActivityGrid({ repoUrl }: { repoUrl: string }) {
       className="flex flex-col gap-3 max-w-[52ch]"
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="f-mono text-[10px] opacity-35 uppercase tracking-widest">
+        <span className="f-mono text-xs opacity-40 uppercase tracking-widest">
           Repo Activity · {label}
         </span>
         {!loading && data && (
-          <span className="f-mono text-[10px] opacity-45">
+          <span className="f-mono text-xs opacity-50">
             {data.total} commit{data.total !== 1 ? "s" : ""}
           </span>
         )}
       </div>
 
       {error ? (
-        <p className="f-mono text-[10px] opacity-30">{error}</p>
+        <p className="f-mono text-xs opacity-40">{error}</p>
       ) : (
         <div className="flex flex-wrap gap-[3px]">
           {squares.map((day, i) => (
             <motion.div
               key={day.date || i}
-              className="w-[14px] h-[14px] rounded-[3px] relative group/sq"
+              className="rounded-[3px] relative group/sq"
               style={{
+                width: boxSize,
+                height: boxSize,
                 backgroundColor: loading ? "rgba(34,197,94,0.07)" : countToGreen(day.count),
               }}
               animate={inView && !loading ? { opacity: 1 } : { opacity: loading ? 0.5 : 0 }}

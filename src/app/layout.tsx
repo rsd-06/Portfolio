@@ -11,6 +11,7 @@ import CustomCursor     from "@/components/ui/CustomCursor";
 import GrainOverlay     from "@/components/ui/GrainOverlay";
 import Navbar           from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
+import GlobalSetup      from "@/components/providers/GlobalSetup";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 const cormorant = Cormorant_Garamond({
@@ -162,6 +163,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           appears identically across all pages.
         */}
         <LenisProvider>
+          {/* Global one-time setup (image protection, etc.) */}
+          <GlobalSetup />
+
           {/* Fixed overlays */}
           <GrainOverlay />
 

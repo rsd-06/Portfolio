@@ -17,33 +17,61 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
       </Link>
 
       <div className="flex flex-col gap-8 md:gap-12">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-8">
+          <div className="flex flex-col gap-2">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="flex items-baseline gap-2"
+            >
+              <span className="font-mono text-[10px] opacity-30">{project.index}/</span>
+            </motion.div>
+            
+            <h1 className="f-display text-[clamp(4rem,10vw,8rem)] font-light tracking-[-0.04em] leading-[0.95] overflow-hidden flex flex-wrap">
+              {titleText.map((char, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ y: "100%", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
+                  animate={{ y: "0%" }}
+                  transition={{
+                    duration: 0.8,
+                    ease: [0.19, 1, 0.22, 1],
+                    delay: 0.2 + index * 0.03,
+                  }}
+                  className="inline-block origin-top"
+                >
+                  {char === " " ? "\u00A0" : char}
+                </motion.span>
+              ))}
+            </h1>
+          </div>
+
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="flex items-baseline gap-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9, ease: [0.19, 1, 0.22, 1] }}
+            className="flex flex-col gap-2 md:items-end pb-2 hidden md:flex"
           >
-            <span className="font-mono text-[10px] opacity-30">{project.index}/</span>
-          </motion.div>
-          
-          <h1 className="font-display text-[clamp(3rem,8vw,6rem)] font-light tracking-[-0.04em] leading-[0.95] overflow-hidden flex flex-wrap">
-            {titleText.map((char, index) => (
-              <motion.span
-                key={index}
-                initial={{ y: "100%", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
-                animate={{ y: "0%" }}
-                transition={{
-                  duration: 0.8,
-                  ease: [0.19, 1, 0.22, 1],
-                  delay: 0.2 + index * 0.03,
-                }}
-                className="inline-block origin-top"
+            {[
+              { id: "overview", label: "Overview" },
+              { id: "problem", label: "Problem" },
+              { id: "objective", label: "Objective" },
+              { id: "approach", label: "Approach" },
+              { id: "solution", label: "Solution" },
+              { id: "stack", label: "Stack" },
+              { id: "achievement", label: "Achievement" },
+            ].map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className="group flex flex-row-reverse md:flex-row items-center gap-3 font-mono text-[11px] md:text-xs uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity"
               >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
+                <span className="w-4 h-[1px] bg-current opacity-30 group-hover:opacity-100 group-hover:w-8 transition-all duration-300" />
+                {item.label}
+              </a>
             ))}
-          </h1>
+          </motion.div>
         </div>
 
         <motion.div
@@ -62,23 +90,23 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
               transition={{ duration: 0.8, delay: 0.6, ease: [0.19, 1, 0.22, 1] }}
               className="flex flex-col gap-1"
             >
-              <span className="font-mono text-[10px] opacity-40 tracking-widest uppercase">{project.category}</span>
-              <span className="font-mono text-[10px] opacity-30">{project.year}</span>
+              <span className="font-mono text-xs md:text-sm opacity-40 tracking-widest uppercase">{project.category}</span>
+              <span className="font-mono text-xs md:text-sm opacity-30">{project.year}</span>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.7, ease: [0.19, 1, 0.22, 1] }}
-              className="flex flex-col gap-2 max-w-[200px]"
+              className="flex flex-col gap-2 max-w-[240px]"
             >
-              <div className="flex justify-between font-mono text-[10px] opacity-60">
+              <div className="flex justify-between font-mono text-xs opacity-60">
                 <span>Status: {project.status}</span>
               </div>
-              <div className="flex justify-between font-mono text-[10px] opacity-60">
+              <div className="flex justify-between font-mono text-xs opacity-60">
                 <span>Completion: {project.completion}%</span>
               </div>
-              <div className="h-[1px] w-full bg-[var(--color-border)] opacity-40 mt-1">
+              <div className="h-[2px] w-full bg-[var(--color-border)] opacity-40 mt-1">
                 <div 
                   className="h-full bg-[var(--color-text)] opacity-80"
                   style={{ width: `${project.completion}%` }}
@@ -98,13 +126,13 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.8 + i * 0.04 }}
-                  className="font-mono text-[10px] border border-[var(--color-border)] rounded-full px-2.5 py-0.5 opacity-65"
+                  className="font-mono text-xs md:text-sm border border-[var(--color-border)] rounded-full px-3 py-1 opacity-65"
                 >
                   {tech}
                 </motion.span>
               ))}
               {project.techStack.flatMap(ts => ts.items).length > 5 && (
-                <span className="font-mono text-[10px] border border-transparent px-1 py-0.5 opacity-40">
+                <span className="font-mono text-xs md:text-sm border border-transparent px-1 py-1 opacity-40">
                   +{project.techStack.flatMap(ts => ts.items).length - 5} more
                 </span>
               )}
@@ -117,7 +145,7 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
               transition={{ duration: 0.8, delay: 0.9, ease: [0.19, 1, 0.22, 1] }}
               className="mt-4"
             >
-              <RepoActivityGrid repoUrl={project.repoUrl} />
+              <RepoActivityGrid repoUrl={project.repoUrl} boxSize={18} />
             </motion.div>
           </div>
 
@@ -127,7 +155,7 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.7, ease: [0.19, 1, 0.22, 1] }}
-              className="font-accent italic text-lg md:text-xl opacity-60 max-w-[400px]"
+              className="f-accent italic text-xl md:text-2xl lg:text-3xl opacity-60 max-w-[400px]"
             >
               "{project.tagline}"
             </motion.p>
@@ -157,6 +185,7 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
                 </a>
               )}
             </motion.div>
+
           </div>
         </div>
       </div>

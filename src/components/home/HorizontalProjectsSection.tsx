@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,9 +9,11 @@ import {
   useSpring,
   AnimatePresence,
   useScroll,
-  useTransform
+  useTransform,
+  useMotionValue,
 } from "framer-motion";
 import IdentityStatement from "./IdentityStatement";
+import { useLenis } from "@/components/providers/LenisProvider";
 
 /* ─── Project Data ─── */
 const PROJECTS = [
@@ -29,49 +32,50 @@ const PROJECTS = [
     achievement:
       "Pitched to KCT College Incubator. Prototype live with full feature set including idea feed, skill matching engine, task management, and reputation scores.",
     status: "Incubator pitch stage",
-    completion: 72,
-    image: "/assets/projects/skillsync.jpg",
-    video: "/assets/projects/skillsync.mp4",
+    completion: 45,
+    image: "/assets/projects/skillsync/01.png",
+    video: "/assets/projects/skillsync/demo.mp4",
     href: "/projects/skillsync",
   },
   {
-    id: "dengue",
+    id: "googledocsmini",
     index: "02",
-    title: "Dengue Prediction",
-    category: "AI · Full Stack",
+    title: "Google Docs Mini",
+    category: "Full Stack · Real-Time Platform",
     year: "2024",
-    tagline: "Predicting outbreaks before they spread.",
+    tagline: "Collaborative editing, instantly.",
     problem:
-      "Dengue outbreak data in Indian Tier-2 cities is reactive — health systems respond after spikes, not before. No district-level predictive tooling exists for early intervention.",
+      "Building a performant, real-time rich text editor that seamlessly handles simultaneous multi-user collaboration and cursor tracking without merge conflicts.",
     objective:
-      "Build an AI web platform that predicts dengue outbreak risk at district level across Indian Tier-2 cities, with an interactive hotspot map for health officials.",
-    stack: ["React.js", "Flask", "Random Forest", "Leaflet.js", "Python", "scikit-learn"],
+      "Develop a fully functional document editor with real-time syncing, live cursors, authentication, and document management capabilities.",
+    stack: ["Next.js", "Liveblocks", "Lexical", "Tailwind CSS", "Clerk"],
     achievement:
-      "Six-member team project under faculty mentorship. District-level prediction with visual hotspot map. Formal project report published.",
+      "Implemented seamless real-time document sync with live presence indicators and robust rich-text formatting.",
     status: "Completed",
     completion: 100,
-    image: "/assets/projects/dengue.jpg",
-    video: "/assets/projects/dengue.mp4",
-    href: "/projects/dengue-prediction",
+    image: "/assets/projects/googleDocsClone/01.png",
+    video: "/assets/projects/googleDocsClone/demo.mp4",
+    href: "/projects/googledocsmini",
   },
   {
-    id: "portfolio",
+    id: "gitpr-evaluation-env",
     index: "03",
-    title: "rsd.exe",
-    category: "Design · Frontend",
-    year: "2025",
-    tagline: "A portfolio that doesn't look like one.",
+    title: "PR Evaluation Env & Model Training",
+    category: "AI · Reinforcement Learning",
+    year: "2026",
+    tagline: "PR descriptions describe the feature. Never the flaw.",
     problem:
-      "Most student portfolios look identical — hero image, skills list, project cards, contact form. The work gets lost in the template.",
+      "Every day, developers merge Pull Requests that introduce accidental regressions — unintentional defects entirely unrelated to the feature being shipped.",
     objective:
-      "Design and build a personal portfolio that reflects personality and craft. Every section, animation, and interaction should feel intentional.",
-    stack: ["Next.js 16", "Tailwind v4", "Framer Motion", "Lenis", "TypeScript"],
-    achievement: "This site. End-to-end — concept, design system, development.",
-    status: "Ongoing",
-    completion: 85,
-    image: "/assets/projects/portfolio.jpg",
-    video: "/assets/projects/portfolio.mp4",
-    href: "/projects/portfolio",
+      "Turn the real-world PR code review challenge into a rigorous RL benchmark. Build an environment where LLM agents must catch integration-level regressions.",
+    stack: ["GRPO", "FastAPI", "Docker", "Qwen2.5-1.5B", "RLVR"],
+    achievement:
+      "Built and deployed at the Meta × Scaler OpenEnv Hackathon 2026. V2 GRPO model trained with Curriculum Learning improved Hard-tier performance by 2.3×.",
+    status: "Completed",
+    completion: 100,
+    image: "/assets/projects/gitpr/01.png",
+    video: undefined,
+    href: "/projects/gitpr-evaluation-env",
   },
 ];
 
@@ -79,6 +83,14 @@ type Project = (typeof PROJECTS)[number];
 
 /* ─── EXPO easing ─── */
 const EXPO = [0.19, 1, 0.22, 1] as const;
+
+/* ─── Save home scroll position before leaving ─── */
+// Uses a window property (in-memory) so it resets on hard reload,
+// consistent with the module-level loaderHasRun flag in LoaderScreen.
+function saveHomeScroll() {
+  (window as Window & { __rsd_restoreScrollY?: number }).__rsd_restoreScrollY =
+    window.scrollY;
+}
 
 /* ─── End Card ─── */
 function EndCard() {
@@ -146,24 +158,67 @@ interface CardProps {
 
 function ProjectCard({ project, onExpand }: CardProps) {
   const [hovered, setHovered] = useState(false);
+  const [clicked, setClicked]   = useState(false);
+  const imageRef = useRef<HTMLDivElement>(null);
+
+  // Mouse position relative to image (0–1 range)
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+
+  // Tilt springs — smooth, no lag
+  const rotateX = useSpring(useTransform(mouseY, [0, 1], [6, -6]),  { stiffness: 200, damping: 25 });
+  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-6, 6]),  { stiffness: 200, damping: 25 });
+
+  // Spotlight position (%)
+  const spotX = useSpring(useTransform(mouseX, [0, 1], [20, 80]), { stiffness: 200, damping: 25 });
+  const spotY = useSpring(useTransform(mouseY, [0, 1], [20, 80]), { stiffness: 200, damping: 25 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+    const rect = imageRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top)  / rect.height);
+  }, [mouseX, mouseY]);
+
+  const handleMouseLeave = useCallback(() => {
+    // Gently snap back to center
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+    setHovered(false);
+  }, [mouseX, mouseY]);
+
+  const handleClick = () => {
+    setClicked(true);
+    // Brief flash, then open overlay
+    setTimeout(() => {
+      setClicked(false);
+      onExpand(project.id);
+    }, 120);
+  };
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      onExpand(project.id);
+      handleClick();
     }
   };
 
   return (
-    <div
+    <motion.div
       role="button"
       tabIndex={0}
       data-card-id={project.id}
       aria-label={`View ${project.title} details`}
-      onClick={() => onExpand(project.id)}
+      onClick={handleClick}
       onKeyDown={handleKey}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={handleMouseLeave}
+      // Subtle whole-card press
+      whileTap={{ scale: 0.985, transition: { duration: 0.1, ease: "easeOut" } }}
+      animate={{
+        backgroundColor: clicked ? "rgba(0,0,0,0.03)" : "rgba(0,0,0,0)",
+      }}
+      transition={{ duration: 0.12 }}
       style={{
         position: "relative",
         flexShrink: 0,
@@ -173,31 +228,13 @@ function ProjectCard({ project, onExpand }: CardProps) {
         flexDirection: "row",
         alignItems: "center",
         cursor: "pointer",
-        border: hovered ? "1px solid var(--color-border)" : "1px solid transparent",
+        borderRight: "1.5px solid rgba(0,0,0,0.14)",
+        borderLeft: hovered ? "1.5px solid rgba(0,0,0,0.14)" : "1.5px solid transparent",
         transition: "border-color 0.4s ease",
         outline: "none",
+        paddingRight: "clamp(3rem, 5vw, 6rem)",
       }}
     >
-      {/* Index — top right */}
-      <span
-        className="f-display"
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: "var(--page-px)",
-          right: "var(--page-px)",
-          fontSize: "var(--text-2xl)",
-          fontWeight: 300,
-          opacity: 0.12,
-          color: "var(--color-text)",
-          userSelect: "none",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      >
-        {project.index}
-      </span>
-
       {/* ── Left column ── */}
       <div
         style={{
@@ -209,14 +246,15 @@ function ProjectCard({ project, onExpand }: CardProps) {
           gap: "clamp(1rem, 2vw, 2rem)",
         }}
       >
-        {/* Index + title */}
+        {/* Index above title */}
         <div>
           <p
-            className="f-display"
+            className="f-mono"
             style={{
               fontSize: "var(--text-2xs)",
-              opacity: 0.35,
-              marginBottom: "0.4rem",
+              letterSpacing: "0.2em",
+              opacity: 0.28,
+              marginBottom: "0.3rem",
               color: "var(--color-text)",
             }}
           >
@@ -267,7 +305,7 @@ function ProjectCard({ project, onExpand }: CardProps) {
         <Link
           href={project.href}
           className="f-mono"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); saveHomeScroll(); }}
           style={{
             fontSize: "var(--text-xs)",
             letterSpacing: "0.1em",
@@ -303,32 +341,69 @@ function ProjectCard({ project, onExpand }: CardProps) {
         </p>
       </div>
 
-      {/* ── Right column — image ── */}
+      {/* ── Right column — 3D tilt image ── */}
       <div
+        ref={imageRef}
+        onMouseMove={handleMouseMove}
         style={{
-          width: "52%",
-          height: "75dvh",
           marginLeft: "auto",
-          position: "relative",
-          borderRadius: "8px",
-          overflow: "hidden",
           flexShrink: 0,
+          maxWidth: "54%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          perspective: "800px",
         }}
       >
         <motion.div
-          style={{ width: "100%", height: "100%", position: "relative" }}
-          animate={{
-            scale: hovered ? 1.03 : 1,
-            filter: hovered ? "brightness(1.05)" : "brightness(1)",
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+            borderRadius: "10px",
+            overflow: "hidden",
+            position: "relative",
+            lineHeight: 0,
           }}
-          transition={{ duration: 0.6, ease: EXPO }}
+          animate={{
+            boxShadow: hovered
+              ? "0 16px 56px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.1)"
+              : "0 4px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)",
+            scale: clicked ? 0.97 : 1,
+          }}
+          transition={{ duration: 0.35, ease: EXPO }}
         >
-          <Image
+          {/* Cursor-following spotlight overlay */}
+          <motion.div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: "none",
+              borderRadius: "10px",
+              background: useTransform(
+                [spotX, spotY],
+                ([x, y]) =>
+                  `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.12) 0%, transparent 60%)`
+              ),
+              opacity: hovered ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          />
+
+          <img
             src={project.image}
             alt={project.title}
-            fill
-            style={{ objectFit: "cover" }}
-            sizes="(max-width: 768px) 92vw, 52vw"
+            draggable={false}
+            style={{
+              display: "block",
+              maxHeight: "70dvh",
+              width: "auto",
+              maxWidth: "100%",
+              objectFit: "contain",
+              userSelect: "none",
+            }}
           />
         </motion.div>
       </div>
@@ -343,7 +418,7 @@ function ProjectCard({ project, onExpand }: CardProps) {
           }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }
 
@@ -354,7 +429,28 @@ interface OverlayProps {
 }
 
 function ExpandedOverlay({ project, onClose }: OverlayProps) {
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  const lenis = useLenis();
+
+  /* Stop Lenis (and lock body) while overlay is open — start again on close.
+   * Lenis intercepts ALL wheel events at document level; overflow:hidden alone
+   * does nothing against it. lenis.stop() is the only reliable fix. */
+  useEffect(() => {
+    if (!project) return;
+    lenis?.stop();
+    document.body.style.overflow = "hidden"; // fallback for touch
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = "";
+    };
+  }, [project, lenis]);
 
   /* Escape key */
   useEffect(() => {
@@ -373,14 +469,18 @@ function ExpandedOverlay({ project, onClose }: OverlayProps) {
     }
   }, [project]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {project && (
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 z-40"
             style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9998,
               backdropFilter: "blur(12px)",
               backgroundColor: "rgba(245,244,240,0.7)",
             }}
@@ -397,8 +497,9 @@ function ExpandedOverlay({ project, onClose }: OverlayProps) {
             role="dialog"
             aria-modal="true"
             aria-label={`${project.title} project details`}
-            className="fixed z-50"
             style={{
+              position: "fixed",
+              zIndex: 9999,
               top: isMobile ? "2dvh" : "5dvh",
               left: isMobile ? "2vw" : "5vw",
               width: isMobile ? "96vw" : "90vw",
@@ -415,350 +516,288 @@ function ExpandedOverlay({ project, onClose }: OverlayProps) {
             exit={{ opacity: 0, scale: 0.94, y: 20 }}
             transition={{ duration: 0.55, ease: [0.19, 1, 0.22, 1] }}
           >
-            {/* Close button */}
-            <button
-              ref={closeRef}
-              onClick={onClose}
-              className="absolute f-mono"
-              style={{
-                top: "1.5rem",
-                right: "1.5rem",
-                zIndex: 10,
-                fontSize: "var(--text-2xs)",
-                letterSpacing: "0.16em",
-                opacity: 0.5,
-                minHeight: "44px",
-                minWidth: "44px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--color-text)",
-              }}
-              aria-label="Close project details"
-            >
-              ✕ close
-            </button>
-
-            {/* ── LEFT — scrollable text ── */}
-            <div
-              style={{
-                width: isMobile ? "100%" : "42%",
-                height: isMobile ? "65%" : "100%",
-                overflowY: "auto",
-                padding: "clamp(2rem, 4vw, 3.5rem)",
-                paddingTop: "clamp(3rem, 5vw, 4.5rem)",
-                borderRight: isMobile ? "none" : "1px solid var(--color-border)",
-                borderBottom: isMobile ? "1px solid var(--color-border)" : "none",
-                display: "flex",
-                flexDirection: "column",
-                gap: "clamp(1.5rem, 3vw, 2.5rem)",
-              }}
-            >
-              {/* Index + category */}
-              <p
-                className="f-mono"
+              <button
+                ref={closeRef}
+                onClick={onClose}
+                className="absolute f-mono"
                 style={{
+                  top: 0,
+                  right: 0,
+                  zIndex: 100,
                   fontSize: "var(--text-2xs)",
-                  letterSpacing: "0.18em",
-                  opacity: 0.35,
-                  color: "var(--color-text)",
-                }}
-              >
-                {project.index} / {project.category}
-              </p>
-
-              {/* Title */}
-              <h2
-                className="f-display"
-                style={{
-                  fontSize: "var(--text-xl)",
-                  fontWeight: 300,
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1.05,
-                  color: "var(--color-text)",
-                }}
-              >
-                {project.title}
-              </h2>
-
-              {/* Tagline */}
-              <p
-                className="f-accent"
-                style={{
-                  fontSize: "var(--text-md)",
-                  fontStyle: "italic",
-                  opacity: 0.6,
-                  color: "var(--color-text)",
-                }}
-              >
-                &ldquo;{project.tagline}&rdquo;
-              </p>
-
-              <div className="rule" />
-
-              {/* Problem */}
-              <div>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    letterSpacing: "0.16em",
-                    opacity: 0.35,
-                    textTransform: "uppercase",
-                    marginBottom: "0.6rem",
-                    color: "var(--color-text)",
-                  }}
-                >
-                  Problem
-                </p>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    opacity: 0.7,
-                    lineHeight: 1.7,
-                    color: "var(--color-text)",
-                  }}
-                >
-                  {project.problem}
-                </p>
-              </div>
-
-              {/* Objective */}
-              <div>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    letterSpacing: "0.16em",
-                    opacity: 0.35,
-                    textTransform: "uppercase",
-                    marginBottom: "0.6rem",
-                    color: "var(--color-text)",
-                  }}
-                >
-                  Objective
-                </p>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    opacity: 0.7,
-                    lineHeight: 1.7,
-                    color: "var(--color-text)",
-                  }}
-                >
-                  {project.objective}
-                </p>
-              </div>
-
-              {/* Stack */}
-              <div>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    letterSpacing: "0.16em",
-                    opacity: 0.35,
-                    textTransform: "uppercase",
-                    marginBottom: "0.8rem",
-                    color: "var(--color-text)",
-                  }}
-                >
-                  Stack
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                  {project.stack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="f-mono"
-                      style={{
-                        fontSize: "var(--text-2xs)",
-                        letterSpacing: "0.1em",
-                        padding: "4px 12px",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: "100px",
-                        opacity: 0.75,
-                        color: "var(--color-text)",
-                      }}
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Achievement */}
-              <div>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    letterSpacing: "0.16em",
-                    opacity: 0.35,
-                    textTransform: "uppercase",
-                    marginBottom: "0.6rem",
-                    color: "var(--color-text)",
-                  }}
-                >
-                  Achievement
-                </p>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-sm)",
-                    opacity: 0.7,
-                    lineHeight: 1.7,
-                    color: "var(--color-text)",
-                  }}
-                >
-                  {project.achievement}
-                </p>
-              </div>
-
-              <div className="rule" />
-
-              {/* Completion bar */}
-              <div style={{ marginTop: "auto", paddingBottom: "clamp(1.5rem, 3vw, 2.5rem)" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  <p
-                    className="f-mono"
-                    style={{
-                      fontSize: "var(--text-2xs)",
-                      letterSpacing: "0.14em",
-                      opacity: 0.35,
-                      textTransform: "uppercase",
-                      color: "var(--color-text)",
-                    }}
-                  >
-                    Completion
-                  </p>
-                  <p
-                    className="f-mono"
-                    style={{ fontSize: "var(--text-2xs)", opacity: 0.5, color: "var(--color-text)" }}
-                  >
-                    {project.completion}%
-                  </p>
-                </div>
-                <div
-                  style={{
-                    width: "100%",
-                    height: "1px",
-                    background: "var(--color-border)",
-                    position: "relative",
-                  }}
-                >
-                  <motion.div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      height: "1px",
-                      background: "var(--color-text)",
-                      transformOrigin: "left",
-                      width: "100%",
-                    }}
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: project.completion / 100 }}
-                    transition={{ duration: 1.1, ease: [0.19, 1, 0.22, 1], delay: 0.3 }}
-                  />
-                </div>
-                <p
-                  className="f-mono"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    opacity: 0.3,
-                    marginTop: "0.5rem",
-                    color: "var(--color-text)",
-                  }}
-                >
-                  {project.status}
-                </p>
-              </div>
-
-              {/* Full project link */}
-              <Link
-                href={project.href}
-                className="f-mono"
-                style={{
-                  fontSize: "var(--text-xs)",
-                  letterSpacing: "0.1em",
-                  opacity: 0.55,
-                  display: "inline-flex",
+                  letterSpacing: "0.16em",
+                  opacity: 0.5,
+                  padding: "1.5rem",
+                  minHeight: "64px",
+                  minWidth: "64px",
+                  display: "flex",
                   alignItems: "center",
-                  gap: "0.4rem",
-                  minHeight: "44px",
+                  justifyContent: "center",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
                   color: "var(--color-text)",
-                  textDecoration: "none",
-                  transition: "opacity 0.25s ease, gap 0.4s cubic-bezier(0.19,1,0.22,1)",
+                  pointerEvents: "auto",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.opacity = "1";
-                  (e.currentTarget as HTMLAnchorElement).style.gap = "0.8rem";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.opacity = "0.55";
-                  (e.currentTarget as HTMLAnchorElement).style.gap = "0.4rem";
-                }}
+                aria-label="Close project details"
               >
-                View full case study →
-              </Link>
-            </div>
+                ✕ close
+              </button>
 
-            {/* ── RIGHT — image + video ── */}
+            {/* ── LEFT — scrollable text with hairline progress ── */}
+            <OverlayTextPanel project={project} isMobile={isMobile} />
+
+            {/* ── RIGHT — image, natural fit ── */}
             <div
               style={{
                 flex: 1,
                 height: isMobile ? "35%" : "100%",
                 display: "flex",
-                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
                 overflow: "hidden",
+                padding: "clamp(1.5rem, 3vw, 2.5rem)",
+                borderLeft: isMobile ? "none" : "1px solid var(--color-border)",
+                borderTop: isMobile ? "1px solid var(--color-border)" : "none",
               }}
             >
-              {/* Video — top portion (hidden on mobile) */}
-              {!isMobile && (
-                <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-                  <video
-                    src={project.video}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-              )}
-
-              {/* Image */}
-              <div
+              <img
+                src={project.image}
+                alt={project.title}
                 style={{
-                  height: isMobile ? "100%" : "40%",
-                  position: "relative",
-                  borderTop: isMobile ? "none" : "1px solid var(--color-border)",
+                  display: "block",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                  boxShadow: "0 8px 48px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.07)",
                 }}
-              >
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  style={{ objectFit: "cover" }}
-                  sizes="(max-width: 768px) 96vw, 50vw"
-                />
-              </div>
+              />
             </div>
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
+  );
+}
+
+/* ── Scrollable text panel with hairline scroll-progress tracker ── */
+function OverlayTextPanel({ project, isMobile }: { project: Project; isMobile: boolean }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ container: panelRef });
+  const scaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const dotTop  = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  // Live percentage for the text label
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    const unsub = scrollYProgress.on("change", (v) => setPct(Math.round(v * 100)));
+    return unsub;
+  }, [scrollYProgress]);
+
+  // Smooth lerp scroll engine — same feel as Lenis but contained in the panel
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    let targetY  = panel.scrollTop;
+    let rafId: ReturnType<typeof requestAnimationFrame> | null = null;
+
+    const animate = () => {
+      const current = panel.scrollTop;
+      const delta   = targetY - current;
+      if (Math.abs(delta) < 0.5) {
+        panel.scrollTop = targetY;
+        rafId = null;
+        return;
+      }
+      panel.scrollTop += delta * 0.09; // lerp factor — matches Lenis feel
+      rafId = requestAnimationFrame(animate);
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      e.stopPropagation(); // keep Lenis away
+      e.preventDefault();  // no native jump — we drive scrollTop ourselves
+      const max  = panel.scrollHeight - panel.clientHeight;
+      targetY    = Math.max(0, Math.min(targetY + e.deltaY, max));
+      if (!rafId) rafId = requestAnimationFrame(animate);
+    };
+
+    panel.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      panel.removeEventListener("wheel", onWheel);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        width: isMobile ? "100%" : "42%",
+        height: isMobile ? "65%" : "100%",
+        display: "flex",
+        flexDirection: "row",
+        borderRight: isMobile ? "none" : "1px solid var(--color-border)",
+        borderBottom: isMobile ? "1px solid var(--color-border)" : "none",
+      }}
+    >
+      {/* ── Tracker column: percentage + dot + 1px line ── */}
+      <div
+        aria-hidden="true"
+        style={{
+          flexShrink: 0,
+          width: "clamp(2.5rem, 4vw, 3.5rem)",
+          marginTop: "clamp(3rem, 5vw, 4.5rem)",
+          marginRight: "16px",
+          marginBottom: "clamp(2rem, 4vw, 3.5rem)",
+          marginLeft: "clamp(1.5rem, 3vw, 2.5rem)",
+          position: "relative",
+        }}
+      >
+        {/* Ghost track — right edge */}
+        <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "1px", backgroundColor: "rgba(0,0,0,0.08)", borderRadius: "1px" }} />
+
+        {/* Progress fill */}
+        <motion.div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            width: "1px",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            scaleY,
+            transformOrigin: "top",
+            borderRadius: "1px",
+          }}
+        />
+
+        {/* Dot + percentage — travel together */}
+        <motion.div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: dotTop,
+            translateY: "-50%",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            pointerEvents: "none",
+          }}
+        >
+          {/* Percentage to the left of the line */}
+          <span
+            className="f-mono"
+            style={{
+              fontSize: "8px",
+              letterSpacing: "0.04em",
+              color: "rgba(0,0,0,0.4)",
+              lineHeight: 1,
+              minWidth: "24px",
+              textAlign: "right",
+              userSelect: "none",
+              flexShrink: 0,
+            }}
+          >
+            {pct}%
+          </span>
+
+          {/* Dot sitting on the line */}
+          <div
+            style={{
+              width: "5px",
+              height: "5px",
+              borderRadius: "50%",
+              backgroundColor: "rgba(0,0,0,0.5)",
+              flexShrink: 0,
+              marginRight: "-2px",
+            }}
+          />
+        </motion.div>
+      </div>
+
+      {/* ── Scrollable content ── */}
+      <div
+        ref={panelRef}
+        style={{
+          flex: 1,
+          overflowY: "scroll",
+          scrollbarWidth: "none" as const,
+          overscrollBehavior: "contain",
+          paddingRight: "clamp(2rem, 4vw, 3.5rem)",
+          paddingTop: "clamp(3rem, 5vw, 4.5rem)",
+          paddingBottom: "clamp(2rem, 4vw, 3.5rem)",
+          display: "flex",
+          flexDirection: "column" as const,
+          gap: "clamp(1.5rem, 3vw, 2.5rem)",
+        }}
+      >
+        {/* Hide webkit scrollbar */}
+        <style>{`
+          .overlay-scroll-panel::-webkit-scrollbar { display: none; }
+        `}</style>
+
+        <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.18em", opacity: 0.35, color: "var(--color-text)" }}>
+          {project.index} / {project.category}
+        </p>
+        <h2 className="f-display" style={{ fontSize: "var(--text-xl)", fontWeight: 300, letterSpacing: "-0.03em", lineHeight: 1.05, color: "var(--color-text)" }}>
+          {project.title}
+        </h2>
+        <p className="f-accent" style={{ fontSize: "var(--text-md)", fontStyle: "italic", opacity: 0.6, color: "var(--color-text)" }}>
+          &ldquo;{project.tagline}&rdquo;
+        </p>
+        <div className="rule" />
+        {[
+          { label: "Problem",   body: project.problem },
+          { label: "Objective", body: project.objective },
+        ].map(({ label, body }) => (
+          <div key={label}>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.16em", opacity: 0.35, textTransform: "uppercase", marginBottom: "0.6rem", color: "var(--color-text)" }}>{label}</p>
+            <p className="f-mono" style={{ fontSize: "var(--text-sm)", opacity: 0.7, lineHeight: 1.7, color: "var(--color-text)" }}>{body}</p>
+          </div>
+        ))}
+        <div>
+          <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.16em", opacity: 0.35, textTransform: "uppercase", marginBottom: "0.8rem", color: "var(--color-text)" }}>Stack</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            {project.stack.map((tech) => (
+              <span key={tech} className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.1em", padding: "4px 12px", border: "1px solid var(--color-border)", borderRadius: "100px", opacity: 0.75, color: "var(--color-text)" }}>{tech}</span>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.16em", opacity: 0.35, textTransform: "uppercase", marginBottom: "0.6rem", color: "var(--color-text)" }}>Achievement</p>
+          <p className="f-mono" style={{ fontSize: "var(--text-sm)", opacity: 0.7, lineHeight: 1.7, color: "var(--color-text)" }}>{project.achievement}</p>
+        </div>
+        <div className="rule" />
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.14em", opacity: 0.35, textTransform: "uppercase", color: "var(--color-text)" }}>Completion</p>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", opacity: 0.5, color: "var(--color-text)" }}>{project.completion}%</p>
+          </div>
+          <div style={{ width: "100%", height: "1px", background: "var(--color-border)", position: "relative" }}>
+            <motion.div
+              style={{ position: "absolute", top: 0, left: 0, height: "1px", background: "var(--color-text)", transformOrigin: "left", width: "100%" }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: project.completion / 100 }}
+              transition={{ duration: 1.1, ease: [0.19, 1, 0.22, 1], delay: 0.3 }}
+            />
+          </div>
+          <p className="f-mono" style={{ fontSize: "var(--text-2xs)", opacity: 0.3, marginTop: "0.5rem", color: "var(--color-text)" }}>{project.status}</p>
+        </div>
+        <Link
+          href={project.href} className="f-mono" onClick={saveHomeScroll}
+          style={{ fontSize: "var(--text-xs)", letterSpacing: "0.1em", opacity: 0.55, display: "inline-flex", alignItems: "center", gap: "0.4rem", minHeight: "44px", color: "var(--color-text)", textDecoration: "none", transition: "opacity 0.25s ease, gap 0.4s cubic-bezier(0.19,1,0.22,1)" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; (e.currentTarget as HTMLAnchorElement).style.gap = "0.8rem"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "0.55"; (e.currentTarget as HTMLAnchorElement).style.gap = "0.4rem"; }}
+        >
+          View full case study →
+        </Link>
+        <div style={{ height: "clamp(2rem, 4vw, 3rem)" }} />
+      </div>
+    </div>
   );
 }
 
@@ -770,7 +809,7 @@ export default function HorizontalProjectsSection() {
   const selectedProject = PROJECTS.find((p) => p.id === selectedId) ?? null;
   const [scrollRange, setScrollRange] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!trackRef.current) return;
     const updateMax = () => {
       if (trackRef.current) {
@@ -787,6 +826,19 @@ export default function HorizontalProjectsSection() {
       window.removeEventListener("resize", updateMax);
     };
   }, []);
+
+  // Track scroll continuously while on the home page.
+  // We don't use unmount because Next.js may reset scroll to 0 *before* unmount.
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        (window as Window & { __rsd_restoreScrollY?: number }).__rsd_restoreScrollY = window.scrollY;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -810,34 +862,17 @@ export default function HorizontalProjectsSection() {
         <div 
           className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
         >
-            {/* ── Section header bar (Only show if scrolled past Identity Statement maybe? Or keep static) ── */}
+            {/* ── Section header bar ── */}
             <div
               style={{
                 position: "absolute",
                 top: 0, left: 0, right: 0,
                 zIndex: 10,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
                 padding: "clamp(1.2rem, 3vw, 2rem) var(--page-px)",
                 borderBottom: "1px solid var(--color-border)",
                 pointerEvents: "none",
-                opacity: 0.35,
               }}
-            >
-              <p
-                className="f-mono uppercase"
-                style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.2em" }}
-              >
-                selected work
-              </p>
-              <p
-                className="f-mono uppercase"
-                style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.2em" }}
-              >
-                03 projects
-              </p>
-            </div>
+            />
 
             {/* ── Horizontal track ──────────────────────────────── */}
             <motion.div
@@ -849,8 +884,6 @@ export default function HorizontalProjectsSection() {
                 alignItems: "stretch",
                 height: "100%",
                 willChange: "transform",
-                // Remove paddingTop if we want IdentityStatement to be vertically centered properly, 
-                // but we can let IdentityStatement handle its own centering.
               }}
             >
               {/* ── 1. Identity Statement (Starts here now) ── */}
@@ -862,7 +895,7 @@ export default function HorizontalProjectsSection() {
               <div
                 style={{
                   flexShrink: 0,
-                  width: "clamp(280px, 40vw, 560px)",
+                  width: "50vw",
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
@@ -873,24 +906,42 @@ export default function HorizontalProjectsSection() {
                   paddingTop: "clamp(3.5rem, 6vw, 5rem)",
                 }}
               >
-                <p
-                  className="f-mono uppercase"
-                  style={{
-                    fontSize: "var(--text-2xs)",
-                    letterSpacing: "0.2em",
-                    opacity: 0.35,
-                    marginBottom: "clamp(1rem, 2vw, 1.5rem)",
+                <div 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "1rem", 
+                    marginBottom: "clamp(1.5rem, 3vw, 2rem)",
+                    opacity: 0.35 
                   }}
                 >
-                  featured
-                </p>
+                  <p
+                    className="f-mono uppercase"
+                    style={{
+                      fontSize: "var(--text-xs)",
+                      letterSpacing: "0.2em",
+                    }}
+                  >
+                    featured
+                  </p>
+                  <p
+                    className="f-mono uppercase"
+                    style={{
+                      fontSize: "var(--text-xs)",
+                      letterSpacing: "0.2em",
+                    }}
+                  >
+                    &middot; 03 projects
+                  </p>
+                </div>
+                
                 <h2
                   className="f-display"
                   style={{
-                    fontSize: "var(--text-3xl)",
+                    fontSize: "clamp(4.5rem, 8vw, 7rem)",
                     fontWeight: 300,
                     letterSpacing: "-0.04em",
-                    lineHeight: 1,
+                    lineHeight: 1.05,
                   }}
                 >
                   Selected<br />Work.
@@ -898,10 +949,10 @@ export default function HorizontalProjectsSection() {
                 <p
                   className="f-accent"
                   style={{
-                    fontSize: "var(--text-sm)",
+                    fontSize: "var(--text-lg)",
                     fontStyle: "italic",
                     opacity: 0.45,
-                    marginTop: "clamp(1rem, 2vw, 1.5rem)",
+                    marginTop: "clamp(1.5rem, 3vw, 2.5rem)",
                   }}
                 >
                   Scroll right to explore →

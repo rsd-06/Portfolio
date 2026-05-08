@@ -29,9 +29,14 @@ export default function MarqueeProjects({ projects }: { projects: Project[] }) {
             <Link
               key={`${project.slug}-${idx}`}
               href={`/projects/${project.slug}`}
-              className="flex items-center gap-4 opacity-100 transition-opacity duration-300 group-hover/marquee-section:opacity-35 hover:!opacity-100"
+              className="flex items-center gap-4 md:gap-6 opacity-100 transition-opacity duration-300 group-hover/marquee-section:opacity-35 hover:!opacity-100"
             >
-              <h2 className="font-display text-4xl md:text-6xl font-light">{project.title}</h2>
+              <div className="w-[80px] h-[50px] md:w-[120px] md:h-[70px] rounded-[8px] overflow-hidden shrink-0 relative bg-[var(--color-border)]">
+                {project.images && project.images.length > 0 && (
+                  <img src={project.images[0]} alt={project.title} className="w-full h-full object-cover" />
+                )}
+              </div>
+              <h2 className="f-display text-4xl md:text-6xl font-light">{project.title}</h2>
               <span className="font-mono text-xs opacity-50 mt-2 md:mt-4">·</span>
               <span className="font-mono text-xs opacity-50 uppercase tracking-widest mt-2 md:mt-4">{project.category}</span>
             </Link>
@@ -52,9 +57,14 @@ export default function MarqueeProjects({ projects }: { projects: Project[] }) {
             <Link
               key={`${project.slug}-${idx}`}
               href={`/projects/${project.slug}`}
-              className="flex items-center gap-4 opacity-100 transition-opacity duration-300 group-hover/marquee-section:opacity-35 hover:!opacity-100"
+              className="flex items-center gap-4 md:gap-6 opacity-100 transition-opacity duration-300 group-hover/marquee-section:opacity-35 hover:!opacity-100"
             >
-              <h2 className="font-display text-4xl md:text-6xl font-light">{project.title}</h2>
+              <div className="w-[80px] h-[50px] md:w-[120px] md:h-[70px] rounded-[8px] overflow-hidden shrink-0 relative bg-[var(--color-border)]">
+                {project.images && project.images.length > 0 && (
+                  <img src={project.images[0]} alt={project.title} className="w-full h-full object-cover" />
+                )}
+              </div>
+              <h2 className="f-display text-4xl md:text-6xl font-light">{project.title}</h2>
               <span className="font-mono text-xs opacity-50 mt-2 md:mt-4">·</span>
               <span className="font-mono text-xs opacity-50 uppercase tracking-widest mt-2 md:mt-4">{project.category}</span>
             </Link>

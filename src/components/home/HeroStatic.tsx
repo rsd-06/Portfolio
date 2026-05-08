@@ -43,16 +43,15 @@ export default function HeroStatic() {
           <div className="w-full h-[1px] bg-[var(--color-text-primary)] opacity-10" />
           
           <div className="flex flex-col gap-1 opacity-90">
-            <p>SkillSync &rarr; KCT Incubator</p>
-            <p>Meta PyTorch Hack &rarr; Finalist</p>
-            <p className="opacity-60 pt-1">31,000+ registrations</p>
+            <p>Electronics student.</p>
+            <p>Full-stack builder.</p>
+            <p>ML enthusiast.</p>
           </div>
           
           <div className="w-full h-[1px] bg-[var(--color-text-primary)] opacity-10" />
           
           <div className="flex flex-col gap-1 opacity-65">
-            <p>MERN Stack &middot; Next.js</p>
-            <p>Docker &middot; ML / AI</p>
+            <p>MERN Stack &middot; ML/AI</p>
           </div>
         </motion.div>
 
@@ -75,15 +74,14 @@ export default function HeroStatic() {
           style={{ y: rightLabelY }}
         >
           <div className="leading-tight">
-            <p>Builds things that shouldn't</p>
-            <p>exist yet. Breaks them.</p>
-            <p>Rebuilds them better.</p>
+            <p>Still figuring, building and learning things out,</p>
+            <p>one commit at a time.</p>
           </div>
           
           <div className="leading-tight">
             <p>Engineering student by morning.</p>
             <p>Developer by night.</p>
-            <p>Entrepreneur by necessity.</p>
+            {/* <p>Entrepreneur by necessity.</p> */}
           </div>
         </motion.div>
 

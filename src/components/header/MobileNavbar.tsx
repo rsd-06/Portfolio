@@ -21,7 +21,7 @@ export default function MobileNavbar() {
         { label: 'Home', ariaLabel: 'Go to home page', link: '/#prehero' },
         { label: 'Projects', ariaLabel: 'Go to projects page', link: '/projects' },
         { label: 'About', ariaLabel: 'Learn about me', link: '/about' },
-        { label: 'Resume', ariaLabel: 'View resume', link: '/resume' },
+        { label: 'Resume', ariaLabel: 'View resume', link: '/Sudharshan_R_Resume.pdf' },
         { label: 'Contact', ariaLabel: 'Get in touch', link: '/contact' }
     ];
 

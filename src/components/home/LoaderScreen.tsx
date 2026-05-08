@@ -2,49 +2,112 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useAssetLoader } from "@/hooks/useAssetLoader";
+import { useLenis } from "@/components/providers/LenisProvider";
 import Grainient from "@/components/Grainient";
 import CountUp from "@/components/CountUp";
+
+// Module-level flag — survives SPA (Link) navigation but resets on hard reload.
+// sessionStorage persists across reloads (wrong). localStorage persists forever (wrong).
+// A module variable is in JS memory: gone on reload, alive across route changes. ✓
+let loaderHasRun = false;
+
+// Extend window type for temporary scroll restoration flag
+type WindowWithScroll = Window & { __rsd_restoreScrollY?: number };
 
 export default function LoaderScreen() {
   const { progress, ready } = useAssetLoader({
     images: ["/assets/hero.jpg"],
     videos: [],
   });
+  const lenis = useLenis();
 
+  // `shouldShow` gates whether the loader markup is ever in the DOM.
+  // Starts as false (SSR-safe). Set to true ONLY on genuine first visits,
+  // synchronously via useLayoutEffect before the browser paints.
+  // On SPA return visits it stays false → zero DOM presence, zero flash.
+  const [shouldShow,  setShouldShow]  = useState(false);
   const [exitStarted, setExitStarted] = useState(false);
 
-  useEffect(() => {
-    document.body.classList.add("is-loading");
-    return () => document.body.classList.remove("is-loading");
-  }, []);
-
-  useEffect(() => {
-    if (ready) {
-      const timer = setTimeout(() => {
-        setExitStarted(true);
-      }, 400);
-      return () => clearTimeout(timer);
+  // ── 1. Synchronous check — runs before first paint ─────────────
+  useLayoutEffect(() => {
+    if (!loaderHasRun) {
+      // First visit or hard reload: show the loader and lock scroll.
+      setShouldShow(true);
+      document.body.classList.add("is-loading");
+      document.body.style.overflow = "hidden";
     }
-  }, [ready]);
+    // If loaderHasRun === true: SPA navigation back — shouldShow stays false,
+    // scroll restoration is handled by effect 4 via __rsd_restoreScrollY.
+
+    return () => {
+      document.body.classList.remove("is-loading");
+      document.body.style.overflow = "";
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // must be empty — runs once, synchronously, before first paint
+
+  // ── 2. Freeze Lenis while the loader is visible ────────────────
+  useEffect(() => {
+    if (!shouldShow) return;
+    if (lenis && !exitStarted) lenis.stop();
+  }, [lenis, exitStarted, shouldShow]);
+
+  // ── 3. Trigger exit once assets are ready ─────────────────────
+  useEffect(() => {
+    if (!shouldShow || !ready) return;
+    const t = setTimeout(() => setExitStarted(true), 400);
+    return () => clearTimeout(t);
+  }, [ready, shouldShow]);
+
+  // ── 4. Restore scroll on return visits once Lenis is ready ────
+  useEffect(() => {
+    if (!lenis) return;
+    const targetY = (window as WindowWithScroll).__rsd_restoreScrollY;
+    if (targetY === undefined) return;
+
+    delete (window as WindowWithScroll).__rsd_restoreScrollY;
+    const t = setTimeout(() => {
+      window.scrollTo(0, targetY);
+      lenis.scrollTo(targetY, { immediate: true });
+    }, 100);
+    return () => clearTimeout(t);
+  }, [lenis]);
+
+  // ── Called by AnimatePresence after exit animation completes ───
+  function handleExitComplete() {
+    loaderHasRun = true; // in-memory only — resets automatically on hard reload
+    document.body.classList.remove("is-loading");
+    document.body.style.overflow = "";
+
+    // Restore any scroll position saved before first-ever load (edge case)
+    const targetY = (window as WindowWithScroll).__rsd_restoreScrollY ?? 0;
+    delete (window as WindowWithScroll).__rsd_restoreScrollY;
+
+    window.scrollTo(0, targetY);
+    if (lenis) {
+      lenis.scrollTo(targetY, { immediate: true });
+      lenis.start();
+    }
+  }
 
   return (
-    <AnimatePresence onExitComplete={() => document.body.classList.remove("is-loading")}>
-      {!exitStarted && (
+    <AnimatePresence onExitComplete={handleExitComplete}>
+      {shouldShow && !exitStarted && (
         <motion.div
-          className="fixed inset-0 z-[999] flex flex-col justify-between p-6 md:p-12 pointer-events-none"
+          className="fixed inset-0 z-[999] flex flex-col justify-between p-6 md:p-12"
           initial={{ clipPath: "inset(0 0 0% 0)" }}
           exit={{ clipPath: "inset(0 0 100% 0)" }}
           transition={{ duration: 1, ease: [0.19, 1, 0.22, 1] }}
           aria-live="polite"
         >
-          {/* Base solid background to completely cover the site */}
+          {/* Base solid background */}
           <div className="absolute inset-0 bg-[#F5F4F0] -z-20" />
 
-          {/* Animated Gradient Behind Everything */}
+          {/* Animated Gradient */}
           <div className="absolute inset-0 -z-10">
-            <Grainient 
+            <Grainient
               color1="#FBF9F6"
               color2="#EDE9E2"
               color3="#B19EEF"
@@ -68,29 +131,20 @@ export default function LoaderScreen() {
               <span>Portfolio</span>
               <span>Building through SDE</span>
             </div>
-            
             <div className="hidden md:flex flex-col text-center">
               <span>Coimbatore</span>
               <span>India</span>
             </div>
-            
             <div className="flex flex-col text-right">
               <span>Loading</span>
               <div className="flex items-center justify-end font-bold">
-                <CountUp
-                  from={0}
-                  to={100}
-                  duration={1.2}
-                  direction="up"
-                  separator=""
-                  className=""
-                />
+                <CountUp from={0} to={100} duration={1.2} direction="up" separator="" className="" />
                 <span>%</span>
               </div>
             </div>
           </div>
-          
-          {/* Middle Bar */}
+
+          {/* Middle — rsd.exe letters */}
           <div className="w-full flex justify-center items-center overflow-hidden">
             <div className="flex">
               {"rsd.exe".split("").map((char, index) => (
@@ -111,14 +165,14 @@ export default function LoaderScreen() {
           <div className="w-full text-center pb-8 f-mono text-sm opacity-80 italic max-w-lg mx-auto">
             <p>
               Hallo, amigos<br />
-              I’m Sudharshan, a web developer and engineer.<br />
+              I'm Sudharshan, a web developer and engineer.<br />
               Welcome to my portfolio!
             </p>
           </div>
 
-          {/* Progress Bar Track */}
+          {/* Progress Bar */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-[#11111122]">
-            <div 
+            <div
               className="h-full bg-[#111111] transition-all duration-75"
               style={{ width: `${progress}%` }}
             />

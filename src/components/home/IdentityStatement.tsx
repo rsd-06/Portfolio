@@ -116,7 +116,7 @@ export default function IdentityStatement() {
         aria-hidden="true"
         className="absolute f-mono uppercase"
         style={{
-          top:           "clamp(1.5rem, 4vw, 2.5rem)",
+          top:           "clamp(5.5rem, 10vh, 7rem)",
           left:          "var(--page-px)",
           fontSize:      "var(--text-2xs)",
           letterSpacing: "0.2em",
@@ -154,7 +154,7 @@ export default function IdentityStatement() {
             whileInView="visible"
             viewport={vp}
           >
-            Currently figuring
+            Currently working
           </motion.div>
 
           <motion.div

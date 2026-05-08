@@ -14,7 +14,7 @@ interface menuItems {
 const menuItems: menuItems[] = [
     { label: "Projects,", href: "/projects" },
     { label: "About,", href: "/about" },
-    { label: "Resume", href: "/resume" },
+    { label: "Resume", href: "/Sudharshan_R_Resume.pdf" },
 ];
 
 export default function DesktopNavbar() {
@@ -40,7 +40,12 @@ export default function DesktopNavbar() {
                 <div className="pointer-events-auto">
                     <ul className="flex items-center gap-2 lg:gap-3 xl:gap-4 2xl:gap-5 ml-8 text-text-secondary font-mono font-semibold " >
                         {menuItems.map((item, index) => (
-                            <Link key={index} href={item.href} className={isActive(item.href) ? "text-text-primary" : ""}>
+                            <Link 
+                                key={index} 
+                                href={item.href} 
+                                className={isActive(item.href) ? "text-text-primary" : ""}
+                                {...(item.href.endsWith(".pdf") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                            >
                                 {item.label}
                             </Link>
                         ))}

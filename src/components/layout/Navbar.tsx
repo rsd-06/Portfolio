@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 // ── Rotating words data ────────────────────────────────────────
-const WORDS = ["SDE Aspirant.", "Student.", "Entrepreneur.", "Learner.", "Engineer."];
+const WORDS = ["SDE Aspirant.", "Developer.", "Learner.", "Engineer."]; // TODO: Add Entrepreneur. when I start something of my own.
 
 // ── Navbar component ───────────────────────────────────────────
 export default function Navbar() {
@@ -57,7 +57,7 @@ export default function Navbar() {
             { href: "/projects", label: "Projects" },
             { href: "/about",    label: "About" },
             { href: "/contact",  label: "Contact" },
-            { href: "/resume",   label: "Resume" },
+            { href: "/Sudharshan_R_Resume.pdf", label: "Resume" },
           ].map(({ href, label }) => (
             <motion.div
               key={href}
@@ -71,6 +71,7 @@ export default function Navbar() {
                 href={href}
                 className="nav-link flex flex-col items-center"
                 style={pathname === href ? { opacity: 1, fontWeight: 500 } : {}}
+                {...(href.endsWith(".pdf") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               >
                 <motion.span
                   variants={{ rest: { y: 0, scale: 1 }, hovered: { y: -6, scale: 1.12 } }}
@@ -162,7 +163,7 @@ export default function Navbar() {
               { href: "/projects", label: "Projects" },
               { href: "/about",    label: "About" },
               { href: "/contact",  label: "Contact" },
-              { href: "/resume",   label: "Resume" },
+              { href: "/Sudharshan_R_Resume.pdf", label: "Resume" },
             ].map(({ href, label }, i) => (
               <motion.div
                 key={href}
@@ -175,6 +176,7 @@ export default function Navbar() {
                   className="nav-mobile-link"
                   onClick={() => setMenuOpen(false)}
                   style={{ opacity: pathname === href ? 1 : 0.6, fontWeight: pathname === href ? 500 : 400 }}
+                  {...(href.endsWith(".pdf") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                 >
                   {label}
                 </Link>
