@@ -13,6 +13,7 @@ import Navbar           from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import GlobalSetup      from "@/components/providers/GlobalSetup";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 const cormorant = Cormorant_Garamond({
@@ -187,6 +188,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         
         {/* Vercel Speed Insights */}
         <SpeedInsights />
+        {/* Vercel Analytics */}
+        <Analytics />
       </body>
     </html>
   );
