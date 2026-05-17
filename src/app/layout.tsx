@@ -12,6 +12,7 @@ import GrainOverlay     from "@/components/ui/GrainOverlay";
 import Navbar           from "@/components/layout/Navbar";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import GlobalSetup      from "@/components/providers/GlobalSetup";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 const cormorant = Cormorant_Garamond({
@@ -183,6 +184,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* Cursor rendered last to ensure perfect mix-blend-mode calculation */}
           <CustomCursor />
         </LenisProvider>
+        
+        {/* Vercel Speed Insights */}
+        <SpeedInsights />
       </body>
     </html>
   );
