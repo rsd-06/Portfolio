@@ -166,8 +166,8 @@ function ProjectCard({ project, onExpand }: CardProps) {
   const mouseY = useMotionValue(0.5);
 
   // Tilt springs — smooth, no lag
-  const rotateX = useSpring(useTransform(mouseY, [0, 1], [6, -6]),  { stiffness: 200, damping: 25 });
-  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-6, 6]),  { stiffness: 200, damping: 25 });
+  const rotateX = useSpring(useTransform(mouseY, [0, 1], [2, -2]),  { stiffness: 200, damping: 25 });
+  const rotateY = useSpring(useTransform(mouseX, [0, 1], [-2, 2]),  { stiffness: 200, damping: 25 });
 
   // Spotlight position (%)
   const spotX = useSpring(useTransform(mouseX, [0, 1], [20, 80]), { stiffness: 200, damping: 25 });
