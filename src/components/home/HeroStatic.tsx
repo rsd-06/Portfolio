@@ -2,6 +2,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 
 export default function HeroStatic() {
   const { scrollY } = useScroll();
@@ -62,7 +63,14 @@ export default function HeroStatic() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.0, duration: 0.9, ease: [0.19, 1, 0.22, 1] }} // Starts after loader exit (1s)
         >
-          <img src="/hero.jpg" alt="Sudharshan R" className="hero-photo w-full h-full object-cover" />
+          <Image 
+            src="/hero.jpg" 
+            alt="Sudharshan R" 
+            fill 
+            priority
+            sizes="(max-width: 768px) 75vw, 38vw"
+            className="hero-photo object-cover" 
+          />
         </motion.div>
 
         {/* Right Side Cinematic Para */}

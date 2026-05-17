@@ -48,7 +48,7 @@ export default function AboutIdentity() {
                     className="relative w-[80vw] md:w-full max-w-[480px] aspect-[4/5] mx-auto md:mx-0 rounded-xl overflow-hidden shadow-2xl"
                 >
                     <Image
-                        src="/aboutImages/photo-1.jpg" // Placeholder
+                        src="/hero.jpg"
                         alt="Background glow"
                         fill
                         className="object-cover opacity-25 blur-[2px]"
@@ -56,9 +56,10 @@ export default function AboutIdentity() {
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="relative w-[85%] h-[85%] rounded-lg overflow-hidden shadow-2xl">
                             <Image
-                                src="/aboutImages/photo-1.jpg" // Placeholder
+                                src="/hero.jpg"
                                 alt="Sudharshan"
                                 fill
+                                priority
                                 className="object-cover"
                             />
                         </div>
