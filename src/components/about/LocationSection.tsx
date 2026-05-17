@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function LocationSection() {
     return (
@@ -14,12 +15,12 @@ export default function LocationSection() {
                         WebkitMaskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)"
                     }}
                 >
-                    <img 
+                    <Image 
                         src="/assets/aboutPageImages/coimbatoreNorthMap.svg"
                         alt="Map of Coimbatore" 
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover"
+                        fill
+                        priority
+                        className="object-cover"
                         style={{ transform: "translateZ(0)", willChange: "transform" }}
                     />
                 </div>

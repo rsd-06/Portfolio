@@ -95,12 +95,9 @@ export default function MacMonitorSection() {
     restDelta: 0.001,
   });
 
-  // Frame starts fading AFTER scale has already completed (scroll > 0.55)
-  const frameOpacity           = useTransform(scrollYProgress, [0.58, 0.80], [1, 0]);
   // PNG frame (notch) fades out EARLIER — before the scale is fully done.
   // This hides the notch/corners before the fullscreen video takes over.
   const imgOpacity             = useTransform(scrollYProgress, [0.46, 0.60], [1, 0]);
-  const fullscreenVideoOpacity = useTransform(scrollYProgress, [0.68, 0.88], [0, 1]);
   // Background NEVER goes dark until the fullscreen video is fully opaque
   // and there is zero reason to see the bg colour anymore
   const bgColor = useTransform(
@@ -114,17 +111,6 @@ export default function MacMonitorSection() {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     const vol = Math.min(1, latest / 0.60);
     if (videoRef.current) videoRef.current.volume = vol;
-    if (fullscreenVideoRef.current) fullscreenVideoRef.current.volume = vol;
-
-    // Keep fullscreen video in sync with in-mockup video for seamless crossfade
-    if (latest >= 0.58 && fullscreenVideoRef.current && videoRef.current) {
-      const diff = Math.abs(
-        fullscreenVideoRef.current.currentTime - videoRef.current.currentTime
-      );
-      if (diff > 0.15) {
-        fullscreenVideoRef.current.currentTime = videoRef.current.currentTime;
-      }
-    }
   });
 
   // ─── Derived device values (safe: defaults to MacBook on SSR) ───────────
@@ -157,7 +143,6 @@ export default function MacMonitorSection() {
             style={{
               scale: smoothScale,
               transformOrigin: "center center",
-              opacity: frameOpacity,
             }}
           >
             <div
@@ -208,7 +193,7 @@ export default function MacMonitorSection() {
                   zIndex: 10,
                   pointerEvents: "none",
                   userSelect: "none",
-                  // Opacity removed to ensure frame is always visible
+                  opacity: imgOpacity,
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -227,23 +212,7 @@ export default function MacMonitorSection() {
           </motion.div>
         </div>
 
-        {/* ── Fullscreen video handoff ─────────────────────────────────── */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{ opacity: fullscreenVideoOpacity, zIndex: 20 }}
-          aria-hidden="true"
-        >
-          <video
-            ref={fullscreenVideoRef}
-            src={VIDEO_SRC}
-            autoPlay
-            loop
-            playsInline
-            muted={false}
-            suppressHydrationWarning
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
+
 
         {/* ── Scroll hint ──────────────────────────────────────────────── */}
         <motion.div
