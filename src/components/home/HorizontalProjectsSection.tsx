@@ -862,17 +862,6 @@ export default function HorizontalProjectsSection() {
         <div 
           className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
         >
-            {/* ── Section header bar ── */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0, left: 0, right: 0,
-                zIndex: 10,
-                padding: "clamp(1.2rem, 3vw, 2rem) var(--page-px)",
-                borderBottom: "1px solid var(--color-border)",
-                pointerEvents: "none",
-              }}
-            />
 
             {/* ── Horizontal track ──────────────────────────────── */}
             <motion.div

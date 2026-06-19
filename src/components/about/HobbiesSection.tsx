@@ -7,6 +7,8 @@ import {
   useMotionValue,
   useSpring,
   AnimatePresence,
+  useTransform,
+  MotionValue,
 } from "framer-motion";
 import { useLenis } from "@/components/providers/LenisProvider";
 
@@ -154,14 +156,42 @@ const HOBBY_CARDS = [
 type Hobby = (typeof HOBBY_CARDS)[number];
 
 /* ─── End Card ─── */
-function EndHobbyCard() {
+function EndHobbyCard({ smoothNegX }: { smoothNegX: MotionValue<number> }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardCenter, setCardCenter] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(1000);
+
+  useEffect(() => {
+    const updateSize = () => {
+      setWindowWidth(window.innerWidth);
+      if (cardRef.current) {
+        setCardCenter(cardRef.current.offsetLeft + cardRef.current.offsetWidth / 2);
+      }
+    };
+    updateSize();
+    const t = setTimeout(updateSize, 100);
+    window.addEventListener("resize", updateSize);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", updateSize);
+    };
+  }, []);
+
+  const distance = useTransform(smoothNegX, (x) => (cardCenter + x) - (windowWidth / 2));
+  const normalizedDistance = useTransform(distance, (d) => windowWidth === 0 ? 0 : d / (windowWidth / 2));
+  const rotateZ = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [-10, -5, 0, 5, 10]);
+  const y = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [100, 30, 0, 30, 100]);
+  const scale = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [0.8, 0.9, 1, 0.9, 0.8]);
+
   return (
-    <div
+    <motion.div
+      ref={cardRef}
       style={{
+        y, rotateZ, scale,
         flexShrink: 0,
         width: "50vw",
-        height: "calc(100dvh - clamp(6rem, 12dvh, 8rem))",
-        maxHeight: "800px",
+        height: "calc(100dvh - clamp(10rem, 22dvh, 14rem))",
+        maxHeight: "650px",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -191,7 +221,7 @@ function EndHobbyCard() {
       >
         The list keeps growing.
       </p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -202,15 +232,43 @@ function HobbyCard({
   index,
   onActive,
   isMobile,
+  smoothNegX,
 }: {
   hobby: Hobby;
   isActive: boolean;
   index: number;
   onActive: (id: string) => void;
   isMobile: boolean;
+  smoothNegX: MotionValue<number>;
 }) {
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const [cardCenter, setCardCenter] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(1000);
+
+  useEffect(() => {
+    const updateSize = () => {
+      setWindowWidth(window.innerWidth);
+      if (cardRef.current) {
+        setCardCenter(cardRef.current.offsetLeft + cardRef.current.offsetWidth / 2);
+      }
+    };
+    updateSize();
+    const t = setTimeout(updateSize, 100);
+    window.addEventListener("resize", updateSize);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", updateSize);
+    };
+  }, []);
+
+  const distance = useTransform(smoothNegX, (x) => (cardCenter + x) - (windowWidth / 2));
+  const normalizedDistance = useTransform(distance, (d) => windowWidth === 0 ? 0 : d / (windowWidth / 2));
+  
+  const rotateZ = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [-12, -6, 0, 6, 12]);
+  const y = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [120, 30, 0, 30, 120]);
+  const scale = useTransform(normalizedDistance, [-2, -1, 0, 1, 2], [0.85, 0.95, 1, 0.95, 0.85]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -237,96 +295,39 @@ function HobbyCard({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
+        y, rotateZ, scale,
         flexShrink: 0,
         width: isMobile ? "88vw" : "clamp(360px, 42vw, 500px)",
-        height: "calc(100dvh - clamp(6rem, 12dvh, 8rem))",
-        maxHeight: "800px",
-        border: hovered
-          ? "1px solid color-mix(in srgb, var(--color-text) 25%, transparent)"
-          : "1px solid var(--color-border)",
-        backgroundColor: hovered
-          ? "color-mix(in srgb, var(--color-text) 2%, transparent)"
-          : "transparent",
-        borderRadius: "clamp(12px, 2vw, 20px)",
-        padding: "clamp(1.25rem, 2.5vw, 2rem)",
+        height: "calc(100dvh - clamp(10rem, 22dvh, 14rem))",
+        maxHeight: "650px",
+        background: "color-mix(in srgb, var(--color-text) 3%, transparent)",
+        boxShadow: hovered 
+          ? "0 30px 60px -15px color-mix(in srgb, var(--color-text) 10%, transparent)" 
+          : "0 10px 30px -10px color-mix(in srgb, var(--color-text) 5%, transparent)",
+        border: "1px solid color-mix(in srgb, var(--color-text) 5%, transparent)",
+        borderRadius: "clamp(16px, 2vw, 24px)",
+        padding: "clamp(1rem, 2vw, 1.5rem)",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.4s ease",
+        transition: "box-shadow 0.4s ease",
         position: "relative",
+        overflow: "hidden",
       }}
     >
-      {/* Active Indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "clamp(0.4rem, 1vw, 0.8rem)",
-          left: "50%",
-          transform: "translateX(-50%)",
-        }}
-      >
-        <motion.div
-          animate={{ opacity: isActive ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            width: "4px",
-            height: "4px",
-            borderRadius: "50%",
-            backgroundColor: "var(--color-text)",
-            opacity: 0.5,
-          }}
-        />
-      </div>
-
-      {/* Top Row */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: "1rem",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
-          <span style={{ fontSize: "1.2rem" }}>{hobby.emoji}</span>
-          <div
-            className="f-mono"
-            style={{
-              fontSize: "var(--text-2xs)",
-              opacity: 0.5,
-              marginTop: "0.2rem",
-              color: "var(--color-text)",
-            }}
-          >
-            {hobby.tag.split("\n").map((line, i) => (
-              <div key={i}>{line}</div>
-            ))}
-          </div>
-        </div>
-        {hobby.icon && (
-          <Image
-            src={hobby.icon}
-            alt="icon"
-            width={28}
-            height={28}
-            style={{ opacity: 0.5 }}
-          />
-        )}
-      </div>
-
-      {/* Title Image */}
+      {/* Title Image edge to edge inside the padding, rounded */}
       <div
         style={{
           position: "relative",
           width: "100%",
-          height: isMobile ? "40%" : "45%",
+          height: "55%", 
           borderRadius: "12px",
           overflow: "hidden",
           marginBottom: "1.5rem",
         }}
       >
         <motion.div
-          animate={{ scale: hovered ? 1.03 : 1 }}
-          transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
+          animate={{ scale: hovered ? 1.05 : 1 }}
+          transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
           style={{ width: "100%", height: "100%" }}
         >
           <Image
@@ -337,110 +338,72 @@ function HobbyCard({
             sizes="(max-width: 768px) 88vw, 42vw"
           />
         </motion.div>
+
+        {/* Floating Emoji/Icon */}
+        <div style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          background: "color-mix(in srgb, var(--color-bg) 70%, transparent)",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          padding: "0.5rem",
+          borderRadius: "50%",
+          display: "flex",
+          border: "1px solid color-mix(in srgb, var(--color-text) 10%, transparent)"
+        }}>
+           {hobby.icon ? <Image src={hobby.icon} alt="icon" width={20} height={20} style={{ filter: "brightness(0) invert(1)" }} /> : <span style={{ fontSize: "1.2rem", lineHeight: 1 }}>{hobby.emoji}</span>}
+        </div>
       </div>
 
-      {/* Title */}
-      <h3
-        className="f-display"
-        style={{
-          fontSize: "var(--text-xl)",
-          fontWeight: 300,
-          color: "var(--color-text)",
-          marginBottom: "0.5rem",
-        }}
-      >
-        {hobby.title}
-      </h3>
+      {/* Text Content */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+        <h3
+          className="f-display"
+          style={{
+            fontSize: "var(--text-2xl)",
+            fontWeight: 400,
+            color: "var(--color-text)",
+            marginBottom: "0.5rem",
+            letterSpacing: "-0.02em"
+          }}
+        >
+          {hobby.title}
+        </h3>
 
-      {/* Description */}
-      <p
-        className="f-mono"
-        style={{
-          fontSize: "var(--text-xs)",
-          opacity: 0.55,
-          lineHeight: 1.6,
-          display: "-webkit-box",
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-          color: "var(--color-text)",
-        }}
-      >
-        {hobby.description}
-      </p>
+        <p
+          className="f-mono"
+          style={{
+            fontSize: "var(--text-sm)",
+            opacity: 0.6,
+            lineHeight: 1.5,
+            color: "var(--color-text)",
+            marginBottom: "1.5rem",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
+          {hobby.description}
+        </p>
 
-      {/* Bottom Section */}
-      <div style={{ marginTop: "auto" }}>
-        {hobby.smallImages.length > 0 && (
-          <div
-            className="small-images-row"
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              marginBottom: "1rem",
-              alignItems: hobby.id === "music" ? "flex-end" : "stretch",
-            }}
-          >
-            {hobby.smallImages.map((src, i) => {
-              const isPhoto = hobby.id === "photography";
-              const isGuitar = hobby.id === "guitar";
-              const isMusicWrap = src.includes("wrap");
-
-              return (
-                <div
-                  key={i}
-                  className="small-image-wrapper"
-                  style={{
-                    position: "relative",
-                    height: isMobile
-                      ? "60px"
-                      : isMusicWrap
-                      ? "100px"
-                      : "80px",
-                    flex: isPhoto ? 1 : isGuitar ? 1 : isMusicWrap ? "none" : 1,
-                    width: isMusicWrap ? "65px" : "auto",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
-                  }}
-                >
-                  <Image
-                    src={src}
-                    alt={`${hobby.title} - personal photo ${i + 1}`}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    sizes="150px"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {hobby.link && (
-          <a
-            href={hobby.link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="f-mono"
-            aria-label={`Follow on ${hobby.link.label} - opens in new tab`}
-            style={{
-              fontSize: "var(--text-2xs)",
-              opacity: 0.45,
-              textDecoration: "none",
-              color: "var(--color-text)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.25rem",
-              transition: "opacity 0.2s ease",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.45")}
-          >
-            ↗ {hobby.link.label}
-          </a>
-        )}
+        {/* Bottom Metadata & Small Images */}
+        <div style={{ marginTop: "auto", display: "flex", justifySelf: "flex-end", justifyContent: "space-between", alignItems: "flex-end" }}>
+           <div className="f-mono" style={{ fontSize: "var(--text-2xs)", opacity: 0.4, textTransform: "uppercase", letterSpacing: "0.05em", flex: 1 }}>
+             {hobby.tag.split("\n")[0]}
+           </div>
+           
+           {hobby.smallImages.length > 0 && (
+             <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
+                {hobby.smallImages.map((src, i) => (
+                  <div key={i} style={{ position: "relative", width: "40px", height: "40px", borderRadius: "8px", overflow: "hidden" }}>
+                    <Image src={src} alt="img" fill style={{ objectFit: "cover" }} />
+                  </div>
+                ))}
+             </div>
+           )}
+        </div>
       </div>
     </motion.div>
   );
@@ -751,11 +714,11 @@ export default function HobbiesSection() {
         }
       `}</style>
       <div className="sticky top-0 w-full" style={{ height: "100dvh" }}>
-        {/* Header bar */}
+        {/* Header */}
         <div
           style={{
             position: "absolute",
-            top: 0,
+            top: "clamp(4rem, 8vh, 6rem)",
             left: 0,
             right: 0,
             zIndex: 10,
@@ -763,8 +726,7 @@ export default function HobbiesSection() {
             justifyContent: "space-between",
             alignItems: "flex-start",
             padding: "clamp(1.2rem, 3vw, 2rem) var(--page-px)",
-            borderBottom: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg)",
+            pointerEvents: "none",
           }}
         >
           <div>
@@ -819,7 +781,8 @@ export default function HobbiesSection() {
             alignItems: "center",
             height: "100%",
             willChange: "transform",
-            paddingTop: "clamp(4rem, 8vh, 6rem)",
+            paddingTop: "clamp(5rem, 12vh, 8rem)",
+            paddingBottom: "clamp(2rem, 4vh, 4rem)",
             paddingLeft: "var(--page-px)",
             paddingRight: "50vw",
             gap: "clamp(1rem, 3vw, 2rem)",
@@ -833,9 +796,10 @@ export default function HobbiesSection() {
               index={index}
               onActive={setActiveCardId}
               isMobile={isMobile}
+              smoothNegX={smoothNegX}
             />
           ))}
-          <EndHobbyCard />
+          <EndHobbyCard smoothNegX={smoothNegX} />
         </motion.div>
 
         {/* Progress bar */}

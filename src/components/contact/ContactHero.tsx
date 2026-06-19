@@ -15,13 +15,12 @@ const EASE = [0.19, 1, 0.22, 1] as const;
 export default function ContactHero() {
   return (
     <section
-      className="flex flex-col"
+      className="flex flex-col pb-12 md:pb-6"
       style={{
         height: "100%",
         paddingTop: "var(--nav-h, 5rem)",
         paddingLeft: "var(--page-px)",
         paddingRight: "var(--page-px)",
-        paddingBottom: "1.25rem",
       }}
       aria-label="Contact section"
     >
@@ -67,16 +66,15 @@ export default function ContactHero() {
 
       {/* ── TWO-COLUMN MAIN — flex-1 ── */}
       <div
-        className="flex flex-row flex-1"
+        className="flex flex-col md:flex-row flex-1"
         style={{ minHeight: 0, gap: "var(--page-px)" }}
       >
 
         {/* LEFT column — Nice to meet you (top) + vision/availability (bottom) */}
         <div
-          className="flex flex-col flex-1 justify-between"
+          className="flex flex-col flex-1 justify-between pb-[clamp(100px,20vh,160px)] md:pb-6 lg:pb-8"
           style={{
             paddingTop: "clamp(1.5rem, 3vh, 2.5rem)",
-            paddingBottom: "clamp(0.75rem, 2vh, 1.5rem)",
           }}
         >
           {/* "Nice to meet you" — pinned to top of left col */}
@@ -132,9 +130,9 @@ export default function ContactHero() {
               animate={{ opacity: 0.4, y: 0 }}
               transition={{ duration: 0.75, ease: EASE, delay: 0.5 }}
             >
-              Open to meaningful collaborations —<br />
-              internships, research projects,<br />
-              and building things worth building.
+              Open to meaningful collaborations;<br />
+              Internships, Research Projects<br />
+              and Building Things Worth Building.
             </motion.p>
 
           </div>
@@ -142,7 +140,7 @@ export default function ContactHero() {
 
         {/* RIGHT column — Let's Talk vertically centred */}
         <div
-          className="flex items-center justify-end"
+          className="flex items-center justify-end md:pr-16 lg:pr-32 xl:pr-48 pb-6 md:pb-0"
           style={{ flexShrink: 0 }}
         >
           <motion.div

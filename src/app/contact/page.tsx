@@ -9,9 +9,9 @@ import ContactHero from "@/components/contact/ContactHero";
 
 const SOCIALS = [
   { label: "LinkedIn",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/", iconSrc: "/assets/socialMediaIcons/linkedin_icon.png" },
+  { label: "GitHub",    href: "https://github.com/rsd-06",                           iconSrc: "/assets/socialMediaIcons/github_icon.png" },
   { label: "Instagram", href: "https://www.instagram.com/rsd_exe/",                  iconSrc: "/assets/socialMediaIcons/instagram_icon.png" },
   { label: "Threads",   href: "https://www.threads.com/@rsd_exe",                    iconSrc: "/assets/socialMediaIcons/threads_icon.png" },
-  { label: "GitHub",    href: "https://github.com/rsd-06",                           iconSrc: "/assets/socialMediaIcons/github_icon.png" },
   { label: "Twitter",   href: "https://x.com/rsd_2006",                              iconSrc: "/assets/socialMediaIcons/twitter_icon.png" },
 ];
 
@@ -51,7 +51,7 @@ export default function ContactPage() {
           flexShrink: 0,
         }}
       >
-        <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Social media links">
+        <nav className="flex flex-row justify-between md:justify-start gap-x-4 sm:gap-x-6 gap-y-2" aria-label="Social media links">
           {SOCIALS.map(({ label, href, iconSrc }) => (
             <a
               key={label}
@@ -83,7 +83,7 @@ export default function ContactPage() {
                 height="16" 
                 style={{ flexShrink: 0, objectFit: "contain", display: "block" }} 
               />
-              {label}
+              <span className="hidden md:inline">{label}</span>
             </a>
           ))}
         </nav>

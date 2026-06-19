@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 
 const CAROUSEL_ITEMS = [
     {
@@ -24,7 +25,7 @@ const CAROUSEL_ITEMS = [
                     {["Machine Learning", "System Design", "Agentic AI", "Optimization"].map(skill => (
                         <span
                             key={skill}
-                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-2xs tracking-wide"
+                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-[0.75rem] tracking-wide"
                         >
                             {skill}
                         </span>
@@ -59,7 +60,7 @@ const CAROUSEL_ITEMS = [
                     {["Data Structures", "Algorithms", "Operating Systems", "Networks", "System Design"].map(fw => (
                         <span
                             key={fw}
-                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-2xs tracking-wide"
+                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-[0.75rem] tracking-wide"
                         >
                             {fw}
                         </span>
@@ -74,6 +75,7 @@ const SWIPE_CONFIDENCE_THRESHOLD = 50;
 
 export default function ContentCarousel() {
     const [[page, direction], setPage] = useState([0, 0]);
+    const [isPaused, setIsPaused] = useState(false);
 
     const activeIndex = Math.abs(page % CAROUSEL_ITEMS.length);
 
@@ -82,12 +84,13 @@ export default function ContentCarousel() {
     }, [page]);
 
     useEffect(() => {
+        if (isPaused) return;
         const timer = setInterval(() => {
             paginate(1);
         }, 5000);
 
         return () => clearInterval(timer);
-    }, [paginate]);
+    }, [paginate, isPaused]);
 
     const variants = {
         enter: (direction: number) => ({
@@ -119,8 +122,17 @@ export default function ContentCarousel() {
     };
 
     return (
-        <section className="w-full min-h-[70vh] py-20 flex flex-col justify-center px-[var(--page-px)] bg-base-bg overflow-hidden relative">
-            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative mt-20">
+        <section className="w-full min-h-screen py-24 flex flex-col justify-center px-[var(--page-px)] bg-base-bg overflow-hidden relative">
+            <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.35 }}
+                viewport={{ once: true }}
+                className="absolute top-16 md:top-24 left-[var(--page-px)] f-mono text-2xs tracking-widest uppercase"
+            >
+                current focus
+            </motion.div>
+
+            <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative mb-16 lg:mb-32">
                 <AnimatePresence initial={false} custom={direction} mode="wait">
                     <motion.div
                         key={page}
@@ -151,29 +163,39 @@ export default function ContentCarousel() {
                         </div>
 
                         {/* Content Section */}
-                        <div className="lg:w-2/3 w-full f-display text-[clamp(1.125rem,2vw,1.5rem)] text-text-muted">
+                        <div className="lg:w-2/3 w-full f-display text-[clamp(1.5rem,3vw,2.5rem)] leading-tight text-text-muted">
                             {CAROUSEL_ITEMS[activeIndex].content}
                         </div>
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Indicators */}
-                <div className="flex justify-center gap-3 mt-16 md:mt-24">
-                    {CAROUSEL_ITEMS.map((_, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => {
-                                const newDirection = idx > activeIndex ? 1 : -1;
-                                setPage([page + (idx - activeIndex), newDirection]);
-                            }}
-                            className={`h-[1.5px] rounded-full transition-all duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] ${
-                                idx === activeIndex 
-                                ? "w-[28px] bg-text-primary" 
-                                : "w-[6px] bg-border-subtle hover:bg-text-secondary/60"
-                            }`}
-                            aria-label={`Go to slide ${idx + 1}`}
-                        />
-                    ))}
+                {/* Controls */}
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20">
+                    <div className="flex items-center gap-6 px-6 py-2.5 rounded-full border border-border-subtle bg-base-surface/80 backdrop-blur-md shadow-sm">
+                        <button 
+                            onClick={() => paginate(-1)}
+                            className="text-text-secondary hover:text-text-primary transition-colors p-1"
+                            aria-label="Previous slide"
+                        >
+                            <ChevronLeft size={18} strokeWidth={2} />
+                        </button>
+                        
+                        <button 
+                            onClick={() => setIsPaused(!isPaused)}
+                            className="text-text-secondary hover:text-text-primary transition-colors p-1 flex items-center justify-center w-[18px] h-[18px]"
+                            aria-label={isPaused ? "Play carousel" : "Pause carousel"}
+                        >
+                            {isPaused ? <Play size={14} strokeWidth={2} className="ml-0.5" /> : <Pause size={14} strokeWidth={2} />}
+                        </button>
+
+                        <button 
+                            onClick={() => paginate(1)}
+                            className="text-text-secondary hover:text-text-primary transition-colors p-1"
+                            aria-label="Next slide"
+                        >
+                            <ChevronRight size={18} strokeWidth={2} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>

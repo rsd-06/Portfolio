@@ -29,7 +29,7 @@ export default function ContactReveal() {
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <div style={{ position: "relative", minWidth: "clamp(220px, 30vw, 340px)" }}>
+    <div style={{ position: "relative", minWidth: "clamp(220px, 30vw, 340px)", height: "44px" }}>
       <AnimatePresence mode="wait">
 
         {/* ── Button (default state) ── */}
@@ -39,10 +39,13 @@ export default function ContactReveal() {
             onClick={() => setRevealed(true)}
             className="f-mono"
             style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
               display: "flex",
               alignItems: "center",
               gap: "0.65rem",
-              fontSize: "var(--text-md)",
+              fontSize: "clamp(1.1rem, 2vw, 1.5rem)",
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "var(--color-text-inv)",
@@ -89,7 +92,10 @@ export default function ContactReveal() {
               padding: "clamp(1.5rem, 3vw, 2rem)",
               backgroundColor: "rgba(245,244,240,0.04)",
               backdropFilter: "blur(8px)",
-              position: "relative",
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              zIndex: 40,
               minWidth: "clamp(220px, 28vw, 320px)",
             }}
           >
@@ -99,12 +105,12 @@ export default function ContactReveal() {
               className="f-mono"
               style={{
                 position: "absolute",
-                top: "0.75rem",
-                right: "0.75rem",
+                top: "0.25rem",
+                right: "0.25rem",
                 fontSize: "var(--text-2xs)",
                 opacity: 0.35,
-                minHeight: "32px",
-                minWidth: "32px",
+                minHeight: "48px",
+                minWidth: "48px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -113,6 +119,7 @@ export default function ContactReveal() {
                 background: "none",
                 border: "none",
                 color: "var(--color-text-inv)",
+                zIndex: 50,
               }}
               onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
               onMouseLeave={e => (e.currentTarget.style.opacity = "0.35")}

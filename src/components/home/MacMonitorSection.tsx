@@ -213,15 +213,6 @@ export default function MacMonitorSection() {
         </div>
 
 
-
-        {/* ── Scroll hint ──────────────────────────────────────────────── */}
-        <motion.div
-          className="scroll-hint absolute bottom-8 left-1/2 -translate-x-1/2"
-          style={{ opacity: scrollHintOpacity, zIndex: 30 }}
-          aria-hidden="true"
-        >
-          scroll ↓
-        </motion.div>
       </motion.div>
     </section>
   );
