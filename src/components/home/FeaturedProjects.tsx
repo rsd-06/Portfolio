@@ -11,68 +11,25 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-/* ─── Project Data ─── */
-const PROJECTS = [
-  {
-    id: "skillsync",
-    index: "01",
-    title: "SkillSync",
-    category: "Full Stack · Platform",
-    year: "2025",
-    tagline: "Where engineers find their people.",
-    problem:
-      "Engineering students lack a structured way to find collaborators who complement their skill gaps. Existing platforms are either too social or too professional — nothing sits in between.",
-    objective:
-      "Build a skill-based collaboration platform for engineering students — with smart matching, team workspaces, and a reputation system that rewards contribution.",
-    stack: ["Next.js", "Express", "MongoDB", "Zustand", "Tailwind CSS", "JWT", "Vercel", "Render"],
-    achievement:
-      "Pitched to KCT College Incubator. Prototype live with full feature set including idea feed, skill matching engine, task management, and reputation scores.",
-    status: "Incubator pitch stage",
-    completion: 72,
-    image: "/assets/projects/skillsync.jpg",
-    video: "/assets/projects/skillsync.mp4",
-    href: "/projects/skillsync",
-  },
-  {
-    id: "dengue",
-    index: "02",
-    title: "Dengue Prediction",
-    category: "AI · Full Stack",
-    year: "2024",
-    tagline: "Predicting outbreaks before they spread.",
-    problem:
-      "Dengue outbreak data in Indian Tier-2 cities is reactive — health systems respond after spikes, not before. No district-level predictive tooling exists for early intervention.",
-    objective:
-      "Build an AI web platform that predicts dengue outbreak risk at district level across Indian Tier-2 cities, with an interactive hotspot map for health officials.",
-    stack: ["React.js", "Flask", "Random Forest", "Leaflet.js", "Python", "scikit-learn"],
-    achievement:
-      "Six-member team project under faculty mentorship. District-level prediction with visual hotspot map. Formal project report published.",
-    status: "Completed",
-    completion: 100,
-    image: "/assets/projects/dengue.jpg",
-    video: "/assets/projects/dengue.mp4",
-    href: "/projects/dengue-prediction",
-  },
-  {
-    id: "portfolio",
-    index: "03",
-    title: "rsd.exe",
-    category: "Design · Frontend",
-    year: "2025",
-    tagline: "A portfolio that doesn't look like one.",
-    problem:
-      "Most student portfolios look identical — hero image, skills list, project cards, contact form. The work gets lost in the template.",
-    objective:
-      "Design and build a personal portfolio that reflects personality and craft. Every section, animation, and interaction should feel intentional.",
-    stack: ["Next.js 16", "Tailwind v4", "Framer Motion", "Lenis", "TypeScript"],
-    achievement: "This site. End-to-end — concept, design system, development.",
-    status: "Ongoing",
-    completion: 85,
-    image: "/assets/projects/portfolio.jpg",
-    video: "/assets/projects/portfolio.mp4",
-    href: "/projects/portfolio",
-  },
-];
+import { PROJECTS as ALL_PROJECTS } from "@/data/projects";
+
+const PROJECTS = ALL_PROJECTS.filter(p => p.featured).map((p) => ({
+  id: p.slug,
+  index: p.index,
+  title: p.title,
+  category: p.category,
+  year: p.year,
+  tagline: p.tagline,
+  problem: p.problem,
+  objective: p.objective,
+  stack: p.techStack.flatMap(ts => ts.items).slice(0, 8),
+  achievement: p.achievement,
+  status: p.status,
+  completion: p.completion,
+  image: p.images[0],
+  video: p.video,
+  href: `/projects/${p.slug}`,
+}));
 
 type Project = (typeof PROJECTS)[number];
 

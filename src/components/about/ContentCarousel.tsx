@@ -7,25 +7,14 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 const CAROUSEL_ITEMS = [
     {
         id: "01",
-        title: "01 — How I Build",
-        content: (
-            <div className="flex flex-col gap-6 w-full">
-                <p>I build for clarity. I build for performance. I build with intention.</p>
-                <p className="text-text-primary">React. Next.js. TypeScript. Tailwind. Motion.<br />Node. APIs. Databases. Systems that make sense.</p>
-                <p>Not just code that runs — but systems that hold.</p>
-            </div>
-        )
-    },
-    {
-        id: "02",
-        title: "02 — What I’m Exploring",
+        title: "01 — What I’m Exploring",
         content: (
             <div className="flex flex-col gap-6 w-full">
                 <div className="flex flex-wrap gap-3">
-                    {["Machine Learning", "System Design", "Agentic AI", "Optimization"].map(skill => (
+                    {["Machine Learning", "System Design", "Full-Stack", "Optimization"].map(skill => (
                         <span
                             key={skill}
-                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-[0.75rem] tracking-wide"
+                            className="px-6 py-2.5 rounded-full border border-[color-mix(in_srgb,var(--color-text)_15%,transparent)] text-text-primary f-mono text-[0.95rem] tracking-wide"
                         >
                             {skill}
                         </span>
@@ -38,8 +27,8 @@ const CAROUSEL_ITEMS = [
         )
     },
     {
-        id: "03",
-        title: "03 — Engineering Philosophy",
+        id: "02",
+        title: "02 — Engineering Philosophy",
         content: (
             <div className="flex flex-col gap-6 w-full">
                 <p>Clean architecture over clever hacks. Readable code over ego code. Understanding over memorizing.</p>
@@ -51,21 +40,32 @@ const CAROUSEL_ITEMS = [
         )
     },
     {
-        id: "04",
-        title: "04 — Foundations",
+        id: "03",
+        title: "03 — Foundations",
         content: (
             <div className="flex flex-col gap-6 w-full">
                 <p>Alongside building products, I’m strengthening my foundations in:</p>
                 <div className="flex flex-wrap gap-3 mt-2">
-                    {["Data Structures", "Algorithms", "Operating Systems", "Networks", "System Design"].map(fw => (
+                    {["Data Structures & Algo", "Object Oriented Programming", "System Design"].map(fw => (
                         <span
                             key={fw}
-                            className="px-4 py-1.5 rounded-full border border-border-subtle text-text-primary f-mono text-[0.75rem] tracking-wide"
+                            className="px-6 py-2.5 rounded-full border border-[color-mix(in_srgb,var(--color-text)_15%,transparent)] text-text-primary f-mono text-[0.95rem] tracking-wide"
                         >
                             {fw}
                         </span>
                     ))}
                 </div>
+            </div>
+        )
+    },
+    {
+        id: "04",
+        title: "04 — Life As I Live",
+        content: (
+            <div className="flex flex-col gap-6 w-full">
+                <p>There's more to life than the glow of a screen.</p>
+                <p className="text-text-primary">I run long distances to push my limits, read heavily to expand my mind, and continuously explore domains completely unrelated to code.</p>
+                <p>Because the best ideas often come when you step away from the keyboard.</p>
             </div>
         )
     }
@@ -129,7 +129,7 @@ export default function ContentCarousel() {
                 viewport={{ once: true }}
                 className="absolute top-16 md:top-24 left-[var(--page-px)] f-mono text-2xs tracking-widest uppercase"
             >
-                current focus
+                currently
             </motion.div>
 
             <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative mb-16 lg:mb-32">
@@ -170,7 +170,7 @@ export default function ContentCarousel() {
                 </AnimatePresence>
 
                 {/* Controls */}
-                <div className="absolute bottom-6 left-0 right-0 flex justify-center z-20">
+                <div className="absolute -bottom-8 md:-bottom-12 left-0 right-0 flex justify-center z-20">
                     <div className="flex items-center gap-6 px-6 py-2.5 rounded-full border border-border-subtle bg-base-surface/80 backdrop-blur-md shadow-sm">
                         <button 
                             onClick={() => paginate(-1)}

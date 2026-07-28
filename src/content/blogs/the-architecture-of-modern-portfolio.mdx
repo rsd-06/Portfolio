@@ -1,0 +1,39 @@
+---
+title: "The Architecture of a Modern Developer Portfolio"
+date: "2026-07-24"
+category: "System Design"
+readTime: "4 min read"
+excerpt: "Why storing Markdown files in your Git repository is often a better choice than spinning up a full SQL database for personal blogs."
+---
+
+# Building for Simplicity
+
+When deciding how to build the blog section of a developer portfolio, the first instinct is often to reach for a fully-fledged database. We think of PostgreSQL, Supabase, Prisma, and NextAuth. We imagine building a custom admin dashboard to write our posts.
+
+But for a personal portfolio, this is often a trap.
+
+## The Git-Backed Approach
+
+By storing your content as **MDX files directly inside your codebase**, you leverage tools you already use every day. 
+
+### Why MDX?
+
+1. **Version Control:** Every typo fix, every major rewrite is tracked perfectly in your git history. 
+2. **Security:** You don't need to build an admin panel or manage authentication. If you can push to the GitHub repository, you can publish a blog.
+3. **Speed:** Because the content lives in the repo, Next.js can read the file system and statically generate (SSG) your blog posts at build time. No database latency, no API limits. 
+
+## Writing Markdown
+
+Writing in markdown is fast. You can quickly add code blocks:
+
+```javascript
+function greet() {
+  console.log("Hello, World!");
+}
+```
+
+And since we are using MDX, we can even drop React components straight into the file if we want interactive elements in our posts!
+
+> "Simplicity is the ultimate sophistication." — Leonardo da Vinci
+
+Keeping your portfolio simple ensures you actually spend time writing and building, rather than maintaining database migrations and admin authentication flows.

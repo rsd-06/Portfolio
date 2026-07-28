@@ -5,9 +5,10 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 
 const ELABORATIONS = [
-    "Curious by design.",
+    "Progressive in design.",
     "Photographer of small moments.",
     "Movie Buff. Music Lover. Life Enthusiast.",
+    "Love Debating, Queen Blundering & Strava Logging",
     "Believer in curiosity."
 ];
 
@@ -76,7 +77,7 @@ export default function AboutIdentity() {
                     className="flex flex-col h-full justify-center md:justify-end pb-[clamp(2rem,5vw,4rem)]"
                 >
                     <div className="md:self-start flex flex-col items-start w-full">
-                        <div className="max-w-[48ch] min-h-[140px] md:min-h-[240px] flex items-end pb-12 md:pb-24">
+                        <div className="max-w-[48ch] h-[180px] md:h-[240px] flex flex-col justify-center pb-8 md:pb-16">
                             <AnimatePresence mode="wait">
                                 <motion.h2
                                     key={index}
@@ -98,7 +99,7 @@ export default function AboutIdentity() {
                             transition={{ duration: 0.6, delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
                             className="max-w-[50ch] font-inter font-light text-xl md:text-2xl text-text-primary leading-relaxed"
                         >
-                            If I'm not working, I'm probably out taking photos, catching up on movies, or exploring new music. 
+                            If I'm not working, I'm probably out taking photos, catching up on movies, exploring new music or having fun with people. 
                             I believe curiosity doesn't stop at code; it extends to everything around us.
                         </motion.p>
                     </div>

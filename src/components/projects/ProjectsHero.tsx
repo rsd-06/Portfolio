@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import GitHubActivityGrid from "./GitHubActivityGrid";
+import { PROJECTS } from "@/data/projects";
 
 export default function ProjectsHero() {
   return (
@@ -35,7 +36,7 @@ export default function ProjectsHero() {
             className="flex flex-col gap-1"
           >
             <span className="f-mono text-xs opacity-45 uppercase tracking-wider">Total Projects</span>
-            <span className="f-display text-2xl">06</span>
+            <span className="f-display text-2xl">{PROJECTS.length.toString().padStart(2, "0")}</span>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -44,7 +45,7 @@ export default function ProjectsHero() {
             className="flex flex-col gap-1"
           >
             <span className="f-mono text-xs opacity-45 uppercase tracking-wider">Featured</span>
-            <span className="f-display text-2xl">03</span>
+            <span className="f-display text-2xl">{PROJECTS.filter(p => p.featured).length.toString().padStart(2, "0")}</span>
           </motion.div>
         </div>
 

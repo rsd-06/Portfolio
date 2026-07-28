@@ -12,7 +12,7 @@ const Section = ({ id, title, children }: { id: string; title: string; children:
     whileInView={{ y: 0, opacity: 1 }}
     viewport={{ once: true, margin: "-80px" }}
     transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-    className="py-[clamp(4rem,8vw,6rem)] px-[clamp(2rem,4vw,3rem)] flex flex-col gap-8 md:gap-12"
+    className="py-[clamp(2rem,4vw,3rem)] px-[clamp(2rem,4vw,3rem)] flex flex-col gap-4 md:gap-6"
   >
     <h2 className="f-mono text-[10px] tracking-widest uppercase opacity-35">{title}</h2>
     {children}
@@ -42,7 +42,7 @@ export default function ProjectDetailBody({ project }: { project: Project }) {
   return (
     <div className="flex flex-col lg:flex-row relative">
       {/* Left — media panel */}
-      <div className="w-full lg:w-1/2 relative border-r border-[var(--color-border)] border-opacity-30">
+      <div className="w-full lg:w-1/2 relative border-b lg:border-b-0 lg:border-r border-[var(--color-border)] border-opacity-30">
         <ProjectDetailMedia images={project.images} video={project.video} />
       </div>
 

@@ -30,7 +30,7 @@ export default function ProjectDetailNav({
 
           {/* Hover Background Image */}
           {prev && (
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500 bg-[var(--color-border)]">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.25] transition-opacity duration-500 bg-[var(--color-border)]">
               <img src={prev.images[0]} alt="" className="w-full h-full object-cover blur-[4px]" />
             </div>
           )}
@@ -52,7 +52,7 @@ export default function ProjectDetailNav({
 
           {/* Hover Background Image */}
           {next && (
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500 bg-[var(--color-border)]">
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.25] transition-opacity duration-500 bg-[var(--color-border)]">
               <img src={next.images[0]} alt="" className="w-full h-full object-cover blur-[4px]" />
             </div>
           )}

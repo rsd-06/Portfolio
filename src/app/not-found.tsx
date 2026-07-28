@@ -86,7 +86,7 @@ export default function NotFound() {
         </motion.p>
       </div>
 
-      {/* Top-left label */}
+      {/* Top-left label
       <motion.p
         className="f-mono absolute uppercase"
         style={{
@@ -102,7 +102,7 @@ export default function NotFound() {
         aria-hidden="true"
       >
         you found nothingness.
-      </motion.p>
+      </motion.p> */}
 
       {/* Centre block */}
       <div

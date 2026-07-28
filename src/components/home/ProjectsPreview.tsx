@@ -4,29 +4,15 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
-const FEATURED_PROJECTS = [
-  {
-    title: "SkillSync",
-    tag: "Full Stack · 2025",
-    description: "Skill-based collaboration platform for engineering students.",
-    image: "/assets/projects/skillsync.jpg",
-    href: "/projects/skillsync",
-  },
-  {
-    title: "Dengue Prediction",
-    tag: "AI · Full Stack · 2024",
-    description: "District-level dengue outbreak prediction for Indian Tier-2 cities.",
-    image: "/assets/projects/dengue.jpg",
-    href: "/projects/dengue-prediction",
-  },
-  {
-    title: "Portfolio v1",
-    tag: "Next.js · 2025",
-    description: "This website — rsd.exe personal portfolio.",
-    image: "/assets/projects/portfolio.jpg",
-    href: "/projects/portfolio",
-  },
-];
+import { PROJECTS as ALL_PROJECTS } from "@/data/projects";
+
+const FEATURED_PROJECTS = ALL_PROJECTS.filter(p => p.featured).map((p) => ({
+  title: p.title,
+  tag: `${p.category} · ${p.year}`,
+  description: p.summary,
+  image: p.images[0],
+  href: `/projects/${p.slug}`,
+}));
 
 export default function ProjectsPreview() {
   return (

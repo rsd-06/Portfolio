@@ -23,30 +23,25 @@ export default function LoaderScreen() {
   });
   const lenis = useLenis();
 
-  // `shouldShow` gates whether the loader markup is ever in the DOM.
-  // Starts as false (SSR-safe). Set to true ONLY on genuine first visits,
-  // synchronously via useLayoutEffect before the browser paints.
-  // On SPA return visits it stays false → zero DOM presence, zero flash.
-  const [shouldShow,  setShouldShow]  = useState(false);
+  // `shouldShow` gates whether the loader markup is in the DOM.
+  // On first hard load, server = true, client = true (Hydration match!)
+  // On SPA return to Home, client = false (Normal render, no hydration mismatch)
+  const [shouldShow, setShouldShow] = useState(!loaderHasRun);
   const [exitStarted, setExitStarted] = useState(false);
 
   // ── 1. Synchronous check — runs before first paint ─────────────
   useLayoutEffect(() => {
-    if (!loaderHasRun) {
-      // First visit or hard reload: show the loader and lock scroll.
-      setShouldShow(true);
+    if (shouldShow) {
+      // First visit or hard reload: lock scroll.
       document.body.classList.add("is-loading");
       document.body.style.overflow = "hidden";
     }
-    // If loaderHasRun === true: SPA navigation back — shouldShow stays false,
-    // scroll restoration is handled by effect 4 via __rsd_restoreScrollY.
 
     return () => {
       document.body.classList.remove("is-loading");
       document.body.style.overflow = "";
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // must be empty — runs once, synchronously, before first paint
+  }, [shouldShow]);
 
   // ── 2. Freeze Lenis while the loader is visible ────────────────
   useEffect(() => {

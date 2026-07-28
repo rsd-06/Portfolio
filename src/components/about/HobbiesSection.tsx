@@ -11,60 +11,51 @@ import {
   MotionValue,
 } from "framer-motion";
 import { useLenis } from "@/components/providers/LenisProvider";
+import { ArrowUpRight } from "lucide-react";
 
 const HOBBY_CARDS = [
   {
     id: "running",
     title: "Running & Marathons",
-    emoji: "🏃",
-    icon: "/assets/hobbies/strava-icon.svg",
-    titleImage: "/assets/hobbies/running-main.jpg",
-    smallImages: [
-      "/assets/hobbies/running-1.jpg",
-      "/assets/hobbies/running-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/runImage.jpg",
+    smallImages: [],
     description: "Chasing kilometres and occasionally catching them. Running clears the head better than anything else I've tried.",
-    link: { label: "Follow on Strava", href: "https://www.strava.com/athletes/rsd_exe" },
+    link: { label: "Follow on Strava", href: "https://www.strava.com/athletes/rsudharshan_athlete" },
+    headerIcons: [
+      { src: "/assets/aboutPage/hobbyIcons/Strava.svg", href: "https://www.strava.com/athletes/rsudharshan_athlete", alt: "Strava" }
+    ],
     tag: "Fitness · Endurance\n5K · 10K · Half Marathon",
   },
   {
     id: "movies",
     title: "Cinema",
-    emoji: "🎬",
-    icon: "/assets/hobbies/letterboxd-icon.svg",
-    titleImage: "/assets/hobbies/movies-main.jpg",
-    smallImages: [
-      "/assets/hobbies/movies-1.jpg",
-      "/assets/hobbies/movies-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/cinemaImages.png",
+    smallImages: [],
     description: "Letterboxd is my second diary. Slow cinema, Tamil classics, and anything Nolan touches.",
-    link: { label: "Letterboxd", href: "https://letterboxd.com/rsd_exe" },
+    link: { label: "Letterboxd", href: "https://letterboxd.com/rsudharshan_06/" },
+    headerIcons: [
+      { src: "https://a.ltrbxd.com/logos/letterboxd-decal-dots-pos-rgb.svg", href: "https://letterboxd.com/rsudharshan_06/", alt: "Letterboxd" }
+    ],
     tag: "Cinema · Storytelling",
   },
   {
     id: "music",
     title: "Music",
-    emoji: "🎵",
-    icon: "/assets/hobbies/spotify-icon.svg",
-    titleImage: "/assets/hobbies/music-main.jpg",
-    smallImages: [
-      "/assets/hobbies/spotify-wrap.jpg",
-      "/assets/hobbies/music-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/musicImage.jpg",
+    smallImages: [],
     description: "Always something playing. Indie, Tamil classics, lo-fi when coding. Music is a constant.",
-    link: { label: "Spotify", href: "https://open.spotify.com/user/rsd_exe" },
+    link: { label: "Spotify", href: "https://open.spotify.com/user/314kxlcurw7nmgc6nbp4hxuun6va" },
+    headerIcons: [
+      { src: "https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Black.png", href: "https://open.spotify.com/user/314kxlcurw7nmgc6nbp4hxuun6va", alt: "Spotify" },
+      { src: "/assets/aboutPage/hobbyIcons/appleMusic.svg", href: "https://music.apple.com/profile/sudharshan195?ls", alt: "Apple Music" }
+    ],
     tag: "Indie · Tamil · Lo-fi",
   },
   {
     id: "history",
     title: "History & Geopolitics",
-    emoji: "🌍",
-    icon: null,
-    titleImage: "/assets/hobbies/history-main.jpg",
-    smallImages: [
-      "/assets/hobbies/history-1.jpg",
-      "/assets/hobbies/history-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/historyImage.jpg",
+    smallImages: [],
     description: "Why the world is the way it is. Cold War obsession, South Asian partition, modern power dynamics.",
     link: null,
     tag: "History · Geopolitics",
@@ -72,14 +63,8 @@ const HOBBY_CARDS = [
   {
     id: "photography",
     title: "Photography",
-    emoji: "📷",
-    icon: null,
-    titleImage: "/assets/hobbies/photo-main.jpg",
-    smallImages: [
-      "/assets/hobbies/photo-1.jpg",
-      "/assets/hobbies/photo-2.jpg",
-      "/assets/hobbies/photo-3.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/photoGraphyImage.jpg",
+    smallImages: [],
     description: "Finding frames in everyday places. Street, architecture, candid — whatever the light allows.",
     link: null,
     tag: "Street · Candid",
@@ -87,12 +72,8 @@ const HOBBY_CARDS = [
   {
     id: "guitar",
     title: "Guitar",
-    emoji: "🎸",
-    icon: null,
-    titleImage: "/assets/hobbies/guitar-main.jpg",
-    smallImages: [
-      "/assets/hobbies/guitar-1.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/guitarImage.jpg",
+    smallImages: [],
     description: "Started last year. Fingers hurt, chords ring wrong, but it's the best kind of frustration.",
     link: null,
     tag: "Learning · Acoustic",
@@ -100,13 +81,8 @@ const HOBBY_CARDS = [
   {
     id: "basketball",
     title: "Basketball",
-    emoji: "🏀",
-    icon: null,
-    titleImage: "/assets/hobbies/bball-main.jpg",
-    smallImages: [
-      "/assets/hobbies/bball-1.jpg",
-      "/assets/hobbies/bball-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/basketBallImage.jpg",
+    smallImages: [],
     description: "Pickup games, half-court shots, and very loud opinions about who the GOAT is.",
     link: null,
     tag: "Sport · Pickup",
@@ -114,14 +90,8 @@ const HOBBY_CARDS = [
   {
     id: "travel",
     title: "Adventure & Travel",
-    emoji: "🗺️",
-    icon: null,
-    titleImage: "/assets/hobbies/travel-main.jpg",
-    smallImages: [
-      "/assets/hobbies/travel-1.jpg",
-      "/assets/hobbies/travel-2.jpg",
-      "/assets/hobbies/travel-3.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/adventureImage.jpg",
+    smallImages: [],
     description: "Somewhere between a tourist and a wanderer. Any road with an unknown destination is a good one.",
     link: null,
     tag: "Explore · Road trips",
@@ -129,13 +99,8 @@ const HOBBY_CARDS = [
   {
     id: "reading",
     title: "Reading",
-    emoji: "📖",
-    icon: null,
-    titleImage: "/assets/hobbies/books-main.jpg",
-    smallImages: [
-      "/assets/hobbies/book-1.jpg",
-      "/assets/hobbies/book-2.jpg",
-    ],
+    titleImage: "/assets/aboutPageImages/hobbyImages/readingImage.jpg",
+    smallImages: [],
     description: "Non-fiction mostly. History, philosophy, biography. A good book is a long conversation.",
     link: null,
     tag: "Non-fiction · Philosophy",
@@ -143,9 +108,7 @@ const HOBBY_CARDS = [
   {
     id: "other",
     title: "& Everything Else",
-    emoji: "✦",
-    icon: null,
-    titleImage: "/assets/hobbies/other-main.jpg",
+    titleImage: "/assets/aboutPageImages/hobbyImages/musicImage.jpg",
     smallImages: [],
     description: "MUNs. Late-night drives. Debates about things that don't matter. The conversations that do.",
     link: null,
@@ -311,7 +274,6 @@ function HobbyCard({
         flexDirection: "column",
         transition: "box-shadow 0.4s ease",
         position: "relative",
-        overflow: "hidden",
       }}
     >
       {/* Title Image edge to edge inside the padding, rounded */}
@@ -338,38 +300,46 @@ function HobbyCard({
             sizes="(max-width: 768px) 88vw, 42vw"
           />
         </motion.div>
-
-        {/* Floating Emoji/Icon */}
-        <div style={{
-          position: "absolute",
-          top: "1rem",
-          right: "1rem",
-          background: "color-mix(in srgb, var(--color-bg) 70%, transparent)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          padding: "0.5rem",
-          borderRadius: "50%",
-          display: "flex",
-          border: "1px solid color-mix(in srgb, var(--color-text) 10%, transparent)"
-        }}>
-           {hobby.icon ? <Image src={hobby.icon} alt="icon" width={20} height={20} style={{ filter: "brightness(0) invert(1)" }} /> : <span style={{ fontSize: "1.2rem", lineHeight: 1 }}>{hobby.emoji}</span>}
-        </div>
       </div>
 
       {/* Text Content */}
       <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-        <h3
-          className="f-display"
-          style={{
-            fontSize: "var(--text-2xl)",
-            fontWeight: 400,
-            color: "var(--color-text)",
-            marginBottom: "0.5rem",
-            letterSpacing: "-0.02em"
-          }}
-        >
-          {hobby.title}
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3
+            className="f-display"
+            style={{
+              fontSize: "var(--text-2xl)",
+              fontWeight: 400,
+              color: "var(--color-text)",
+              letterSpacing: "-0.02em",
+              margin: 0
+            }}
+          >
+            {hobby.title}
+          </h3>
+          {/* Icons container pushed to the right */}
+          <div className="flex items-center gap-4">
+            {(hobby as any).headerIcons?.map((icon: any, i: number) => (
+              <a 
+                key={i} 
+                href={icon.href} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="group flex items-center gap-1 opacity-60 hover:opacity-100 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 mt-1 cursor-pointer"
+                title={`Visit my ${icon.alt} profile`}
+              >
+                <img 
+                  src={icon.src} 
+                  alt={icon.alt} 
+                  width={28} 
+                  height={28} 
+                  className="object-contain w-7 h-7 drop-shadow-sm group-hover:scale-110 transition-transform duration-200" 
+                />
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity duration-200" />
+              </a>
+            ))}
+          </div>
+        </div>
 
         <p
           className="f-mono"
@@ -387,23 +357,6 @@ function HobbyCard({
         >
           {hobby.description}
         </p>
-
-        {/* Bottom Metadata & Small Images */}
-        <div style={{ marginTop: "auto", display: "flex", justifySelf: "flex-end", justifyContent: "space-between", alignItems: "flex-end" }}>
-           <div className="f-mono" style={{ fontSize: "var(--text-2xs)", opacity: 0.4, textTransform: "uppercase", letterSpacing: "0.05em", flex: 1 }}>
-             {hobby.tag.split("\n")[0]}
-           </div>
-           
-           {hobby.smallImages.length > 0 && (
-             <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
-                {hobby.smallImages.map((src, i) => (
-                  <div key={i} style={{ position: "relative", width: "40px", height: "40px", borderRadius: "8px", overflow: "hidden" }}>
-                    <Image src={src} alt="img" fill style={{ objectFit: "cover" }} />
-                  </div>
-                ))}
-             </div>
-           )}
-        </div>
       </div>
     </motion.div>
   );
@@ -731,28 +684,14 @@ export default function HobbiesSection() {
         >
           <div>
             <p
-              className="f-mono uppercase"
+              className="f-mono uppercase tracking-widest text-2xs"
               style={{
-                fontSize: "var(--text-2xs)",
-                letterSpacing: "0.2em",
                 opacity: 0.35,
                 color: "var(--color-text)",
               }}
             >
-              interests & hobbies
+              beyond the screen
             </p>
-            <h2
-              className="f-display"
-              style={{
-                fontSize: "var(--text-xl)",
-                fontWeight: 300,
-                letterSpacing: "-0.03em",
-                marginTop: "0.25rem",
-                color: "var(--color-text)",
-              }}
-            >
-              Beyond the screen.
-            </h2>
           </div>
           {!isMobile && (
             <p
@@ -802,53 +741,6 @@ export default function HobbiesSection() {
           <EndHobbyCard smoothNegX={smoothNegX} />
         </motion.div>
 
-        {/* Progress bar */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "1px",
-            background: "var(--color-border)",
-            zIndex: 10,
-          }}
-        >
-          <motion.div
-            style={{
-              height: "100%",
-              background: "var(--color-text)",
-              transformOrigin: "left",
-              scaleX: progressBarScaleX,
-              opacity: 0.3,
-            }}
-          />
-        </div>
-
-        {/* Auto-advance time indicator */}
-        <AnimatePresence mode="wait">
-          {!isPaused && isActive && !isComplete && !isMobile && (
-            <motion.div
-              key={autoAdvanceKey}
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              transition={{ duration: AUTO_ADVANCE_MS / 1000, ease: "linear" }}
-              style={{
-                position: "absolute",
-                bottom: "1px",
-                left: 0,
-                height: "2px",
-                width: "100%",
-                background: "var(--color-text)",
-                opacity: 0.15,
-                transformOrigin: "left",
-                zIndex: 10,
-              }}
-            />
-          )}
-        </AnimatePresence>
       </div>
     </section>
   );

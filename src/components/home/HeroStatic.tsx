@@ -2,7 +2,15 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
+
+const SOCIALS = [
+  { label: "LinkedIn",  icon: "/assets/socialMediaIcons/linkedin_icon.png",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/" },
+  { label: "GitHub",    icon: "/assets/socialMediaIcons/github_icon.png",    href: "https://github.com/rsd-06" },
+  { label: "Instagram", icon: "/assets/socialMediaIcons/instagram_icon.png", href: "https://www.instagram.com/rsd_exe/" },
+  { label: "Twitter",   icon: "/assets/socialMediaIcons/twitter_icon.png",   href: "https://x.com/rsd_2006" },
+];
 
 export default function HeroStatic() {
   const { scrollY } = useScroll();
@@ -30,7 +38,7 @@ export default function HeroStatic() {
         
         {/* Left Side Metadata Block */}
         <motion.div 
-          className="hidden md:flex flex-col gap-4 absolute right-[100%] mr-8 lg:mr-16 top-1/2 -translate-y-1/2 mt-8 w-56 lg:w-64 f-mono text-2xs tracking-wide text-[var(--color-text-primary)] pointer-events-none text-right"
+          className="hidden md:flex flex-col gap-4 absolute right-[100%] mr-8 lg:mr-16 top-1/2 -translate-y-1/2 mt-8 w-56 lg:w-64 f-mono text-2xs tracking-wide text-[var(--color-text-primary)] text-right"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.6 }}
@@ -53,6 +61,33 @@ export default function HeroStatic() {
           
           <div className="flex flex-col gap-1 opacity-65">
             <p>MERN Stack &middot; ML/AI</p>
+          </div>
+
+          <div className="w-full h-[1px] bg-[var(--color-text-primary)] opacity-10" />
+
+          <div className="flex items-center justify-end gap-3 pt-1 pointer-events-auto">
+            <ArrowUpRight className="w-[18px] h-[18px] flex-shrink-0 mr-5" />
+            {SOCIALS.map((social, idx) => (
+                <div key={social.label} className="flex items-center gap-3">
+                    <a
+                        href={social.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={social.label}
+                        className="opacity-60 hover:opacity-100 transition-opacity duration-200 hover:scale-110 transform"
+                    >
+                        <Image
+                            src={social.icon}
+                            alt={social.label}
+                            width={18}
+                            height={18}
+                            className="object-contain"
+                            style={{ filter: "var(--icon-filter, none)" }}
+                        />
+                    </a>
+                    {idx < SOCIALS.length - 1 && <span className="opacity-20 text-xs">|</span>}
+                </div>
+            ))}
           </div>
         </motion.div>
 
@@ -82,7 +117,7 @@ export default function HeroStatic() {
           style={{ y: rightLabelY }}
         >
           <div className="leading-tight">
-            <p>Still figuring, building and learning things out,</p>
+            <p>Figuring, building and learning things out,</p>
             <p>one commit at a time.</p>
           </div>
           

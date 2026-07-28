@@ -8,7 +8,7 @@ export default function LocationSection() {
         <div className="w-full pt-32 pb-32">
             <section className="min-h-[60vh] w-full flex flex-col items-center justify-center relative px-[var(--page-px)] overflow-hidden bg-base-bg rounded-xl" style={{ transform: "translateZ(0)" }}>
                 <div 
-                    className="absolute inset-0 w-full h-full opacity-10 pointer-events-none" 
+                    className="absolute inset-0 w-full h-full opacity-25 pointer-events-none" 
                     style={{ 
                         contentVisibility: "auto",
                         maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",

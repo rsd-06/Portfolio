@@ -8,7 +8,7 @@ import { FiArrowUpRight } from "react-icons/fi";
 import RepoActivityGrid from "./RepoActivityGrid";
 
 export default function ProjectDetailHero({ project }: { project: Project }) {
-  const titleText = project.title.split("");
+  const words = project.title.split(" ");
 
   return (
     <section className="pt-32 pb-16 px-[var(--page-px)]">
@@ -29,21 +29,42 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
             </motion.div>
             
             <h1 className="f-display text-[clamp(4rem,10vw,8rem)] font-light tracking-[-0.04em] leading-[0.95] overflow-hidden flex flex-wrap">
-              {titleText.map((char, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ y: "100%", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
-                  animate={{ y: "0%" }}
-                  transition={{
-                    duration: 0.8,
-                    ease: [0.19, 1, 0.22, 1],
-                    delay: 0.2 + index * 0.03,
-                  }}
-                  className="inline-block origin-top"
-                >
-                  {char === " " ? "\u00A0" : char}
-                </motion.span>
-              ))}
+              {words.map((word, wIdx) => {
+                const startIndex = project.title.split(" ").slice(0, wIdx).join(" ").length + (wIdx > 0 ? 1 : 0);
+                return (
+                  <span key={wIdx} className="inline-flex whitespace-nowrap">
+                    {word.split("").map((char, cIdx) => (
+                      <motion.span
+                        key={cIdx}
+                        initial={{ y: "100%", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
+                        animate={{ y: "0%" }}
+                        transition={{
+                          duration: 0.8,
+                          ease: [0.19, 1, 0.22, 1],
+                          delay: 0.2 + (startIndex + cIdx) * 0.03,
+                        }}
+                        className="inline-block origin-top"
+                      >
+                        {char}
+                      </motion.span>
+                    ))}
+                    {wIdx !== words.length - 1 && (
+                      <motion.span
+                        initial={{ y: "100%", clipPath: "polygon(0 0, 100% 0, 100% 100%, 0% 100%)" }}
+                        animate={{ y: "0%" }}
+                        transition={{
+                          duration: 0.8,
+                          ease: [0.19, 1, 0.22, 1],
+                          delay: 0.2 + (startIndex + word.length) * 0.03,
+                        }}
+                        className="inline-block origin-top"
+                      >
+                        {"\u00A0"}
+                      </motion.span>
+                    )}
+                  </span>
+                );
+              })}
             </h1>
           </div>
 
@@ -78,7 +99,7 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
-          className="w-full h-[1px] bg-[var(--color-border)] origin-left"
+          className="w-[100vw] h-[1px] bg-[var(--color-border)] origin-left relative left-[calc(var(--page-px)*-1)]"
         />
 
         <div className="flex flex-col md:flex-row gap-12 md:gap-8 justify-between">

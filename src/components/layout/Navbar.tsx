@@ -56,6 +56,7 @@ export default function Navbar() {
           {[
             { href: "/projects", label: "Projects" },
             { href: "/about",    label: "About" },
+            { href: "/blogs",    label: "Blogs" },
             { href: "/contact",  label: "Contact" },
             { href: "/Sudharshan_R_Resume.pdf", label: "Resume" },
           ].map(({ href, label }) => (
@@ -162,6 +163,7 @@ export default function Navbar() {
               { href: "/",         label: "Home" },
               { href: "/projects", label: "Projects" },
               { href: "/about",    label: "About" },
+              { href: "/blogs",    label: "Blogs" },
               { href: "/contact",  label: "Contact" },
               { href: "/Sudharshan_R_Resume.pdf", label: "Resume" },
             ].map(({ href, label }, i) => (

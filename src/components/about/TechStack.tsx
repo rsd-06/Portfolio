@@ -12,17 +12,15 @@ import {
   SiNodedotjs,
   SiExpress,
   SiPython,
-  SiFlask,
+  SiFastapi,
+  SiRedis,
   SiMongodb,
-  SiSupabase,
-  SiScikitlearn,
-  SiPytorch,
   SiDocker,
   SiGithub,
-  SiVercel,
   SiLinux,
   SiRaspberrypi,
 } from "react-icons/si";
+import { FaJava, FaDatabase } from "react-icons/fa";
 import { IconType } from "react-icons";
 
 type TechItem = {
@@ -41,14 +39,13 @@ const TECH_STACK: TechItem[] = [
   { icon: SiNodedotjs,    name: "Node.js",        category: "Backend",   note: "Server runtime"         },
   { icon: SiExpress,      name: "Express",        category: "Backend",   note: "REST API layer"         },
   { icon: SiPython,       name: "Python",         category: "Language",  note: "ML & scripting"         },
-  { icon: SiFlask,        name: "Flask",          category: "Backend",   note: "Lightweight API"        },
+  { icon: SiFastapi,      name: "FastAPI",        category: "Backend",   note: "High perf API"          },
   { icon: SiMongodb,      name: "MongoDB",        category: "Database",  note: "Document store"         },
-  { icon: SiSupabase,     name: "Supabase",       category: "Database",  note: "Postgres + auth"        },
-  { icon: SiScikitlearn,  name: "scikit-learn",   category: "ML",        note: "Classical ML models"    },
-  { icon: SiPytorch,      name: "PyTorch",        category: "ML",        note: "Deep learning"          },
+  { icon: FaDatabase,     name: "Convex",         category: "Database",  note: "Realtime backend"       },
+  { icon: SiRedis,        name: "Redis",          category: "Database",  note: "In-memory store"        },
+  { icon: FaJava,         name: "Java",           category: "Language",  note: "OOP & Enterpise"        },
   { icon: SiDocker,       name: "Docker",         category: "DevOps",    note: "Containerisation"       },
   { icon: SiGithub,       name: "GitHub",         category: "Tools",     note: "Version control"        },
-  { icon: SiVercel,       name: "Vercel",         category: "DevOps",    note: "Frontend deploy"        },
   { icon: SiLinux,        name: "Linux",          category: "Tools",     note: "Arch + Hyprland"        },
   { icon: SiRaspberrypi,  name: "Raspberry Pi",   category: "Hardware",  note: "Embedded systems"       },
 ];
@@ -56,20 +53,18 @@ const TECH_STACK: TechItem[] = [
 function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: TechItem; index: number; isTouchDevice: boolean; isActive: boolean; onToggle: () => void }) {
   const [localHovered, setLocalHovered] = useState(false);
   const hovered = isTouchDevice ? isActive : localHovered;
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.92 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      className="relative flex-shrink-0 snap-start w-full h-[130px]"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{
         delay: (index % 6) * 0.04, 
         duration: 0.6,
         ease: [0.19, 1, 0.22, 1],
       }}
-      className="relative w-full h-[130px]"
       style={{
-        transformStyle: !isTouchDevice ? "preserve-3d" : "flat",
         zIndex: hovered ? 50 : 1,
       }}
       role="listitem"
@@ -78,18 +73,17 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
       <motion.div
         className="absolute top-0 left-0 w-full"
         whileHover={!isTouchDevice ? {
-          z: 40,
-          scale: 1.06,
+          scale: 1.12,
           transition: { duration: 0.35, ease: [0.19, 1, 0.22, 1] },
         } : {}}
         onHoverStart={() => !isTouchDevice && setLocalHovered(true)}
         onHoverEnd={() => !isTouchDevice && setLocalHovered(false)}
         onClick={() => isTouchDevice && onToggle()}
         style={{
-          border: `1px solid ${hovered ? "var(--color-text-primary)" : "rgba(100, 100, 100, 0.15)"}`,
+          border: `1px solid ${hovered ? "rgba(0, 0, 0, 0.45)" : "var(--color-text-primary)"}`,
           borderRadius: "clamp(6px, 1vw, 10px)",
           padding: "clamp(1rem, 2vw, 1.5rem) clamp(0.75rem, 1.5vw, 1.25rem)",
-          backgroundColor: hovered ? "var(--color-text-primary)" : "var(--color-base-bg)",
+          backgroundColor: hovered ? "#EAE7DF" : "var(--color-text-primary)",
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-start",
@@ -98,7 +92,6 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
           gap: "clamp(0.5rem, 1vw, 0.75rem)",
           transition: "background-color 0.3s ease, border-color 0.3s ease",
           userSelect: "none",
-          transformStyle: !isTouchDevice ? "preserve-3d" : "flat",
           cursor: "pointer",
         }}
       >
@@ -109,8 +102,8 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
             right: "0.6rem",
             fontSize: "10px",
             letterSpacing: "0.12em",
-            opacity: hovered ? 0.4 : 0.2,
-            color: hovered ? "var(--color-base-bg)" : "var(--color-text-primary)",
+            opacity: hovered ? 0.4 : 0.4,
+            color: hovered ? "var(--color-text-primary)" : "var(--color-base-bg)",
             transition: "opacity 0.3s ease, color 0.3s ease",
             textTransform: "uppercase",
           }}
@@ -121,8 +114,8 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
         <div
           style={{
             fontSize: "clamp(22px, 2.5vw, 28px)",
-            color: hovered ? "var(--color-base-bg)" : "var(--color-text-primary)",
-            opacity: hovered ? 1 : 0.75,
+            color: hovered ? "var(--color-text-primary)" : "var(--color-base-bg)",
+            opacity: hovered ? 1 : 0.9,
             transition: "color 0.3s ease, opacity 0.3s ease",
             marginTop: "0.5rem",
           }}
@@ -136,8 +129,8 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
           style={{
             fontSize: "12px",
             letterSpacing: "0.06em",
-            color: hovered ? "var(--color-base-bg)" : "var(--color-text-primary)",
-            opacity: hovered ? 1 : 0.8,
+            color: hovered ? "var(--color-text-primary)" : "var(--color-base-bg)",
+            opacity: hovered ? 1 : 0.9,
             transition: "color 0.3s ease",
             lineHeight: 1.2,
           }}
@@ -159,7 +152,7 @@ function TechCard({ tech, index, isTouchDevice, isActive, onToggle }: { tech: Te
             className="font-inter font-light"
             style={{
               fontSize: "11px",
-              color: hovered ? "var(--color-base-bg)" : "var(--color-text-primary)",
+              color: hovered ? "var(--color-text-primary)" : "var(--color-base-bg)",
               letterSpacing: "0.02em",
               lineHeight: 1.4,
               transition: "color 0.3s ease",
@@ -180,9 +173,14 @@ export default function TechStack() {
   const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
   const [scrollRange, setScrollRange] = useState(0);
   const [isTouchDevice, setIsTouchDevice] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+    const updateLayout = () => setIsDesktop(window.innerWidth >= 1024);
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
   useEffect(() => {
@@ -216,15 +214,15 @@ export default function TechStack() {
     <section 
       ref={containerRef}
       className="w-full relative bg-base-bg"
-      style={{ height: `calc(100vh + ${scrollRange}px)` }}
+      style={{ height: isDesktop ? "auto" : `calc(100vh + ${scrollRange}px)` }}
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start">
+      <div className={`w-full flex flex-col justify-start ${isDesktop ? 'pt-24 pb-32' : 'sticky top-0 h-screen overflow-hidden'}`}>
         
         <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.35 }}
             viewport={{ once: true }}
-            className="absolute top-[var(--nav-h,120px)] left-[var(--page-px)] f-mono text-2xs tracking-widest uppercase"
+            className="absolute top-[var(--nav-h,120px)] left-[var(--page-px)] f-mono text-2xs tracking-widest uppercase z-20"
         >
             tools & stack
         </motion.div>
@@ -247,24 +245,29 @@ export default function TechStack() {
 
         {/* Wrapper for the moving track */}
         <div
-            style={{
+            className={isDesktop ? "w-full max-w-7xl mx-auto px-[var(--page-px)] pt-12" : ""}
+            style={isDesktop ? {} : {
                 flex: 1,
                 width: "100%",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                paddingTop: "clamp(4rem, 10vh, 7rem)", // increased gap between heading and grid
+                paddingTop: "clamp(2rem, 6vh, 5rem)",
                 paddingBottom: "5vh",
             }}
         >
-            {/* The actual track that moves horizontally via transform */}
+            {/* The actual grid/track */}
             <motion.div
                 ref={trackRef}
-                style={{
+                style={isDesktop ? {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                    gap: "1.5rem",
+                } : {
                     x: smoothX,
                     display: "grid",
                     gridAutoFlow: "column",
-                    gridTemplateRows: "repeat(3, min-content)", // ALWAYS exactly 3 rows
+                    gridTemplateRows: "repeat(4, min-content)", // Exactly 4 rows as requested
                     gridAutoColumns: "minmax(clamp(140px, 15vw, 180px), 1fr)",
                     gap: "clamp(0.75rem, 1.5vw, 1.25rem)",
                     paddingLeft: "clamp(2rem, 10vw, 16rem)", // Generous left spacing
@@ -283,16 +286,18 @@ export default function TechStack() {
                     />
                 ))}
                 {/* Explicit right spacer — ensures the last card never sticks to the viewport edge */}
-                <div
-                  aria-hidden="true"
-                  style={{
-                    gridRow: "1 / -1",          // span all 3 rows
-                    width: "clamp(8rem, 18vw, 22rem)",
-                    height: "1px",              // zero visual footprint
-                    flexShrink: 0,
-                    pointerEvents: "none",
-                  }}
-                />
+                {!isDesktop && (
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      gridRow: "1 / -1",          // span all 4 rows
+                      width: "clamp(8rem, 18vw, 22rem)",
+                      height: "1px",              // zero visual footprint
+                      flexShrink: 0,
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
             </motion.div>
         </div>
       </div>

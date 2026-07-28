@@ -15,69 +15,25 @@ import {
 import IdentityStatement from "./IdentityStatement";
 import { useLenis } from "@/components/providers/LenisProvider";
 
-/* ─── Project Data ─── */
-const PROJECTS = [
-  {
-    id: "skillsync",
-    index: "01",
-    title: "SkillSync",
-    category: "Full Stack · Platform",
-    year: "2025",
-    tagline: "Where engineers find their people.",
-    problem:
-      "Engineering students lack a structured way to find collaborators who complement their skill gaps. Existing platforms are either too social or too professional — nothing sits in between.",
-    objective:
-      "Build a skill-based collaboration platform for engineering students — with smart matching, team workspaces, and a reputation system that rewards contribution.",
-    stack: ["Next.js", "Express", "MongoDB", "Zustand", "Tailwind CSS", "JWT", "Vercel", "Render"],
-    achievement:
-      "Pitched to KCT College Incubator. Prototype live with full feature set including idea feed, skill matching engine, task management, and reputation scores.",
-    status: "Incubator pitch stage",
-    completion: 45,
-    image: "/assets/projects/skillsync/01.png",
-    video: "/assets/projects/skillsync/demo.mp4",
-    href: "/projects/skillsync",
-  },
-  {
-    id: "googledocsmini",
-    index: "02",
-    title: "Google Docs Mini",
-    category: "Full Stack · Real-Time Platform",
-    year: "2024",
-    tagline: "Collaborative editing, instantly.",
-    problem:
-      "Building a performant, real-time rich text editor that seamlessly handles simultaneous multi-user collaboration and cursor tracking without merge conflicts.",
-    objective:
-      "Develop a fully functional document editor with real-time syncing, live cursors, authentication, and document management capabilities.",
-    stack: ["Next.js", "Liveblocks", "Lexical", "Tailwind CSS", "Clerk"],
-    achievement:
-      "Implemented seamless real-time document sync with live presence indicators and robust rich-text formatting.",
-    status: "Completed",
-    completion: 100,
-    image: "/assets/projects/googleDocsClone/01.png",
-    video: "/assets/projects/googleDocsClone/demo.mp4",
-    href: "/projects/googledocsmini",
-  },
-  {
-    id: "gitpr-evaluation-env",
-    index: "03",
-    title: "PR Evaluation Env & Model Training",
-    category: "AI · Reinforcement Learning",
-    year: "2026",
-    tagline: "PR descriptions describe the feature. Never the flaw.",
-    problem:
-      "Every day, developers merge Pull Requests that introduce accidental regressions — unintentional defects entirely unrelated to the feature being shipped.",
-    objective:
-      "Turn the real-world PR code review challenge into a rigorous RL benchmark. Build an environment where LLM agents must catch integration-level regressions.",
-    stack: ["GRPO", "FastAPI", "Docker", "Qwen2.5-1.5B", "RLVR"],
-    achievement:
-      "Built and deployed at the Meta × Scaler OpenEnv Hackathon 2026. V2 GRPO model trained with Curriculum Learning improved Hard-tier performance by 2.3×.",
-    status: "Completed",
-    completion: 100,
-    image: "/assets/projects/gitpr/01.png",
-    video: undefined,
-    href: "/projects/gitpr-evaluation-env",
-  },
-];
+import { PROJECTS as ALL_PROJECTS } from "@/data/projects";
+
+const PROJECTS = ALL_PROJECTS.filter(p => p.featured).map((p) => ({
+  id: p.slug,
+  index: p.index,
+  title: p.title,
+  category: p.category,
+  year: p.year,
+  tagline: p.tagline,
+  problem: p.problem,
+  objective: p.objective,
+  stack: p.techStack.flatMap(ts => ts.items).slice(0, 8),
+  achievement: p.achievement,
+  status: p.status,
+  completion: p.completion,
+  image: p.images[0],
+  video: p.video,
+  href: `/projects/${p.slug}`,
+}));
 
 type Project = (typeof PROJECTS)[number];
 
@@ -160,6 +116,15 @@ function ProjectCard({ project, onExpand }: CardProps) {
   const [hovered, setHovered] = useState(false);
   const [clicked, setClicked]   = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
+  
+  const [isMobile, setIsMobile] = useState(false);
+  useLayoutEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
 
   // Mouse position relative to image (0–1 range)
   const mouseX = useMotionValue(0.5);
@@ -172,6 +137,12 @@ function ProjectCard({ project, onExpand }: CardProps) {
   // Spotlight position (%)
   const spotX = useSpring(useTransform(mouseX, [0, 1], [20, 80]), { stiffness: 200, damping: 25 });
   const spotY = useSpring(useTransform(mouseY, [0, 1], [20, 80]), { stiffness: 200, damping: 25 });
+  
+  const spotlightBackground = useTransform(
+    [spotX, spotY],
+    ([x, y]) =>
+      `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.12) 0%, transparent 60%)`
+  );
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return;
@@ -222,191 +193,253 @@ function ProjectCard({ project, onExpand }: CardProps) {
       style={{
         position: "relative",
         flexShrink: 0,
-        width: "clamp(75vw, 80vw, 85vw)",
+        width: isMobile ? "100vw" : "clamp(75vw, 80vw, 85vw)",
         height: "100%",
         display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "flex-start" : "center",
+        justifyContent: isMobile ? "center" : "flex-start",
         cursor: "pointer",
         borderRight: "1.5px solid rgba(0,0,0,0.14)",
         borderLeft: hovered ? "1.5px solid rgba(0,0,0,0.14)" : "1.5px solid transparent",
         transition: "border-color 0.4s ease",
         outline: "none",
-        paddingRight: "clamp(3rem, 5vw, 6rem)",
+        paddingRight: isMobile ? "var(--page-px)" : "clamp(3rem, 5vw, 6rem)",
+        paddingLeft: isMobile ? "var(--page-px)" : "0",
       }}
     >
-      {/* ── Left column ── */}
-      <div
-        style={{
-          width: "38%",
-          paddingLeft: "var(--page-px)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          gap: "clamp(1rem, 2vw, 2rem)",
-        }}
-      >
-        {/* Index above title */}
-        <div>
-          <p
-            className="f-mono"
-            style={{
-              fontSize: "var(--text-2xs)",
-              letterSpacing: "0.2em",
-              opacity: 0.28,
-              marginBottom: "0.3rem",
-              color: "var(--color-text)",
-            }}
-          >
-            {project.index}/
-          </p>
-          <h3
-            className="f-display"
-            style={{
-              fontSize: "var(--text-2xl)",
-              fontWeight: 300,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.05,
-              color: "var(--color-text)",
-            }}
-          >
-            {project.title}
-          </h3>
+      {isMobile ? (
+        // ── Mobile Layout ──
+        <div style={{ display: "flex", flexDirection: "column", width: "100%", gap: "1.5rem" }}>
+          {/* Title Block */}
+          <div>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.2em", opacity: 0.28, marginBottom: "0.3rem", color: "var(--color-text)" }}>
+              {project.index}/
+            </p>
+            <h3 className="f-display" style={{ fontSize: "var(--text-3xl)", fontWeight: 300, letterSpacing: "-0.03em", lineHeight: 1.05, color: "var(--color-text)" }}>
+              {project.title}
+            </h3>
+          </div>
+
+          {/* 3D Image Block */}
+          <div ref={imageRef} onMouseMove={handleMouseMove} style={{ width: "100%", perspective: "800px", padding: "1rem 0" }}>
+            <motion.div
+              style={{ rotateX, rotateY, transformStyle: "preserve-3d", borderRadius: "10px", overflow: "hidden", position: "relative", lineHeight: 0 }}
+              animate={{ boxShadow: hovered ? "0 16px 56px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.1)" : "0 4px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)", scale: clicked ? 0.97 : 1 }}
+              transition={{ duration: 0.35, ease: EXPO }}
+            >
+              {/* Cursor-following spotlight overlay */}
+              <motion.div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 2,
+                  pointerEvents: "none",
+                  borderRadius: "10px",
+                  background: spotlightBackground,
+                  opacity: hovered ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
+              <img src={project.image} alt={project.title} draggable={false} style={{ display: "block", width: "100%", height: "auto", objectFit: "contain", userSelect: "none" }} />
+            </motion.div>
+          </div>
+
+          {/* Text Block */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", letterSpacing: "0.14em", opacity: 0.45, color: "var(--color-text)" }}>
+              {project.category}
+            </p>
+            <p className="f-accent" style={{ fontSize: "var(--text-md)", fontStyle: "italic", opacity: 0.6, lineHeight: 1.5, color: "var(--color-text)" }}>
+              &ldquo;{project.tagline}&rdquo;
+            </p>
+            <Link
+              href={project.href}
+              className="f-mono"
+              onClick={(e) => { e.stopPropagation(); saveHomeScroll(); }}
+              style={{ fontSize: "var(--text-xs)", letterSpacing: "0.1em", opacity: 0.55, display: "inline-flex", alignItems: "center", gap: "0.4rem", color: "var(--color-text)", textDecoration: "none" }}
+            >
+              View Project →
+            </Link>
+            <p className="f-mono" style={{ fontSize: "var(--text-2xs)", opacity: 0.3, color: "var(--color-text)", marginTop: "0.5rem" }}>
+              {project.year}
+            </p>
+          </div>
         </div>
-
-        {/* Category */}
-        <p
-          className="f-mono"
-          style={{
-            fontSize: "var(--text-2xs)",
-            letterSpacing: "0.14em",
-            opacity: 0.45,
-            color: "var(--color-text)",
-          }}
-        >
-          {project.category}
-        </p>
-
-        {/* Tagline */}
-        <p
-          className="f-accent"
-          style={{
-            fontSize: "var(--text-md)",
-            fontStyle: "italic",
-            opacity: 0.6,
-            lineHeight: 1.5,
-            color: "var(--color-text)",
-          }}
-        >
-          &ldquo;{project.tagline}&rdquo;
-        </p>
-
-        {/* View Project link */}
-        <Link
-          href={project.href}
-          className="f-mono"
-          onClick={(e) => { e.stopPropagation(); saveHomeScroll(); }}
-          style={{
-            fontSize: "var(--text-xs)",
-            letterSpacing: "0.1em",
-            opacity: 0.55,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.4rem",
-            minHeight: "44px",
-            color: "var(--color-text)",
-            textDecoration: "none",
-            transition: "opacity 0.3s ease, gap 0.4s cubic-bezier(0.19,1,0.22,1)",
-          }}
-        >
-          <motion.span
-            animate={{ x: hovered ? 8 : 0, opacity: hovered ? 1 : 0.55 }}
-            transition={{ duration: 0.4, ease: EXPO }}
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+      ) : (
+        // ── Desktop Layout ──
+        <>
+          {/* ── Left column ── */}
+          <div
+            style={{
+              width: "38%",
+              paddingLeft: "var(--page-px)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              gap: "clamp(1rem, 2vw, 2rem)",
+            }}
           >
-            View Project →
-          </motion.span>
-        </Link>
+            {/* Index above title */}
+            <div>
+              <p
+                className="f-mono"
+                style={{
+                  fontSize: "var(--text-2xs)",
+                  letterSpacing: "0.2em",
+                  opacity: 0.28,
+                  marginBottom: "0.3rem",
+                  color: "var(--color-text)",
+                }}
+              >
+                {project.index}/
+              </p>
+              <h3
+                className="f-display"
+                style={{
+                  fontSize: "var(--text-2xl)",
+                  fontWeight: 300,
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.05,
+                  color: "var(--color-text)",
+                }}
+              >
+                {project.title}
+              </h3>
+            </div>
 
-        {/* Year */}
-        <p
-          className="f-mono"
-          style={{
-            fontSize: "var(--text-2xs)",
-            opacity: 0.3,
-            color: "var(--color-text)",
-          }}
-        >
-          {project.year}
-        </p>
-      </div>
+            {/* Category */}
+            <p
+              className="f-mono"
+              style={{
+                fontSize: "var(--text-2xs)",
+                letterSpacing: "0.14em",
+                opacity: 0.45,
+                color: "var(--color-text)",
+              }}
+            >
+              {project.category}
+            </p>
 
-      {/* ── Right column — 3D tilt image ── */}
-      <div
-        ref={imageRef}
-        onMouseMove={handleMouseMove}
-        style={{
-          marginLeft: "auto",
-          flexShrink: 0,
-          maxWidth: "54%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          perspective: "800px",
-        }}
-      >
-        <motion.div
-          style={{
-            rotateX,
-            rotateY,
-            transformStyle: "preserve-3d",
-            borderRadius: "10px",
-            overflow: "hidden",
-            position: "relative",
-            lineHeight: 0,
-          }}
-          animate={{
-            boxShadow: hovered
-              ? "0 16px 56px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.1)"
-              : "0 4px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)",
-            scale: clicked ? 0.97 : 1,
-          }}
-          transition={{ duration: 0.35, ease: EXPO }}
-        >
-          {/* Cursor-following spotlight overlay */}
-          <motion.div
-            aria-hidden="true"
+            {/* Tagline */}
+            <p
+              className="f-accent"
+              style={{
+                fontSize: "var(--text-md)",
+                fontStyle: "italic",
+                opacity: 0.6,
+                lineHeight: 1.5,
+                color: "var(--color-text)",
+              }}
+            >
+              &ldquo;{project.tagline}&rdquo;
+            </p>
+
+            {/* View Project link */}
+            <Link
+              href={project.href}
+              className="f-mono"
+              onClick={(e) => { e.stopPropagation(); saveHomeScroll(); }}
+              style={{
+                fontSize: "var(--text-xs)",
+                letterSpacing: "0.1em",
+                opacity: 0.55,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                minHeight: "44px",
+                color: "var(--color-text)",
+                textDecoration: "none",
+                transition: "opacity 0.3s ease, gap 0.4s cubic-bezier(0.19,1,0.22,1)",
+              }}
+            >
+              <motion.span
+                animate={{ x: hovered ? 8 : 0, opacity: hovered ? 1 : 0.55 }}
+                transition={{ duration: 0.4, ease: EXPO }}
+                style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+              >
+                View Project →
+              </motion.span>
+            </Link>
+
+            {/* Year */}
+            <p
+              className="f-mono"
+              style={{
+                fontSize: "var(--text-2xs)",
+                opacity: 0.3,
+                color: "var(--color-text)",
+              }}
+            >
+              {project.year}
+            </p>
+          </div>
+
+          {/* ── Right column — 3D tilt image ── */}
+          <div
+            ref={imageRef}
+            onMouseMove={handleMouseMove}
             style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              pointerEvents: "none",
-              borderRadius: "10px",
-              background: useTransform(
-                [spotX, spotY],
-                ([x, y]) =>
-                  `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.12) 0%, transparent 60%)`
-              ),
-              opacity: hovered ? 1 : 0,
-              transition: "opacity 0.3s ease",
+              marginLeft: "auto",
+              flexShrink: 0,
+              maxWidth: "54%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              perspective: "800px",
             }}
-          />
+          >
+            <motion.div
+              style={{
+                rotateX,
+                rotateY,
+                transformStyle: "preserve-3d",
+                borderRadius: "10px",
+                overflow: "hidden",
+                position: "relative",
+                lineHeight: 0,
+              }}
+              animate={{
+                boxShadow: hovered
+                  ? "0 16px 56px rgba(0,0,0,0.28), 0 0 0 1px rgba(0,0,0,0.1)"
+                  : "0 4px 32px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)",
+                scale: clicked ? 0.97 : 1,
+              }}
+              transition={{ duration: 0.35, ease: EXPO }}
+            >
+              {/* Cursor-following spotlight overlay */}
+              <motion.div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 2,
+                  pointerEvents: "none",
+                  borderRadius: "10px",
+                  background: spotlightBackground,
+                  opacity: hovered ? 1 : 0,
+                  transition: "opacity 0.3s ease",
+                }}
+              />
 
-          <img
-            src={project.image}
-            alt={project.title}
-            draggable={false}
-            style={{
-              display: "block",
-              maxHeight: "70dvh",
-              width: "auto",
-              maxWidth: "100%",
-              objectFit: "contain",
-              userSelect: "none",
-            }}
-          />
-        </motion.div>
-      </div>
+              <img
+                src={project.image}
+                alt={project.title}
+                draggable={false}
+                style={{
+                  display: "block",
+                  maxHeight: "70dvh",
+                  width: "auto",
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                  userSelect: "none",
+                }}
+              />
+            </motion.div>
+          </div>
+        </>
+      )}
 
       {/* ── Mobile layout override ── */}
       <style>{`
@@ -882,9 +915,9 @@ export default function HorizontalProjectsSection() {
 
               {/* ── 2. Featured Projects label card ── */}
               <div
+                className="w-[100vw] lg:w-[50vw]"
                 style={{
                   flexShrink: 0,
-                  width: "50vw",
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
