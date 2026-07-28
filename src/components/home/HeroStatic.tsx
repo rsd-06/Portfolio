@@ -45,7 +45,7 @@ export default function HeroStatic() {
           style={{ y: leftLabelY }}
         >
           <div className="flex flex-col gap-1 opacity-65">
-            <p>2nd Year &middot; EIE</p>
+            <p>3<sup>rd</sup> Year &middot; EIE</p>
             <p>KCT, Coimbatore</p>
           </div>
           
