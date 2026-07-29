@@ -9,7 +9,7 @@ export default function ScrollProgressTracker() {
     
     return (
         <motion.div
-            className="fixed z-[9999] hidden md:block pointer-events-none"
+            className="fixed z-[9999] hidden sm:block pointer-events-none"
             style={{
                 right: "clamp(1rem, 3vw, 2rem)",
                 top: "var(--nav-h, 120px)",
