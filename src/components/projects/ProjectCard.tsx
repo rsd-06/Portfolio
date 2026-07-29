@@ -98,7 +98,22 @@ export default function ProjectCard({ project, index }: { project: Project; inde
 
         <p className="f-accent italic text-sm opacity-55 mt-2">{project.tagline}</p>
 
-        <div className="flex justify-between items-end mt-4 pt-2">
+        {/* Completion bar */}
+        <div className="flex items-center gap-3 mt-3 mb-1 w-40">
+          <div className="flex-1 h-[2px]" style={{ backgroundColor: "var(--color-border)", opacity: 0.5 }}>
+            <div
+              className="h-full transition-all duration-700 ease-out"
+              style={{
+                width: `${project.completion}%`,
+                backgroundColor: "var(--color-text)",
+                opacity: 0.85,
+              }}
+            />
+          </div>
+          <span className="f-mono text-[9px] opacity-60">{project.completion}%</span>
+        </div>
+
+        <div className="flex justify-between items-end mt-2 pt-2">
           <div className="flex flex-wrap gap-2">
             {project.tags.slice(0, 3).map((tag) => (
               <span
@@ -120,18 +135,6 @@ export default function ProjectCard({ project, index }: { project: Project; inde
             <SiGithub className="shrink-0" /> repo →
           </a>
         </div>
-      </div>
-
-      {/* Completion bar */}
-      <div className="absolute bottom-2 left-2 right-2 h-[1px]" style={{ backgroundColor: "var(--color-border)", opacity: 0.4 }}>
-        <div
-          className="h-full"
-          style={{
-            width: `${project.completion}%`,
-            backgroundColor: "var(--color-text)",
-            opacity: 0.65,
-          }}
-        />
       </div>
 
       {/* Custom follow cursor */}

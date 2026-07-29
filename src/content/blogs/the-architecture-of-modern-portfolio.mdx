@@ -1,39 +1,77 @@
 ---
 title: "The Architecture of a Modern Developer Portfolio"
 date: "2026-07-24"
-category: "System Design"
-readTime: "4 min read"
-excerpt: "Why storing Markdown files in your Git repository is often a better choice than spinning up a full SQL database for personal blogs."
+excerpt: "Why storing Markdown files in your Git repository is often a better choice than spinning up a full SQL database for personal websites."
+category: "SYSTEM DESIGN"
+readTime: "4 MIN READ"
 ---
 
-# Building for Simplicity
+When building a developer portfolio, the instinct is often to reach for a heavy, database-backed architecture. We wire up PostgreSQL, configure ORMs like Prisma, and spin up CMS dashboards just to serve a few blog posts and project showcases. 
 
-When deciding how to build the blog section of a developer portfolio, the first instinct is often to reach for a fully-fledged database. We think of PostgreSQL, Supabase, Prisma, and NextAuth. We imagine building a custom admin dashboard to write our posts.
+But for personal sites, this is usually overkill. In this post, we explore why a **Git-backed Markdown architecture** is the cleanest, most performant way to build a modern developer portfolio.
 
-But for a personal portfolio, this is often a trap.
+## The Problem with Databases for Portfolios
 
-## The Git-Backed Approach
+Traditional database-backed portfolios introduce unnecessary friction:
+- **Maintenance overhead**: You have to manage database migrations, hosting, and uptime.
+- **Authoring friction**: Writing content means logging into a CMS dashboard instead of using your favorite IDE.
+- **Latency**: Every page load requires a database query (unless heavily cached).
 
-By storing your content as **MDX files directly inside your codebase**, you leverage tools you already use every day. 
+## The Markdown & Git Approach
 
-### Why MDX?
+Instead of a database, treat your Git repository as the single source of truth. By writing your content in **MDX (Markdown + JSX)**, you combine the simplicity of Markdown with the power of React components.
 
-1. **Version Control:** Every typo fix, every major rewrite is tracked perfectly in your git history. 
-2. **Security:** You don't need to build an admin panel or manage authentication. If you can push to the GitHub repository, you can publish a blog.
-3. **Speed:** Because the content lives in the repo, Next.js can read the file system and statically generate (SSG) your blog posts at build time. No database latency, no API limits. 
+### The Architecture
 
-## Writing Markdown
+1. **Content Layer**: MDX files stored directly in your `src/content/` directory.
+2. **Parsing Layer**: A build-time script (e.g., using `gray-matter` and `next-mdx-remote`) that parses the files and extracts metadata.
+3. **Rendering Layer**: Next.js statically generates the pages at build time.
 
-Writing in markdown is fast. You can quickly add code blocks:
+### Show Me The Code
 
-```javascript
-function greet() {
-  console.log("Hello, World!");
+Here is the core logic for reading MDX files from the filesystem. Notice how simple it is compared to a database query:
+
+```typescript
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+
+const CONTENT_DIR = path.join(process.cwd(), 'src/content/blogs');
+
+export function getBlogPosts() {
+  const files = fs.readdirSync(CONTENT_DIR);
+  
+  return files.map((filename) => {
+    const rawContent = fs.readFileSync(path.join(CONTENT_DIR, filename), 'utf-8');
+    const { data, content } = matter(rawContent);
+    
+    return {
+      slug: filename.replace('.mdx', ''),
+      title: data.title,
+      date: data.date,
+      content
+    };
+  });
 }
 ```
 
-And since we are using MDX, we can even drop React components straight into the file if we want interactive elements in our posts!
+### Why This Wins
 
-> "Simplicity is the ultimate sophistication." — Leonardo da Vinci
+1. **Zero Database Cost**: You don't pay for a database. Your hosting (like Vercel or Netlify) handles the static files for free.
+2. **Git Versioning**: Your blog posts have commit history. You can branch, review, and rollback content just like code.
+3. **Instant Loading**: Because the content is read at build time, Next.js can generate static HTML. The Time to First Byte (TTFB) is virtually zero.
+4. **Developer Ergonomics**: You write in your IDE, push to GitHub, and your CI/CD pipeline deploys the site. 
 
-Keeping your portfolio simple ensures you actually spend time writing and building, rather than maintaining database migrations and admin authentication flows.
+## When to use a Database
+
+If your site requires user authentication, dynamic comments, or highly personalized feeds, a database is unavoidable. Tools like **Convex**, **Supabase**, or **Firebase** are excellent for these use cases. But for read-heavy, author-centric portfolios, stick to Markdown.
+
+## Inspiration & Resources
+
+If you want to dive deeper into this architecture, here are some excellent resources:
+- [Next.js Documentation on MDX](https://nextjs.org/docs/app/building-your-application/configuring/mdx)
+- [Lee Robinson's Portfolio Architecture](https://leerob.io/blog/portfolio) - A major inspiration for Git-backed portfolios.
+- [Contentlayer](https://contentlayer.dev/) - A great tool for strictly typing your Markdown content.
+- [Framer Motion](https://www.framer.com/motion/) - For adding smooth, declarative animations to your statically generated pages.
+
+Keep it simple, keep it fast, and let your work speak for itself.

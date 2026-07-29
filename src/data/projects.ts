@@ -64,7 +64,7 @@ export const PROJECTS: Project[] = [
     title:      "SkillSync",
     category:   "B2B SaaS · Student Platform",
     year:       "2025",
-    tagline:    "Where engineers find their people.",
+    tagline:    "Where Ideas find their People.",
     summary:    "A closed-loop collaboration platform for engineering students to discover ideas, match based on skills, and execute projects in shared workspaces.",
     problem:    "Every semester, capable students face a disconnect: idea-rich students lack technical partners, skill-rich students lack meaningful projects, and teams operate across fragmented tools with no shared context. Existing platforms like LinkedIn or WhatsApp are too broad or unstructured.",
     objective:  "Build an institution-scoped, skill-indexed, idea-first platform that serves a student's full collaboration lifecycle—from idea discovery to project completion—within a single institution.",

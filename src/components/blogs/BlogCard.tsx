@@ -8,8 +8,15 @@ import { useState } from "react";
 export default function BlogCard({ blog }: { blog: BlogPost }) {
   const [hovered, setHovered] = useState(false);
 
+  const handleClick = (e: React.MouseEvent) => {
+    const selection = window.getSelection();
+    if (selection && selection.toString().length > 0) {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <Link href={`/blogs/${blog.slug}`}>
+    <Link href={`/blogs/${blog.slug}`} onClick={handleClick}>
       <motion.div
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
@@ -19,7 +26,7 @@ export default function BlogCard({ blog }: { blog: BlogPost }) {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-8">
           <div className="flex flex-col gap-3 max-w-2xl">
             <h3 
-              className="f-display text-3xl md:text-4xl transition-colors duration-300"
+              className="f-display text-3xl md:text-4xl transition-colors duration-300 cursor-text"
               style={{
                 color: hovered ? "var(--color-text)" : "color-mix(in srgb, var(--color-text) 80%, transparent)",
                 letterSpacing: "-0.02em"

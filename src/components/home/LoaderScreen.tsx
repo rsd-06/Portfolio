@@ -124,7 +124,7 @@ export default function LoaderScreen() {
           <div className="w-full flex justify-between items-start f-mono text-xs opacity-60">
             <div className="flex flex-col">
               <span>Portfolio</span>
-              <span>Building through SDE</span>
+              <span>Building through Software</span>
             </div>
             <div className="hidden md:flex flex-col text-center">
               <span>Coimbatore</span>
@@ -159,9 +159,8 @@ export default function LoaderScreen() {
           {/* Bottom Bar */}
           <div className="w-full text-center pb-8 f-mono text-sm opacity-80 italic max-w-lg mx-auto">
             <p>
-              Hallo, amigos<br />
-              I'm Sudharshan, a web developer and engineer.<br />
-              Welcome to my portfolio!
+              Hello, I'm Sudharshan,<br />
+              A Software Enthusiast.
             </p>
           </div>
 
