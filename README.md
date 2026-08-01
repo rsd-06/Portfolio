@@ -11,7 +11,7 @@
 
 ## 🌟 Introduction
 
-Welcome to the source code of **[rsd.exe](https://rsd.exe)**! This portfolio is designed to be more than just a resume—it's a digital reflection of my design philosophy, engineering skills, and my continuous learning journey (including my time at KCT and the ProtoSem ASADI apprenticeship).
+Welcome to the source code of **[rsd.exe](https://rsd-exe.vercel.app/)**! This portfolio is designed to be more than just a resume—it's a digital reflection of my design philosophy, engineering skills, and my continuous learning journey (including my time at KCT and the ProtoSem ASADI apprenticeship).
 
 ## 🎨 Design Philosophy & Inspiration
 
