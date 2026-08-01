@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '',           priority: 1.0,  freq: 'weekly'  },
     { path: '/about',     priority: 0.9,  freq: 'weekly'  },
     { path: '/projects',  priority: 0.9,  freq: 'weekly'  },
+    { path: '/protosem',  priority: 0.9,  freq: 'weekly'  },
     { path: '/blogs',     priority: 0.8,  freq: 'weekly'  },
     { path: '/contact',   priority: 0.7,  freq: 'monthly' },
   ].map(({ path, priority, freq }) => ({
