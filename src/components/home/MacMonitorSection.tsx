@@ -31,12 +31,38 @@ const IPHONE = {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-const VIDEO_SRC = "/heroVideo.mp4";
+// Video sources in priority order (WebM is ~60% smaller, MP4 as fallback)
+const VIDEO_SRC_WEBM = "/heroVideo.webm";
+const VIDEO_SRC_MP4  = "/heroVideo.mp4";
+
+const VIDEO_SRC_MOBILE_WEBM = "/heroVideoMobile.webm";
+const VIDEO_SRC_MOBILE_MP4  = "/heroVideoMobile.mp4";
 
 export default function MacMonitorSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
+
+  // ─── Smart lazy video loading ────────────────────────────────────────────
+  // The video src is withheld until the loader fires `rsd:loaderDone`.
+  // This means the browser won't touch the 64 MB file during the loader phase.
+  // Once the event fires (~1.5 s in), the src is set immediately with
+  // preload="auto" so the browser aggressively buffers it in the background —
+  // well before the user scrolls down to this section.
+  const [videoSrcReady, setVideoSrcReady] = useState(false);
+  useEffect(() => {
+    // If the loader has already run (SPA navigation back to home), set src now.
+    if ((window as Window & { __rsd_loaderDone?: boolean }).__rsd_loaderDone) {
+      setVideoSrcReady(true);
+      return;
+    }
+    const onLoaderDone = () => {
+      (window as Window & { __rsd_loaderDone?: boolean }).__rsd_loaderDone = true;
+      setVideoSrcReady(true);
+    };
+    window.addEventListener("rsd:loaderDone", onLoaderDone, { once: true });
+    return () => window.removeEventListener("rsd:loaderDone", onLoaderDone);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -173,17 +199,28 @@ export default function MacMonitorSection() {
                   background: "#000",
                 }}
               >
+                {/* Video — src set lazily after rsd:loaderDone so the 64 MB file
+                    doesn't block the loader phase. preload=auto ensures aggressive
+                    buffering starts as soon as the src is set. */}
                 <video
                   ref={videoRef}
-                  src={VIDEO_SRC}
                   autoPlay
                   muted
                   loop
                   playsInline
+                  preload={videoSrcReady ? "auto" : "none"}
                   suppressHydrationWarning
                   className="w-full h-full object-cover"
                   aria-label="Portfolio reel video"
-                />
+                >
+                  {videoSrcReady && (
+                    <>
+                      {/* WebM is served first — ~60% smaller than MP4 on Chrome/Firefox */}
+                      <source src={mounted && isMobile ? VIDEO_SRC_MOBILE_WEBM : VIDEO_SRC_WEBM} type="video/webm" />
+                      <source src={mounted && isMobile ? VIDEO_SRC_MOBILE_MP4 : VIDEO_SRC_MP4}  type="video/mp4" />
+                    </>
+                  )}
+                </video>
               </div>
 
               <motion.div
@@ -201,6 +238,7 @@ export default function MacMonitorSection() {
                   src={mockupSrc}
                   alt={mounted && isMobile ? "iPhone 14 frame" : "MacBook Pro frame"}
                   draggable={false}
+                  fetchPriority="low"
                   style={{
                     width: "100%",
                     height: "100%",

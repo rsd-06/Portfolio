@@ -14,12 +14,19 @@ export function useAssetLoader({ images, videos }: AssetProps) {
 
   useEffect(() => {
     let completedCount = 0;
-    const totalCount = images.length + videos.length;
-    
+
+    // Videos are intentionally excluded from blocking the loader.
+    // They are large assets (heroVideo.mp4 is ~64 MB) and will be
+    // fetched in the background after the loader exits via the
+    // `rsd:loaderDone` custom event. Only images are waited on.
+    const watchedAssets = [...images];
+    const totalCount = watchedAssets.length;
+
     if (totalCount === 0) {
       setProgress(100);
       document.documentElement.style.setProperty("--loader-progress", "100%");
-      setTimeout(() => setReady(true), 1200);
+      // Short 300ms buffer — enough for first paint, not artificially long
+      setTimeout(() => setReady(true), 300);
       return;
     }
 
@@ -33,7 +40,9 @@ export function useAssetLoader({ images, videos }: AssetProps) {
 
       if (completedCount === totalCount) {
         const elapsed = Date.now() - start;
-        const remaining = Math.max(0, 1200 - elapsed);
+        // Keep a small buffer (max 300ms) so the RAF counter has time to
+        // visually reach 100%, but don't add artificial 1200ms delay.
+        const remaining = Math.max(0, 300 - elapsed);
         setTimeout(() => setReady(true), remaining);
       }
     };
@@ -45,14 +54,9 @@ export function useAssetLoader({ images, videos }: AssetProps) {
       img.onerror = updateProgress;
     });
 
-    videos.forEach((src) => {
-      const video = document.createElement("video");
-      video.src = src;
-      video.preload = "auto";
-      video.oncanplaythrough = updateProgress;
-      video.onerror = updateProgress;
-      video.load();
-    });
+    // Videos are no longer waited on (see above).
+    // The `videos` param is kept in the signature for future use.
+    void videos;
 
   }, [images, videos]);
 

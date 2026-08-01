@@ -6,7 +6,8 @@
     "dev": "next dev & npx next-video sync -w",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "compress-video": "powershell -ExecutionPolicy Bypass -File compress-video.ps1"
   },
   "dependencies": {
     "@react-three/fiber": "^9.5.0",

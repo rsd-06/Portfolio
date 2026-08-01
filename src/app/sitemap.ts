@@ -4,16 +4,18 @@ import { PROJECTS } from '@/data/projects';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rsd.exe';
 
-  // Base routes
+  // Base routes — ordered by importance
   const routes = [
-    '',
-    '/about',
-    '/projects',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    { path: '',           priority: 1.0,  freq: 'weekly'  },
+    { path: '/about',     priority: 0.9,  freq: 'weekly'  },
+    { path: '/projects',  priority: 0.9,  freq: 'weekly'  },
+    { path: '/blogs',     priority: 0.8,  freq: 'weekly'  },
+    { path: '/contact',   priority: 0.7,  freq: 'monthly' },
+  ].map(({ path, priority, freq }) => ({
+    url: `${baseUrl}${path}`,
     lastModified: new Date().toISOString(),
-    changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: freq as 'weekly' | 'monthly',
+    priority,
   }));
 
   // Project routes

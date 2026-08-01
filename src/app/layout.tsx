@@ -16,13 +16,15 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
+// Only Cormorant is preloaded — it's used in the loader screen, so it must be
+// available before the first paint. All other fonts load after interactive.
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
   display: "swap",
-  preload: true,
+  preload: true,   // ← needed in LoaderScreen
 });
 
 const dmMono = DM_Mono({
@@ -31,7 +33,7 @@ const dmMono = DM_Mono({
   style: ["normal", "italic"],
   variable: "--font-dm-mono",
   display: "swap",
-  preload: true,
+  preload: false,  // ← loaded after paint; mono is used for labels only
 });
 
 const instrumentSerif = Instrument_Serif({
@@ -40,7 +42,7 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
   variable: "--font-instrument",
   display: "swap",
-  preload: true,
+  preload: false,  // ← decorative; non-blocking is fine
 });
 
 const inter = Inter({
@@ -48,7 +50,7 @@ const inter = Inter({
   weight: ["300", "400", "500"],
   variable: "--font-inter",
   display: "swap",
-  preload: false,
+  preload: false,  // ← body fallback; browser has system sans-serif anyway
 });
 
 /* ── Metadata ────────────────────────────────────────────────── */
@@ -61,21 +63,43 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "rsd.exe",
+    default: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
     template: "%s — rsd.exe",
   },
   description:
-    "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development. Aspiring SDE & Builder.",
+    "Portfolio of Sudharshan R — 3rd year EIE student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem (Forge Innovation & Ventures, KCT Tech Park). Building with React, Next.js, Node.js, and AI.",
   keywords: [
-    "Sudharshan R", "R Sudharshan", "rsd.exe", "portfolio", "Full-Stack Developer in India",
-    "React Developer", "Coder", "Entrepreneur", "Builder", "SDE", "AIML",
-    "Machine Learning Enthusiast", "Cloud Computing", "Software Developer", "Full-Stack",
-    "Creative Coding", "Next.js Developer"
+    // Identity
+    "Sudharshan R", "R Sudharshan", "rsd.exe", "rsd", "rsudh",
+    // Role
+    "portfolio", "Full-Stack Developer", "Software Developer", "SDE", "Builder", "Entrepreneur",
+    "Coder", "Developer", "Engineer",
+    // Technical skills
+    "React Developer", "Next.js Developer", "Node.js", "Express.js", "MongoDB", "MERN Stack",
+    "TypeScript", "JavaScript", "Python", "Full-Stack", "Creative Coding",
+    "Machine Learning", "ML", "AI", "AIML", "Machine Learning Enthusiast",
+    "Artificial Intelligence", "LLM", "AI Agents", "Multi-modal AI",
+    "Cloud Computing", "Vercel", "REST API",
+    // Education
+    "KCT", "Kumaraguru College of Technology", "Coimbatore", "India",
+    "EIE", "Electronics and Instrumentation Engineering",
+    "3rd year student", "engineering student", "student developer",
+    // Programs & Organizations
+    "PBL", "Project Based Learning", "Project Based Learner",
+    "ProtoSem", "Forge", "Forge Innovation and Ventures", "KCT Tech Park",
+    "ASADI", "apprenticeship", "20-week program",
+    // General
+    "Full-Stack Developer in India", "Indian developer",
   ],
   authors: [{ name: "Sudharshan R", url: "https://rsd.exe" }],
+  category: "technology",
+  alternates: {
+    canonical: "https://rsd.exe",
+  },
   openGraph: {
-    title: "rsd.exe",
-    description: "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
+    title: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
+    description:
+      "Portfolio of Sudharshan R — EIE student at KCT Coimbatore, full-stack developer, ML enthusiast, and Project Based Learner at Forge Innovation & Ventures (KCT Tech Park).",
     type: "website",
     locale: "en_IN",
     siteName: "rsd.exe",
@@ -83,8 +107,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "rsd.exe",
-    description: "Portfolio Website of Sudharshan R : A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
+    title: "rsd.exe — Sudharshan R | Full-Stack Developer",
+    description:
+      "Portfolio of Sudharshan R — EIE student at KCT Coimbatore, full-stack developer, ML enthusiast, and Project Based Learner at Forge Innovation & Ventures.",
+    creator: "@rsd_2006",
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
@@ -92,6 +118,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -101,12 +134,47 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Sudharshan R",
-    "alternateName": "R Sudharshan",
+    "alternateName": ["R Sudharshan", "rsd.exe"],
     "url": "https://rsd.exe",
-    "jobTitle": "Full-Stack Developer",
-    "description": "A modern, design-driven showcase of full-stack engineering, creative coding, and AI project development.",
+    "jobTitle": "Full-Stack Developer & ML Enthusiast",
+    "description": "3rd year Electronics and Instrumentation Engineering student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem — Forge Innovation and Ventures, KCT Tech Park.",
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Kumaraguru College of Technology",
+      "alternateName": "KCT",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Coimbatore",
+        "addressRegion": "Tamil Nadu",
+        "addressCountry": "IN"
+      }
+    },
+    "memberOf": [
+      {
+        "@type": "Organization",
+        "name": "Forge Innovation and Ventures",
+        "alternateName": "Forge",
+        "parentOrganization": {
+          "@type": "Organization",
+          "name": "KCT Tech Park"
+        }
+      },
+      {
+        "@type": "EducationalOrganization",
+        "name": "ProtoSem — ASADI Apprenticeship",
+        "alternateName": "ProtoSem"
+      }
+    ],
+    "knowsAbout": [
+      "Full-Stack Development", "React", "Next.js", "Node.js", "Machine Learning",
+      "Artificial Intelligence", "AI Agents", "LLMs", "Project Based Learning",
+      "MERN Stack", "TypeScript", "Python", "Cloud Computing"
+    ],
     "sameAs": [
-      "https://github.com/rsd-exe"
+      "https://github.com/rsd-06",
+      "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/",
+      "https://x.com/rsd_2006",
+      "https://www.instagram.com/rsd_exe/"
     ]
   };
 
@@ -121,6 +189,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       `}
       suppressHydrationWarning
     >
+      <head>
+        {/* Resource hints — these run before the browser parses JS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
+      </head>
       <body className="bg-bg text-text antialiased overflow-x-hidden" suppressHydrationWarning>
         {/* Google Analytics via Environment Variable */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
