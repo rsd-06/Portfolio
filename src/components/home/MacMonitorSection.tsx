@@ -250,6 +250,42 @@ export default function MacMonitorSection() {
           </motion.div>
         </div>
 
+        {/* ── Scroll Hint ───────────────────────────────────────────────────── */}
+        <motion.div
+          className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none"
+          style={{ opacity: scrollHintOpacity }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.9, ease: [0.19, 1, 0.22, 1] }}
+        >
+          {/* Desktop: full bracketed text */}
+          <motion.div
+            className="hidden md:flex flex-col items-center gap-2"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+          >
+            <span className="f-mono text-xs uppercase tracking-[0.25em] opacity-40 select-none">
+              [ scroll to explore ]
+            </span>
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="none" className="opacity-30">
+              <path d="M5 0v12M1 8l4 4 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+
+          {/* Mobile / Tablet: compact arrow + label */}
+          <motion.div
+            className="flex md:hidden flex-col items-center gap-1"
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+          >
+            <span className="f-mono text-[10px] uppercase tracking-[0.2em] opacity-35 select-none">
+              Scroll
+            </span>
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="none" className="opacity-30">
+              <path d="M5 0v12M1 8l4 4 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.div>
+        </motion.div>
 
       </motion.div>
     </section>
