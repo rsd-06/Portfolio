@@ -1,0 +1,120 @@
+---
+title: "The Common Misconception: World Wide Web ≠ Internet"
+date: "2026-08-02"
+excerpt: "On the birthday of the World Wide Web, let's finally settle the argument everyone — including developers who should know better — gets wrong every single day."
+category: "FUNDAMENTALS"
+readTime: "5 MIN READ"
+---
+
+Today is the birthday of the World Wide Web.
+
+And if there's one gift we can give it, it's this: *finally* understanding what it actually is.
+
+Because here's the thing — the web and the internet are not the same thing. Your relatives mix them up. Journalists mix them up. That one developer on Twitter who argues about tabs vs. spaces? Also mixes them up. It's one of the most universal misconceptions in tech, and it's been living rent-free in every conversation since 1991.
+
+Let's evict it.
+
+---
+
+## Two Things. Very Different Things.
+
+Here's the entire argument in two lines:
+
+- **The Internet** = Physical hardware (machines, cables, towers) + Protocols (rules for how data moves)
+- **The World Wide Web** = Linked hypertext documents that *use* the internet to get to you
+
+The web is a service that runs *on top of* the internet. The internet is the infrastructure. The web is one of many things that travel through it.
+
+An analogy: the internet is the road network. The web is one specific type of vehicle on that road. Email, file transfers, and video calls are other vehicles. You wouldn't call a car "the road system."
+
+---
+
+## What Even Is the Internet?
+
+Imagine two separate networks of computers. One in Los Angeles. One in Menlo Park. They're both just sitting there — productive independently, completely unaware of each other.
+
+Now someone connects them with an actual physical wire. They can now communicate.
+
+Scale that up. Millions of such networks. Connected by wires, fiber, undersea cables, satellites — all tangled into a single, planet-spanning web. **That** is the internet. Physical machines. Real cables. A massive global infrastructure that predates the web by about two decades.
+
+But hardware alone is useless. You also need to agree on the *rules*.
+
+---
+
+## Protocols: The Agreements Everyone Ignores
+
+When data travels from one computer to another, both ends need to agree on *how* that data is structured. That agreement is called a **protocol**. Think of it as a shared language — if one end sends "Subject: Hello" and the other expects "SUBJECT:Hello" (note the space), the whole thing falls apart.
+
+Some protocols you've definitely heard of:
+
+- **TCP/IP** — The senior-most protocol. Governs how data is broken into tiny **packets**, shipped across wires, and reassembled at the destination. Everything — your emails, your calls, your memes — is just packets.
+- **HTTP** — *Hyper*text Transfer Protocol. This one belongs specifically to the web. It defines how web pages travel.
+- **SMTP** — Simple Mail Transfer Protocol. Email's backbone.
+- **FTP** — File Transfer Protocol. Moving large files.
+- **VoIP** — Voice over Internet Protocol. How your voice turns into data and back into a voice on someone else's speakers.
+
+Different protocols exist because different data needs different handling. They're optimized for their job. One size does not fit all.
+
+---
+
+## So What Exactly Is the Web?
+
+Thirty-five years ago today, Tim Berners-Lee gave the world something very specific: **linked hypertext documents**.
+
+*Hypertext* means text with links. Click a word, jump to a related document. That's the core idea. That's the magic. That absurdly simple concept, multiplied across billions of pages, is the **World Wide Web**.
+
+The web is not the internet. It's one specific thing that travels *over* the internet — using HTTP. (That's why every web address starts with `http://` or `https://`. The clue was in the name the whole time.)
+
+Here's the flow when you open a webpage:
+
+1. You open a **browser** (Chrome, Firefox, whatever — no judgment)
+2. The browser sends a request through the internet to a **web server** — a machine that stores web pages
+3. The server finds the page and ships it back
+4. The browser renders it on your screen
+5. You click a link, and the whole cycle repeats
+
+The internet is the pipe. The web is what flows through it.
+
+---
+
+## The "But I'm on Wi-Fi" Footnote
+
+"I'm not plugged into any wire right now."
+
+Fair point. But wireless signals travel through the air only until they hit a tower. That tower connects to another tower. Eventually, everything reconnects to physical cables deep underground or under the ocean. The wire is still there — it's just not in your living room.
+
+Conceptually, it's all the same infrastructure.
+
+---
+
+## TL;DR
+
+| | The Internet | The World Wide Web |
+|---|---|---|
+| **What is it?** | Hardware + Protocols | Linked hypertext documents |
+| **Born** | ~1960s (ARPANET) | August 1991 (Tim Berners-Lee) |
+| **Examples** | Email, FTP, VoIP, video calls | Websites, web apps |
+| **Relationship** | The infrastructure | One service on top of it |
+
+The web could not exist without the internet. But the internet existed for roughly 20 years before the web ever showed up.
+
+So the next time someone says "the internet is down" because a webpage won't load — you know exactly what to say.
+
+*Happy birthday, World Wide Web. You changed everything. We just finally learned what to call you.*
+
+---
+
+## Watch This Instead of Reading
+
+If you'd rather hear all of this explained out loud — with diagrams, a whiteboard, and significantly more hand-waving — this is the video that inspired this post:
+
+[The Internet vs. The Web — YouTube →](https://youtu.be/Pc8-T2_22WM?si=tmWX52bjV4ANHSOG)
+
+<iframe
+  width="100%"
+  style={{ aspectRatio: "16/9", borderRadius: "8px", border: "none", marginTop: "1rem" }}
+  src="https://www.youtube.com/embed/Pc8-T2_22WM"
+  title="The Internet vs. The World Wide Web"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+/>

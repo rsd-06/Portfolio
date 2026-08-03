@@ -256,7 +256,7 @@ export default function MacMonitorSection() {
         {/* Single element owns both entry (delayed fade-up) and scroll-exit.
             z-20 lifts it above the MacBook's transform stacking context. */}
         <motion.div
-          className="absolute bottom-8 left-0 right-0 z-20 flex justify-center pointer-events-none"
+          className="absolute bottom-8 right-8 z-20 flex flex-col items-end pointer-events-none"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: scrolled ? 0 : 1, y: scrolled ? 4 : 0 }}
           transition={scrolled
