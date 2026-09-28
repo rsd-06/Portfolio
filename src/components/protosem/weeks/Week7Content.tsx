@@ -5,6 +5,8 @@
 // A four-task smart-home build on the ESP32, each task adding one layer:
 // local HTTP -> cloud MQTT -> voice triggers -> full-stack sensor platform.
 
+import { Wifi, Cloud, Plug, Lightbulb, Wrench, Monitor } from "lucide-react";
+
 import {
   WeekShell,
   WeekSection,
@@ -215,7 +217,7 @@ export default function Week7Content() {
         <Prose>
           Week 7 was the hardware week. The brief was to build a working smart-home
           system on an <Term>ESP32</Term>, but the point was not the finished gadget —
-          it was the progression. Each task kept the same physical outcome (a light
+          it was the <strong>progression</strong>. Each task kept the same physical outcome (a light
           turning on) and changed only the path the command travelled. By the end, the
           same relay could be driven from a browser on the same Wi-Fi, from a dashboard
           on the other side of the internet, from a spoken sentence, or by the room
@@ -223,8 +225,8 @@ export default function Week7Content() {
         </Prose>
         <Prose className="mt-4">
           Holding the outcome constant while varying the architecture is what made the
-          trade-offs legible. HTTP is immediate but trapped on the local network. MQTT
-          escapes the network but introduces a broker you do not own. Voice adds
+          trade-offs legible. <strong>HTTP is immediate but trapped on the local network</strong>. <strong>MQTT
+          escapes the network but introduces a broker you do not own</strong>. Voice adds
           delightful ergonomics and two seconds of latency. A full-stack backend gives
           you history and autonomy, and a great deal more to maintain.
         </Prose>
@@ -366,10 +368,10 @@ export default function Week7Content() {
 
         <ChipRow
           items={[
-            { icon: "📡", label: "MQTT", description: "Lightweight pub/sub for constrained devices" },
-            { icon: "☁️", label: "Adafruit IO", description: "Hosted broker + dashboard" },
-            { icon: "🔌", label: "Relay module", description: "Isolated switching of the mains load" },
-            { icon: "💡", label: "230V bulb", description: "The visible result" },
+            { icon: <Wifi size={18} />, label: "MQTT", description: "Lightweight pub/sub for constrained devices" },
+            { icon: <Cloud size={18} />, label: "Adafruit IO", description: "Hosted broker + dashboard" },
+            { icon: <Plug size={18} />, label: "Relay module", description: "Isolated switching of the mains load" },
+            { icon: <Lightbulb size={18} />, label: "230V bulb", description: "The visible result" },
           ]}
         />
 
@@ -462,19 +464,19 @@ export default function Week7Content() {
           columns={3}
           items={[
             {
-              icon: "🔧",
+              icon: <Wrench size={24} />,
               title: "Hardware",
               subtitle: "ESP32 · DHT11 · LDR",
               body: "Reads temperature, humidity and light on a fixed interval; drives the relay; listens for control changes.",
             },
             {
-              icon: "☁️",
+              icon: <Cloud size={24} />,
               title: "Cloud",
               subtitle: "Firebase RTDB + Auth",
               body: "Single source of truth for device state and history, with sign-in so the dashboard is not open to the world.",
             },
             {
-              icon: "🖥️",
+              icon: <Monitor size={24} />,
               title: "Dashboard",
               subtitle: "Web client",
               body: "Live telemetry, a manual toggle, a manual/automatic switch, a threshold control and a CSV export.",
@@ -580,25 +582,25 @@ export default function Week7Content() {
           columns={2}
           items={[
             {
-              icon: "①",
+              icon: <span className="font-bold text-lg leading-none" style={{ color: "var(--accent-main)" }}>1</span>,
               title: "Local HTTP",
               subtitle: "Same network · well under a second",
               body: "Fastest and fully self-contained — no accounts, no broker, no dependency. Useless the moment you leave the building.",
             },
             {
-              icon: "②",
+              icon: <span className="font-bold text-lg leading-none" style={{ color: "var(--accent-main)" }}>2</span>,
               title: "Cloud MQTT",
               subtitle: "Anywhere · around a second",
               body: "Works from any network without exposing the device. Costs you a dependency on a broker you do not control.",
             },
             {
-              icon: "③",
+              icon: <span className="font-bold text-lg leading-none" style={{ color: "var(--accent-main)" }}>3</span>,
               title: "Voice",
               subtitle: "Anywhere · two to three seconds",
               body: "The best ergonomics of the four and zero new firmware. The slowest path, and it fails if any link in the chain is down.",
             },
             {
-              icon: "④",
+              icon: <span className="font-bold text-lg leading-none" style={{ color: "var(--accent-main)" }}>4</span>,
               title: "Full-stack",
               subtitle: "Anywhere · bidirectional",
               body: "History, authentication and autonomous behaviour. Also the most moving parts and the most to keep running.",

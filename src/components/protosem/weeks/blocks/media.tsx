@@ -3,7 +3,7 @@
 // Image and video primitives.
 
 import Image from "next/image";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 
@@ -34,7 +34,14 @@ export function Figure({
   priority = false,
 }: FigureProps) {
   return (
-    <figure className="mt-6" style={{ maxWidth, width: "100%" }}>
+    <motion.figure 
+      initial={{ opacity: 0, scale: 0.98 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="mt-6" 
+      style={{ maxWidth, width: "100%" }}
+    >
       <div
         className="relative rounded-xl overflow-hidden"
         style={{
@@ -60,7 +67,7 @@ export function Figure({
           {caption}
         </figcaption>
       )}
-    </figure>
+    </motion.figure>
   );
 }
 
@@ -82,7 +89,14 @@ export function VideoFigure({
   aspect?: string;
 }) {
   return (
-    <figure className="mt-6" style={{ maxWidth, width: "100%" }}>
+    <motion.figure 
+      initial={{ opacity: 0, scale: 0.98 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="mt-6" 
+      style={{ maxWidth, width: "100%" }}
+    >
       <div
         className="rounded-xl overflow-hidden"
         style={{
@@ -111,7 +125,7 @@ export function VideoFigure({
           {caption}
         </figcaption>
       )}
-    </figure>
+    </motion.figure>
   );
 }
 
@@ -129,8 +143,14 @@ export function Gallery({
   return (
     <>
       <div className={`mt-6 grid grid-cols-1 ${cols} gap-4`}>
-        {items.map((item) => (
-          <figure key={item.src}>
+        {items.map((item, i) => (
+          <motion.figure 
+            key={item.src}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             <button
               type="button"
               onClick={() => setOpen(item)}
@@ -161,7 +181,7 @@ export function Gallery({
                 {item.caption}
               </figcaption>
             )}
-          </figure>
+          </motion.figure>
         ))}
       </div>
 

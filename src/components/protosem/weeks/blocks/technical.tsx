@@ -37,7 +37,7 @@ export function CodeBlock({
   return (
     <div
       className="mt-6 rounded-xl overflow-hidden"
-      style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)", maxWidth: "100%" }}
+      style={{ border: "1px solid var(--border-subtle)", background: "#0a0a0a", maxWidth: "100%" }}
     >
       {(filename || language) && (
         <div
@@ -79,7 +79,7 @@ export function CodeBlock({
           WebkitOverflowScrolling: "touch",
           fontSize: "var(--text-2xs)",
           lineHeight: 1.7,
-          color: "var(--text-secondary)",
+          color: "#ffffff",
         }}
       >
         <code>{children}</code>
@@ -201,8 +201,14 @@ export function Pipeline({ steps }: { steps: Step[] }) {
 /** Small headline metrics row. */
 export function StatRow({ items }: { items: { value: string; label: string }[] }) {
   return (
-    <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-xl overflow-hidden"
-         style={{ background: "var(--border-subtle)", border: "1px solid var(--border-subtle)" }}>
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-px rounded-xl overflow-hidden"
+      style={{ background: "var(--border-subtle)", border: "1px solid var(--border-subtle)" }}
+    >
       {items.map((s) => (
         <div key={s.label} className="flex flex-col gap-1 p-4" style={{ background: "var(--bg-surface)" }}>
           <span
@@ -219,6 +225,6 @@ export function StatRow({ items }: { items: { value: string; label: string }[] }
           </span>
         </div>
       ))}
-    </div>
+    </motion.div>
   );
 }

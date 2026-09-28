@@ -20,7 +20,19 @@ export function Prose({ children, className = "" }: { children: ReactNode; class
 
 /** Emphasised inline term. */
 export function Term({ children }: { children: ReactNode }) {
-  return <strong style={{ color: "var(--text-primary)", fontWeight: 500 }}>{children}</strong>;
+  return (
+    <strong
+      style={{
+        color: "var(--accent-main)",
+        fontWeight: 600,
+        backgroundColor: "color-mix(in srgb, var(--accent-main) 15%, transparent)",
+        padding: "0.1em 0.3em",
+        borderRadius: "0.25rem",
+      }}
+    >
+      {children}
+    </strong>
+  );
 }
 
 /** One numbered activity section with an eyebrow label. */
@@ -58,7 +70,11 @@ export function WeekSection({
 /** Boxed list with arrow markers. */
 export function ArrowList({ label, items }: { label?: string; items: ReactNode[] }) {
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
       className="mt-6 p-5 rounded-xl"
       style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}
     >
@@ -81,14 +97,18 @@ export function ArrowList({ label, items }: { label?: string; items: ReactNode[]
           </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }
 
 /** Left-accent callout, e.g. a reflection. */
 export function Callout({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
       className="mt-8 p-5 rounded-xl"
       style={{
         background: "var(--bg-surface)",
@@ -105,11 +125,11 @@ export function Callout({ label, children }: { label: string; children: ReactNod
       <div style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.8 }}>
         {children}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-export type Card = { icon?: string; title: string; subtitle?: string; body: ReactNode };
+export type Card = { icon?: ReactNode; title: string; subtitle?: string; body: ReactNode };
 
 /** Responsive card grid. Single column on phones by design. */
 export function CardGrid({ items, columns = 3 }: { items: Card[]; columns?: 2 | 3 }) {
@@ -156,7 +176,7 @@ export function CardGrid({ items, columns = 3 }: { items: Card[]; columns?: 2 | 
 }
 
 /** Small labelled chips, e.g. tech used. */
-export function ChipRow({ items }: { items: { icon?: string; label: string; description?: string }[] }) {
+export function ChipRow({ items }: { items: { icon?: ReactNode; label: string; description?: string }[] }) {
   return (
     <div className="flex flex-wrap gap-3">
       {items.map((chip, i) => (
