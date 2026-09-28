@@ -144,7 +144,7 @@ export default function ProjectDetailBody({ project }: { project: Project }) {
         </div>
 
         {/* ── Tracker column ── */}
-        <div className="hidden md:block sticky top-[var(--nav-h)] h-[calc(100dvh-var(--nav-h))] shrink-0 w-[clamp(3.5rem,5vw,5rem)] border-l border-[var(--color-border)] border-opacity-10 z-10">
+        <div className="hidden md:block sticky top-[var(--nav-h)] h-[calc(100dvh_-_var(--nav-h))] shrink-0 w-[clamp(3.5rem,5vw,5rem)] border-l border-[var(--color-border)] border-opacity-10 z-10">
           <div className="relative w-full h-full py-[clamp(4rem,8vw,6rem)]">
             <div className="relative w-full h-full">
               {/* Ghost track */}

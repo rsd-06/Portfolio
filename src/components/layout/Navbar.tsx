@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 // ── Rotating words data ────────────────────────────────────────
 const WORDS = ["SDE Aspirant.", "Developer.", "Learner.", "Engineer."]; // TODO: Add Entrepreneur. when I start something of my own.
@@ -27,11 +28,9 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => setMenuOpen(false), [pathname]);
 
-  // Prevent body scroll when mobile menu open
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
+  // Lock page scroll while the mobile menu is open. Body overflow alone is not
+  // enough here: Lenis drives the window and keeps scrolling underneath.
+  useScrollLock(menuOpen);
 
   return (
     <>

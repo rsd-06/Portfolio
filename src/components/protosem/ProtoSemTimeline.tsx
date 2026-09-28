@@ -7,7 +7,12 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { PROTOSEM_WEEKS, type ProtoSemWeek } from "@/data/protosem";
+import {
+  DOCUMENTED,
+  isDocumented,
+  PROGRAM_META,
+  type ProtoSemWeek,
+} from "@/data/protosem";
 
 /* ── Tux SVG (inline, no external dep) ─────────────────────────── */
 function TuxIcon({ className }: { className?: string }) {
@@ -68,19 +73,17 @@ function StatusBadge({ status }: { status: ProtoSemWeek["status"] }) {
 function WeekCard({
   week,
   index,
+  total,
   isActive,
   onClick,
 }: {
   week: ProtoSemWeek;
   index: number;
+  total: number;
   isActive: boolean;
   onClick: () => void;
 }) {
-  const isClickable = week.status !== "upcoming";
-  const Tag = isClickable ? Link : "div";
-  const tagProps = isClickable
-    ? { href: `/protosem/${week.slug}` }
-    : { onClick };
+  const isClickable = isDocumented(week);
 
   return (
     <motion.div
@@ -119,7 +122,7 @@ function WeekCard({
             {week.id}
           </span>
         </motion.div>
-        {index < PROTOSEM_WEEKS.length - 1 && (
+        {index < total - 1 && (
           <div
             className="mt-1"
             style={{
@@ -136,9 +139,9 @@ function WeekCard({
       </div>
 
       {/* Card */}
-      {/* @ts-expect-error – polymorphic tag */}
-      <Tag
-        {...tagProps}
+      <CardTag
+        href={isClickable ? `/protosem/${week.slug}` : undefined}
+        onSelect={onClick}
         className={`group relative mb-6 flex-1 rounded-xl border p-4 transition-all duration-300 ${
           isClickable
             ? "cursor-pointer hover:border-[var(--accent-main)] hover:shadow-lg"
@@ -171,7 +174,7 @@ function WeekCard({
             color: "var(--text-primary)",
           }}
         >
-          {week.title.replace(`Week ${week.id} — `, "")}
+          {week.heading}
         </h3>
         <p
           className="mt-1.5"
@@ -206,7 +209,87 @@ function WeekCard({
             <span>→</span>
           </div>
         )}
-      </Tag>
+      </CardTag>
+    </motion.div>
+  );
+}
+
+/* Card wrapper: a real Link when the week has a page, a plain div otherwise.
+   Replaces a polymorphic tag that needed a @ts-expect-error. */
+function CardTag({
+  href,
+  onSelect,
+  className,
+  style,
+  children,
+}: {
+  href?: string;
+  onSelect: () => void;
+  className?: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  if (href) {
+    return (
+      <Link href={href} className={className} style={style}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <div className={className} style={style} aria-disabled onClick={onSelect}>
+      {children}
+    </div>
+  );
+}
+
+/* One row standing in for every week that has not been written up yet, so the
+   timeline shows the shape of the program without 17 empty placeholder cards. */
+function UpcomingTail({ from, to }: { from: number; to: number }) {
+  if (from > to) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="relative flex items-start gap-4 mb-6"
+    >
+      <div className="flex flex-col items-center" style={{ minWidth: "2rem" }}>
+        <div
+          className="rounded-full flex items-center justify-center"
+          style={{
+            width: "2rem",
+            height: "2rem",
+            border: "2px dashed var(--border-subtle)",
+            background: "var(--bg-surface)",
+          }}
+        >
+          <span className="f-mono" style={{ fontSize: "0.6rem", color: "var(--text-muted)" }}>
+            ⋯
+          </span>
+        </div>
+      </div>
+      <div
+        className="flex-1 rounded-xl p-4"
+        style={{
+          background: "var(--bg-surface)",
+          border: "1px dashed var(--border-subtle)",
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "var(--font-dm-mono)",
+            fontSize: "var(--text-sm)",
+            color: "var(--text-primary)",
+          }}
+        >
+          Weeks {from}–{to}
+        </p>
+        <p className="mt-1" style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)" }}>
+          Still running. Write-ups are published here as each week wraps up.
+        </p>
+      </div>
     </motion.div>
   );
 }
@@ -214,7 +297,7 @@ function WeekCard({
 /* ── Main Timeline ──────────────────────────────────────────────── */
 export default function ProtoSemTimeline() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeWeek, setActiveWeek] = useState(1); // currently in week 1
+  const [activeWeek, setActiveWeek] = useState(PROGRAM_META.currentWeekId);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -248,7 +331,7 @@ export default function ProtoSemTimeline() {
           className="mt-2 f-accent"
           style={{ fontSize: "var(--text-base)", color: "var(--text-secondary)" }}
         >
-          Click any completed or in-progress week to read more.
+          Weeks with a write-up are listed below — click any of them to read more.
         </p>
       </motion.div>
 
@@ -273,15 +356,21 @@ export default function ProtoSemTimeline() {
 
         {/* Cards */}
         <div className="flex flex-col">
-          {PROTOSEM_WEEKS.map((week, i) => (
+          {DOCUMENTED.map((week, i) => (
             <WeekCard
               key={week.id}
               week={week}
               index={i}
+              total={DOCUMENTED.length}
               isActive={week.id === activeWeek}
               onClick={() => setActiveWeek(week.id)}
             />
           ))}
+
+          <UpcomingTail
+            from={(DOCUMENTED[DOCUMENTED.length - 1]?.id ?? -1) + 1}
+            to={PROGRAM_META.totalWeeks - 1}
+          />
         </div>
 
         {/* Finish flag */}

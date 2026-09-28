@@ -6,21 +6,21 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { PROTOSEM_WEEKS } from "@/data/protosem";
+import { DOCUMENTED } from "@/data/protosem";
 
 interface WeekNavigationProps {
   currentSlug: string;
 }
 
 export default function WeekNavigation({ currentSlug }: WeekNavigationProps) {
-  const navigableWeeks = PROTOSEM_WEEKS.filter((w) => w.status !== "upcoming");
+  const navigableWeeks = DOCUMENTED;
   const currentIdx = navigableWeeks.findIndex((w) => w.slug === currentSlug);
   const prev = currentIdx > 0 ? navigableWeeks[currentIdx - 1] : null;
   const next = currentIdx < navigableWeeks.length - 1 ? navigableWeeks[currentIdx + 1] : null;
 
   return (
     <motion.nav
-      className="w-full px-[var(--page-px)] pb-20 max-w-4xl"
+      className="w-full px-[var(--page-px)] pb-20 max-w-4xl mx-auto"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.4 }}

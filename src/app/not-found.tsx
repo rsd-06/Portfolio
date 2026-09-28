@@ -3,7 +3,8 @@
 import { motion, useMotionValue, useSpring, useTransform, useAnimation } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useIsMobile, useIsTouch } from "@/hooks/useMediaQuery";
 
 export default function NotFound() {
   const router = useRouter();
@@ -16,17 +17,11 @@ export default function NotFound() {
   const textDriftX = useTransform(smoothX, [0, 1], [-30, 30]);
   const textDriftY = useTransform(smoothY, [0, 1], [-15, 15]);
 
-  const [isMobile, setIsMobile] = useState(false);
+  // Called unconditionally — `a() || b()` would short-circuit the second hook.
+  const isSmallScreen = useIsMobile();
+  const isTouch = useIsTouch();
+  const isMobile = isSmallScreen || isTouch;
   const bgControls = useAnimation();
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   useEffect(() => {
     const sequence = async () => {

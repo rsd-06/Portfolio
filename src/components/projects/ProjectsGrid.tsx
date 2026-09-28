@@ -1,9 +1,7 @@
 "use client";
 
 import { Project } from "@/data/projects";
-import dynamic from "next/dynamic";
-
-const ProjectCard = dynamic(() => import("./ProjectCard"), { ssr: false });
+import ProjectCard from "./ProjectCard";
 
 export default function ProjectsGrid({ projects }: { projects: Project[] }) {
   return (

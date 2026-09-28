@@ -1,8 +1,10 @@
 import { MetadataRoute } from 'next';
 import { PROJECTS } from '@/data/projects';
+import { DOCUMENTED } from '@/data/protosem';
+import { SITE_URL } from '@/lib/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://rsd.exe';
+  const baseUrl = SITE_URL;
 
   // Base routes — ordered by importance
   const routes = [
@@ -27,5 +29,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...routes, ...projectRoutes];
+  // Week pages that actually exist. Driven off the same predicate the router
+  // uses, so the sitemap can never advertise a 404.
+  const protosemRoutes = DOCUMENTED.map((week) => ({
+    url: `${baseUrl}/protosem/${week.slug}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
+  return [...routes, ...projectRoutes, ...protosemRoutes];
 }

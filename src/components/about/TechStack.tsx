@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, useScroll } from "framer-motion";
 import { useLenis } from "@/components/providers/LenisProvider";
+import { useIsDesktop, useIsTouch } from "@/hooks/useMediaQuery";
 import {
   SiReact,
   SiNextdotjs,
@@ -172,16 +173,9 @@ export default function TechStack() {
 
   const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
   const [scrollRange, setScrollRange] = useState(0);
-  const [isTouchDevice, setIsTouchDevice] = useState(true);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
-    const updateLayout = () => setIsDesktop(window.innerWidth >= 1024);
-    updateLayout();
-    window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
-  }, []);
+  // The pointer check previously never re-evaluated after mount.
+  const isTouchDevice = useIsTouch();
+  const isDesktop = useIsDesktop();
 
   useEffect(() => {
     if (!trackRef.current) return;
@@ -214,9 +208,9 @@ export default function TechStack() {
     <section 
       ref={containerRef}
       className="w-full relative bg-base-bg"
-      style={{ height: isDesktop ? "auto" : `calc(100vh + ${scrollRange}px)` }}
+      style={{ height: isDesktop ? "auto" : `calc(100svh + ${scrollRange}px)` }}
     >
-      <div className={`w-full flex flex-col justify-start ${isDesktop ? 'pt-24 pb-32' : 'sticky top-0 h-screen overflow-hidden'}`}>
+      <div className={`w-full flex flex-col justify-start ${isDesktop ? 'pt-24 pb-32' : 'sticky top-0 h-[100svh] overflow-hidden'}`}>
         
         <motion.div
             initial={{ opacity: 0 }}
@@ -228,7 +222,7 @@ export default function TechStack() {
         </motion.div>
 
         {/* Title container that stays static in the view while grid scrolls horizontally */}
-        <div className="w-full pointer-events-none z-10 px-[var(--page-px)] pt-[calc(var(--nav-h,120px)+3rem)] flex-shrink-0">
+        <div className="w-full pointer-events-none z-10 px-[var(--page-px)] pt-[calc(var(--nav-h,120px)_+_3rem)] flex-shrink-0">
             <div className="max-w-7xl mx-auto w-full relative">
                 {/* Main title placed slightly below the top muted text */}
                 <motion.h2 

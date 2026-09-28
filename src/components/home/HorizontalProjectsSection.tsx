@@ -13,7 +13,8 @@ import {
   useMotionValue,
 } from "framer-motion";
 import IdentityStatement from "./IdentityStatement";
-import { useLenis } from "@/components/providers/LenisProvider";
+import { useScrollLock } from "@/hooks/useScrollLock";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 import { PROJECTS as ALL_PROJECTS } from "@/data/projects";
 
@@ -41,11 +42,28 @@ type Project = (typeof PROJECTS)[number];
 const EXPO = [0.19, 1, 0.22, 1] as const;
 
 /* ─── Save home scroll position before leaving ─── */
-// Uses a window property (in-memory) so it resets on hard reload,
-// consistent with the module-level loaderHasRun flag in LoaderScreen.
+// Two separate concerns, deliberately kept apart:
+//
+//   __rsd_homeScrollY    a continuously-updated cache of where we are on home.
+//                        Always present while on the home page.
+//   __rsd_restoreScrollY an explicit request to restore that position, set ONLY
+//                        when leaving via a project card. LoaderScreen consumes
+//                        and deletes it.
+//
+// Collapsing these into one flag meant it was set on every home scroll and never
+// cleared, so returning home by any route (e.g. the navbar logo) also restored
+// the projects rail instead of going to the top.
+//
+// Window properties (in-memory) so they reset on hard reload, consistent with the
+// module-level loaderHasRun flag in LoaderScreen.
+type HomeScrollWindow = Window & {
+  __rsd_homeScrollY?: number;
+  __rsd_restoreScrollY?: number;
+};
+
 function saveHomeScroll() {
-  (window as Window & { __rsd_restoreScrollY?: number }).__rsd_restoreScrollY =
-    window.scrollY;
+  const w = window as HomeScrollWindow;
+  w.__rsd_restoreScrollY = w.__rsd_homeScrollY ?? window.scrollY;
 }
 
 /* ─── End Card ─── */
@@ -117,13 +135,7 @@ function ProjectCard({ project, onExpand }: CardProps) {
   const [clicked, setClicked]   = useState(false);
   const imageRef = useRef<HTMLDivElement>(null);
   
-  const [isMobile, setIsMobile] = useState(false);
-  useLayoutEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 768);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+  const isMobile = useIsMobile();
 
 
   // Mouse position relative to image (0–1 range)
@@ -193,11 +205,11 @@ function ProjectCard({ project, onExpand }: CardProps) {
       style={{
         position: "relative",
         flexShrink: 0,
-        width: isMobile ? "100vw" : "clamp(75vw, 80vw, 85vw)",
+        width: isMobile ? "92vw" : "clamp(75vw, 80vw, 85vw)",
         height: "100%",
         display: "flex",
         flexDirection: isMobile ? "column" : "row",
-        alignItems: isMobile ? "flex-start" : "center",
+        alignItems: isMobile ? "stretch" : "center",
         justifyContent: isMobile ? "center" : "flex-start",
         cursor: "pointer",
         borderRight: "1.5px solid rgba(0,0,0,0.14)",
@@ -441,16 +453,6 @@ function ProjectCard({ project, onExpand }: CardProps) {
         </>
       )}
 
-      {/* ── Mobile layout override ── */}
-      <style>{`
-        @media (max-width: 767px) {
-          [data-card-id="${project.id}"] {
-            flex-direction: column !important;
-            align-items: stretch !important;
-            width: 92vw !important;
-          }
-        }
-      `}</style>
     </motion.div>
   );
 }
@@ -462,28 +464,20 @@ interface OverlayProps {
 }
 
 function ExpandedOverlay({ project, onClose }: OverlayProps) {
-  const [isMobile, setIsMobile] = useState(false);
+  // Previously a one-shot innerWidth read with no resize listener, so the
+  // overlay never re-flowed when the device was rotated.
+  const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setIsMobile(window.innerWidth < 768);
   }, []);
 
-  const lenis = useLenis();
 
-  /* Stop Lenis (and lock body) while overlay is open — start again on close.
-   * Lenis intercepts ALL wheel events at document level; overflow:hidden alone
-   * does nothing against it. lenis.stop() is the only reliable fix. */
-  useEffect(() => {
-    if (!project) return;
-    lenis?.stop();
-    document.body.style.overflow = "hidden"; // fallback for touch
-    return () => {
-      lenis?.start();
-      document.body.style.overflow = "";
-    };
-  }, [project, lenis]);
+  /* Stop Lenis (and lock body) while the overlay is open. Lenis intercepts ALL
+   * wheel events at document level, so overflow:hidden alone does nothing against
+   * it. Ref-counted so a nested lightbox cannot unlock this early. */
+  useScrollLock(Boolean(project));
 
   /* Escape key */
   useEffect(() => {
@@ -755,6 +749,7 @@ function OverlayTextPanel({ project, isMobile }: { project: Project; isMobile: b
       {/* ── Scrollable content ── */}
       <div
         ref={panelRef}
+        className="overlay-scroll-panel"
         style={{
           flex: 1,
           overflowY: "scroll",
@@ -865,7 +860,7 @@ export default function HorizontalProjectsSection() {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
-        (window as Window & { __rsd_restoreScrollY?: number }).__rsd_restoreScrollY = window.scrollY;
+        (window as HomeScrollWindow).__rsd_homeScrollY = window.scrollY;
       }
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -888,12 +883,12 @@ export default function HorizontalProjectsSection() {
         style={{
           position: "relative",
           width: "100%",
-          height: `calc(100vh + ${scrollRange}px)`,
+          height: `calc(100svh + ${scrollRange}px)`,
           backgroundColor: "var(--color-bg)",
         }}
       >
         <div 
-          className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
+          className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col justify-start"
         >
 
             {/* ── Horizontal track ──────────────────────────────── */}
@@ -909,7 +904,7 @@ export default function HorizontalProjectsSection() {
               }}
             >
               {/* ── 1. Identity Statement (Starts here now) ── */}
-              <div style={{ flexShrink: 0, width: "100vw", height: "100%" }}>
+              <div style={{ flexShrink: 0, width: "100%", height: "100%" }}>
                 <IdentityStatement />
               </div>
 

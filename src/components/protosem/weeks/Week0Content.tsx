@@ -26,7 +26,7 @@ export default function Week0Content() {
     <article className="w-full px-[var(--page-px)]">
       {/* Back link */}
       <motion.div
-        className="pt-40 pb-6"
+        className="max-w-4xl mx-auto pt-[calc(var(--nav-h)_+_4rem)] pb-6"
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5 }}
@@ -51,7 +51,7 @@ export default function Week0Content() {
 
       {/* Header */}
       <motion.header
-        className="max-w-4xl"
+        className="max-w-4xl mx-auto"
         initial="hidden"
         animate="visible"
         variants={stagger}
@@ -90,7 +90,7 @@ export default function Week0Content() {
 
       {/* Divider */}
       <motion.div
-        className="rule max-w-4xl mt-8 mb-12"
+        className="rule max-w-4xl mx-auto mt-8 mb-12"
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.8, delay: 0.3, ease: [0.19, 1, 0.22, 1] }}
@@ -99,7 +99,7 @@ export default function Week0Content() {
 
       {/* Content sections */}
       <motion.div
-        className="max-w-4xl flex flex-col gap-16 pb-24"
+        className="max-w-4xl mx-auto flex flex-col gap-16 pb-24"
         initial="hidden"
         animate="visible"
         variants={stagger}

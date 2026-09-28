@@ -99,7 +99,7 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.5, ease: [0.19, 1, 0.22, 1] }}
-          className="w-[100vw] h-[1px] bg-[var(--color-border)] origin-left relative left-[calc(var(--page-px)*-1)]"
+          className="w-[calc(100%_+_var(--page-px)*2)] h-[1px] bg-[var(--color-border)] origin-left relative left-[calc(var(--page-px)*-1)]"
         />
 
         <div className="flex flex-col md:flex-row gap-12 md:gap-8 justify-between">

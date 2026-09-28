@@ -1,7 +1,10 @@
-import { withNextVideo } from "next-video/process";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root. A stray package-lock.json in the user profile
+  // directory made Turbopack infer C:/Users/rsudh as the project root.
+  turbopack: { root: __dirname },
+
   // Enable gzip / brotli compression on all responses
   compress: true,
 
@@ -48,4 +51,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextVideo(nextConfig);
+export default nextConfig;

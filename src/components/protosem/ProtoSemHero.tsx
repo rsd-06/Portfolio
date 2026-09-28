@@ -4,7 +4,7 @@
 // Hero section for the ProtoSem page with animated intro and program details.
 
 import { motion } from "framer-motion";
-import { PROGRAM_META } from "@/data/protosem";
+import { PROGRAM_META, PROGRESS_WEEKS, PROGRESS_PCT } from "@/data/protosem";
 import { ExternalLink } from "lucide-react";
 
 const FOCUS_AREAS = PROGRAM_META.focus;
@@ -273,7 +273,7 @@ export default function ProtoSemHero() {
                 className="h-full rounded-full"
                 style={{ background: "var(--accent-main)" }}
                 initial={{ width: 0 }}
-                animate={{ width: "10%" }} // 2/20 weeks = 10%
+                animate={{ width: `${PROGRESS_PCT}%` }}
                 transition={{ duration: 1.2, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
               />
             </div>
@@ -281,14 +281,14 @@ export default function ProtoSemHero() {
               className="f-mono"
               style={{ fontSize: "var(--text-xs)", color: "var(--accent-main)", minWidth: "3rem" }}
             >
-              2 / 20
+              {PROGRESS_WEEKS} / {PROGRAM_META.totalWeeks}
             </span>
           </div>
           <span
             className="f-accent"
             style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}
           >
-            Weeks completed so far
+            Weeks elapsed so far
           </span>
         </motion.div>
       </motion.div>

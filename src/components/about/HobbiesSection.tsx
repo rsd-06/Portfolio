@@ -11,7 +11,18 @@ import {
   MotionValue,
 } from "framer-motion";
 import { useLenis } from "@/components/providers/LenisProvider";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { ArrowUpRight } from "lucide-react";
+
+// Single definition of the card width, mirroring the CSS on the card itself
+// (88vw on mobile, clamp(360px, 42vw, 500px) above it). The keyboard handler
+// and the auto-advance timer both need it; they used to carry their own
+// identical copies, so changing one silently desynced them.
+function getCardWidth(isMobile: boolean) {
+  return isMobile
+    ? window.innerWidth * 0.88
+    : Math.max(360, Math.min(window.innerWidth * 0.42, 500));
+}
 
 const HOBBY_CARDS = [
   {
@@ -367,13 +378,7 @@ export default function HobbiesSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
 
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const isMobile = useIsMobile();
 
   const AUTO_ADVANCE_MS = isMobile ? 5000 : 4000;
 
@@ -574,9 +579,7 @@ export default function HobbiesSection() {
       if (!isActive) return;
 
       const current = rawX.get();
-      const cardWidth = isMobile
-        ? window.innerWidth * 0.88
-        : Math.max(360, Math.min(window.innerWidth * 0.42, 500));
+      const cardWidth = getCardWidth(isMobile);
 
       if (e.key === "ArrowRight") {
         e.preventDefault();
@@ -613,9 +616,7 @@ export default function HobbiesSection() {
     if (mediaQuery.matches) return;
 
     const id = setInterval(() => {
-      const cardWidth = isMobile
-        ? window.innerWidth * 0.88
-        : Math.max(360, Math.min(window.innerWidth * 0.42, 500));
+      const cardWidth = getCardWidth(isMobile);
       const next = Math.min(rawX.get() + cardWidth, maxScrollRef.current);
       rawX.set(next);
       setAutoAdvanceKey((k) => k + 1);

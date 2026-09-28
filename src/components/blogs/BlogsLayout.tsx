@@ -35,7 +35,7 @@ export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogPost[]
   }, [initialBlogs, searchQuery, selectedCategory, sortOrder]);
 
   return (
-    <div className="min-h-screen pt-[calc(var(--nav-h,120px)+4rem)] px-[var(--page-px)] pb-32">
+    <div className="min-h-screen pt-[calc(var(--nav-h,120px)_+_4rem)] px-[var(--page-px)] pb-32">
       <ScrollProgressTracker />
 
       <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">

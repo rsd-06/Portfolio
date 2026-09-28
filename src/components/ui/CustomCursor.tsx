@@ -2,17 +2,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useIsTouch } from "@/hooks/useMediaQuery";
 
 export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 });
   const [clicked, setClicked] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  // A custom cursor is meaningless without a pointer. Previously this read
+  // `isMobile` from the render *before* checkMobile() ran, so the listeners were
+  // attached on touch devices anyway on first mount.
+  const isTouch = useIsTouch();
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.matchMedia("(pointer: coarse)").matches);
-    checkMobile();
-    
-    if (isMobile) return;
+    if (isTouch) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       setPos({ x: e.clientX, y: e.clientY });
@@ -28,9 +29,9 @@ export default function CustomCursor() {
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isMobile]);
+  }, [isTouch]);
 
-  if (isMobile) return null;
+  if (isTouch) return null;
 
   return (
     <>

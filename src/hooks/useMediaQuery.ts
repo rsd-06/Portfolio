@@ -1,33 +1,57 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useCallback, useSyncExternalStore } from "react";
+import { up, below, type Breakpoint } from "@/lib/breakpoints";
 
 /**
- * Custom hook that tracks the state of a CSS media query.
- * @param query The media query string to check (e.g., "(min-width: 768px)")
- * @returns boolean indicating if the query currently matches
+ * Tracks a CSS media query.
+ *
+ * Built on useSyncExternalStore rather than useState + useEffect for two reasons:
+ *
+ *  1. The previous implementation initialised to `false`, so the first client
+ *     render always claimed "no match" regardless of the real viewport, then
+ *     corrected itself a frame later. Here `getServerSnapshot` supplies the SSR
+ *     value and the first *post-hydration* render already has the truth.
+ *  2. It had `matches` in its effect dependencies, so every match flip tore down
+ *     and re-created the matchMedia listener.
+ *
+ * @param query  A media query string, e.g. "(min-width: 768px)".
+ * @param serverValue  What to report during SSR and the hydration render.
  */
-export function useMediaQuery(query: string): boolean {
-  // Initialize with false to avoid SSR hydration mismatches
-    const [matches, setMatches] = useState<boolean>(false);
+export function useMediaQuery(query: string, serverValue = false): boolean {
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      const media = window.matchMedia(query);
+      media.addEventListener("change", onChange);
+      return () => media.removeEventListener("change", onChange);
+    },
+    [query]
+  );
 
-    useEffect(() => {
-        const media: MediaQueryList = window.matchMedia(query);
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => serverValue
+  );
+}
 
-        // Update state immediately on mount
-        if (media.matches !== matches) {
-        setMatches(media.matches);
-        }
+/** Matches at or above a named breakpoint. */
+export const useBreakpointUp = (b: Breakpoint, serverValue = false) =>
+  useMediaQuery(up(b), serverValue);
 
-        // Listener to detect viewport changes
-        const listener = (event: MediaQueryListEvent): void => {
-        setMatches(event.matches);
-        };
+/** Matches strictly below a named breakpoint. */
+export const useBreakpointDown = (b: Breakpoint, serverValue = false) =>
+  useMediaQuery(below(b), serverValue);
 
-        // Modern API for adding listeners
-        media.addEventListener("change", listener);
+/** Below 768px. Server-renders as `false` so SSR assumes the desktop layout. */
+export const useIsMobile = () => useMediaQuery(below("md"));
 
-        // Clean up listener on unmount
-        return () => media.removeEventListener("change", listener);
-    }, [query, matches]);
+/** At or above 1024px. */
+export const useIsDesktop = () => useMediaQuery(up("lg"));
 
-    return matches;
-};
+/** Touch / stylus primary input — use to gate hover-only affordances. */
+export const useIsTouch = () => useMediaQuery("(pointer: coarse)");
+
+/** Honour the OS "reduce motion" setting. */
+export const usePrefersReducedMotion = () =>
+  useMediaQuery("(prefers-reduced-motion: reduce)");

@@ -47,7 +47,7 @@ src/
 │   ├── blogs/            # Markdown-driven blog system
 │   ├── contact/          # Contact page and forms
 │   ├── projects/         # Portfolio projects gallery
-│   ├── protosem/         # (ProtosemDev branch) ASADI Apprenticeship logs
+│   ├── protosem/         # ASADI Apprenticeship logs (merged to main)
 │   ├── layout.tsx        # Global layout, fonts, and SEO JSON-LD
 │   └── page.tsx          # Home page entry
 ├── components/           # Reusable UI components

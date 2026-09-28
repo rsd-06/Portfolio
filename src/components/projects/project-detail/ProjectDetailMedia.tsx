@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState, useCallback } from "react";
+import ImageLightbox from "@/components/ui/ImageLightbox";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 const EXPO = [0.19, 1, 0.22, 1] as const;
 
@@ -9,92 +11,6 @@ const EXPO = [0.19, 1, 0.22, 1] as const;
 interface Props {
   images: string[];
   video?: string;
-}
-
-/* ── Image Lightbox ── */
-function ImageLightbox({
-  src,
-  alt,
-  onClose,
-}: {
-  src: string;
-  alt: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        backgroundColor: "rgba(10,10,10,0.82)",
-        backdropFilter: "blur(16px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "clamp(1.5rem, 4vw, 3rem)",
-        cursor: "zoom-out",
-      }}
-      onClick={onClose}
-    >
-      <motion.img
-        src={src}
-        alt={alt}
-        initial={{ scale: 0.88, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.92, opacity: 0 }}
-        transition={{ duration: 0.45, ease: EXPO }}
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          maxWidth: "100%",
-          maxHeight: "100%",
-          objectFit: "contain",
-          borderRadius: "10px",
-          boxShadow: "0 32px 96px rgba(0,0,0,0.6)",
-          userSelect: "none",
-          // Disable right-click save / drag
-          pointerEvents: "auto",
-        }}
-        draggable={false}
-        onContextMenu={(e) => e.preventDefault()}
-      />
-      {/* Close hint */}
-      <button
-        onClick={onClose}
-        aria-label="Close image"
-        style={{
-          position: "absolute",
-          top: "clamp(1rem, 3vw, 2rem)",
-          right: "clamp(1rem, 3vw, 2rem)",
-          background: "rgba(255,255,255,0.08)",
-          border: "1px solid rgba(255,255,255,0.14)",
-          color: "rgba(255,255,255,0.6)",
-          borderRadius: "100px",
-          padding: "6px 14px",
-          fontSize: "11px",
-          letterSpacing: "0.12em",
-          cursor: "pointer",
-          fontFamily: "var(--font-mono, monospace)",
-        }}
-      >
-        ✕ close
-      </button>
-    </motion.div>
-  );
 }
 
 /* ── Video Player ── */
@@ -124,11 +40,8 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
     v.currentTime = Math.max(0, v.currentTime - 10);
   }, []);
 
-  useEffect(() => {
-    if (enlarged) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
-  }, [enlarged]);
+  // Locks Lenis too, not just body overflow.
+  useScrollLock(enlarged);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && enlarged) setEnlarged(false); };

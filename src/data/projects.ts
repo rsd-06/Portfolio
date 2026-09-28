@@ -83,10 +83,8 @@ export const PROJECTS: Project[] = [
     completion: 45,
     images:     [
       "/assets/projects/skillsync/01.png",
-      "/assets/projects/skillsync/02.jpg",
-      "/assets/projects/skillsync/03.jpg",
+      "/assets/projects/_shared/placeholder.jpg",
     ],
-    video:      "/assets/projects/skillsync/demo.mp4",
     featured:   true,
     tags:       ["full-stack", "platform", "saas", "education"],
   },
@@ -115,8 +113,7 @@ export const PROJECTS: Project[] = [
     completion: 100,
     images:     [
       "/assets/projects/googleDocsClone/01.png",
-      "/assets/projects/googleDocsClone/02.jpg",
-      "/assets/projects/googleDocsClone/03.jpg",
+      "/assets/projects/_shared/placeholder.jpg",
     ],
     featured:   false,
     tags:       ["real-time", "full-stack", "collaboration", "saas"],
@@ -146,8 +143,7 @@ export const PROJECTS: Project[] = [
     completion: 95,
     images:     [
       "/assets/projects/portfolio/01.png",
-      "/assets/projects/portfolio/02.jpg",
-      "/assets/projects/portfolio/03.jpg",
+      "/assets/projects/_shared/placeholder.jpg",
     ],
     featured:   false,
     tags:       ["design", "frontend", "portfolio"],
@@ -176,9 +172,7 @@ export const PROJECTS: Project[] = [
     status:     "Completed",
     completion: 100,
     images:     [
-      "/assets/projects/gitpr/01.jpg",
-      "/assets/projects/gitpr/02.jpg",
-      "/assets/projects/gitpr/03.jpg",
+      "/assets/projects/_shared/placeholder.jpg",
     ],
     featured:   true,
     tags:       ["ai", "reinforcement-learning", "multi-agent", "hackathon"],

@@ -4,6 +4,7 @@ import { Project } from "@/data/projects";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useIsTouch } from "@/hooks/useMediaQuery";
 import { SiGithub } from "react-icons/si";
 
 export default function ProjectCard({ project, index }: { project: Project; index: number }) {
@@ -12,22 +13,26 @@ export default function ProjectCard({ project, index }: { project: Project; inde
   const isInView = useInView(cardRef, { once: true, margin: "-60px" });
   const [isHovered, setIsHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  // There is no hover on touch, so a hover-gated preview simply never plays.
+  const isTouch = useIsTouch();
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
-  // Play/pause video on hover — useEffect avoids the hydration mismatch
+  // Play on hover with a pointer; on touch, play once the card is on screen so
+  // the preview is not simply unreachable. useEffect avoids a hydration mismatch.
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (isHovered) {
+    const shouldPlay = isTouch ? isInView : isHovered;
+    if (shouldPlay) {
       video.play().catch(() => {/* ignore AbortError on rapid hover */});
     } else {
       video.pause();
       video.currentTime = 0;
     }
-  }, [isHovered]);
+  }, [isHovered, isTouch, isInView]);
 
   const getStatusOpacity = (status: string) => {
     switch (status) {
@@ -45,7 +50,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
       initial={{ y: 40, opacity: 0 }}
       animate={isInView ? { y: 0, opacity: 1 } : { y: 40, opacity: 0 }}
       transition={{ duration: 0.75, ease: [0.19, 1, 0.22, 1], delay: index * 0.1 }}
-      className="relative flex flex-col gap-4 group transition-colors duration-300 border border-transparent hover:border-[var(--color-border)] rounded-lg p-2 -m-2 cursor-none"
+      className={`relative flex flex-col gap-4 group transition-colors duration-300 border border-transparent hover:border-[var(--color-border)] rounded-lg p-2 -m-2 ${isTouch ? "" : "cursor-none"}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { motion } from "framer-motion";
 
 /* ─────────────────────────────────────────────────────────────
@@ -70,15 +70,7 @@ const makeCornerVariant = (delay: number, reduced: boolean) => ({
    Component
 ───────────────────────────────────────────────────────────── */
 export default function IdentityStatement() {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const reduced = usePrefersReducedMotion();
 
   const vp = { once: true, margin: "-100px" } as const;
 

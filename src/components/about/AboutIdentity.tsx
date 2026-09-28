@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import Image from "next/image";
 
 const ELABORATIONS = [
@@ -14,7 +15,7 @@ const ELABORATIONS = [
 
 export default function AboutIdentity() {
     const [index, setIndex] = useState(0);
-    const [isMobile, setIsMobile] = useState(true); // SSR-safe default
+    const isMobile = useIsMobile();
     const containerRef = useRef<HTMLElement>(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -24,10 +25,6 @@ export default function AboutIdentity() {
     // Parallax only on desktop — skip on mobile to avoid live scroll listener overhead
     const rawTextY = useTransform(scrollYProgress, [0, 1], [40, -40]);
     const textY = isMobile ? 0 : rawTextY;
-
-    useEffect(() => {
-        setIsMobile(window.matchMedia("(max-width: 767px)").matches);
-    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {

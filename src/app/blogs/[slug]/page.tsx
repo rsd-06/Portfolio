@@ -43,6 +43,7 @@ export default async function BlogDetailPage(props: Props) {
   const allBlogs = getAllBlogs();
   const currentIndex = allBlogs.findIndex(b => b.slug === blog.slug);
   const nextBlog = currentIndex >= 0 && currentIndex < allBlogs.length - 1 ? allBlogs[currentIndex + 1] : null;
+  const prevBlog = currentIndex > 0 ? allBlogs[currentIndex - 1] : null;
 
   const extractText = (children: any): string => {
     if (typeof children === 'string') return children;
@@ -121,7 +122,16 @@ export default async function BlogDetailPage(props: Props) {
 
         {/* Bottom Nav */}
         <div className="flex w-full items-center justify-between border-t border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] mt-12 pt-12 pb-8 max-w-7xl mx-auto">
-          <div className="flex-1 hidden md:block" />
+          <div className="flex-1 flex justify-start text-left">
+            {prevBlog ? (
+              <Link href={`/blogs/${prevBlog.slug}`} className="f-mono text-sm uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity flex flex-col items-start gap-2">
+                <span className="opacity-70 font-medium">Previous</span>
+                <span className="text-base font-bold">[{prevBlog.title}]</span>
+              </Link>
+            ) : (
+              <span className="f-mono text-sm uppercase tracking-widest opacity-50 font-medium hidden md:inline">Start of Blogs</span>
+            )}
+          </div>
           <div className="flex-1 flex justify-start text-left md:justify-center md:text-center">
             {nextBlog ? (
               <Link href={`/blogs/${nextBlog.slug}`} className="f-mono text-sm uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity flex flex-col items-start md:items-center gap-2">

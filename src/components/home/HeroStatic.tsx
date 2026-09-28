@@ -19,12 +19,12 @@ export default function HeroStatic() {
   const hintOpacity = useTransform(scrollY, [0, 100], [1, 0]);
 
   return (
-    <section className="section-full flex flex-col items-center justify-center px-page pt-20">
+    <section className="min-h-[100svh] w-full flex flex-col items-center justify-center px-[var(--page-px)] pt-20">
       <div className="relative w-full max-w-7xl mx-auto flex flex-col items-center">
         {/* Massive Title Bar at the top */}
-        <div className="hero-title-bar mt-12 md:mt-24 mb-10 overflow-hidden w-full text-center">
+        <div className="mt-12 md:mt-24 mb-10 overflow-hidden w-full text-center">
           <motion.h1 
-            className="f-display text-[20vw] md:text-[14vw] tracking-[-0.04em] font-black leading-none"
+            className="f-display text-[clamp(3.5rem,18vw,13rem)] tracking-[-0.04em] font-black leading-none"
             initial={{ clipPath: "inset(0 100% 0 0)" }}
             animate={{ clipPath: "inset(0 0% 0 0)" }}
             transition={{ delay: 1.2, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
@@ -38,7 +38,7 @@ export default function HeroStatic() {
         
         {/* Left Side Metadata Block */}
         <motion.div 
-          className="hidden md:flex flex-col gap-4 absolute right-[100%] mr-8 lg:mr-16 top-1/2 -translate-y-1/2 mt-8 w-56 lg:w-64 f-mono text-2xs tracking-wide text-[var(--color-text-primary)] text-right"
+          className="hidden lg:flex flex-col gap-4 absolute right-[100%] mr-8 lg:mr-16 top-1/2 -translate-y-1/2 mt-8 w-56 lg:w-64 f-mono text-2xs tracking-wide text-[var(--color-text-primary)] text-right"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5, duration: 0.6 }}
@@ -93,7 +93,7 @@ export default function HeroStatic() {
 
         {/* Portrait Photo */}
         <motion.div 
-          className="hero-photo-wrap w-[75vw] md:w-[38vw] aspect-[3/4] md:aspect-auto md:h-[60vh] rounded-[8px] md:rounded-[12px] overflow-hidden"
+          className="w-[75vw] md:w-[38vw] aspect-[3/4] md:aspect-auto md:h-[60vh] rounded-[8px] md:rounded-[12px] overflow-hidden"
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.0, duration: 0.9, ease: [0.19, 1, 0.22, 1] }} // Starts after loader exit (1s)
@@ -104,13 +104,13 @@ export default function HeroStatic() {
             fill 
             priority
             sizes="(max-width: 768px) 75vw, 38vw"
-            className="hero-photo object-cover" 
+            className="object-cover" 
           />
         </motion.div>
 
         {/* Right Side Cinematic Para */}
         <motion.div 
-          className="hidden md:flex flex-col gap-6 absolute left-[100%] ml-8 lg:ml-16 top-1/2 -translate-y-1/2 mt-8 w-72 lg:w-80 text-left f-display italic text-2xl !font-medium text-[var(--color-text-primary)] pointer-events-none"
+          className="hidden lg:flex flex-col gap-6 absolute left-[100%] ml-8 lg:ml-16 top-1/2 -translate-y-1/2 mt-8 w-72 lg:w-80 text-left f-display italic text-2xl !font-medium text-[var(--color-text-primary)] pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.85 }}
           transition={{ delay: 1.6, duration: 0.6 }}

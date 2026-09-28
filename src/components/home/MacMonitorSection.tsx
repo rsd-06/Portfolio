@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import HeroVideo from "@/components/home/HeroVideo";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import {
   motion,
   useScroll,
@@ -21,6 +23,24 @@ const MACBOOK = {
   imageAspect: "1 / 1" as const,
 };
 
+// The desktop mockup's width. Declared once because BOTH the CSS below and the
+// zoom maths need it — they were previously written out separately and had to be
+// kept in sync by hand.
+const DESKTOP_BOX = { min: 300, vw: 0.68, max: 860 };
+const DESKTOP_BOX_CSS = `clamp(${DESKTOP_BOX.min}px, ${DESKTOP_BOX.vw * 100}vw, ${DESKTOP_BOX.max}px)`;
+
+// The phone mockup rests at 150vw square, so a quarter of it overhangs each side
+// and is clipped by the parent's overflow:hidden. Intentional — it makes the
+// device read as large before the zoom starts.
+const MOBILE_REST_SIDE = 1.5;
+
+// Screen-hole proportions within the phone mockup (fractions of the square).
+const MOBILE_HOLE_W = 0.37;
+const MOBILE_HOLE_H = 0.80;
+
+// Small overshoot so rounding never leaves a sliver of background at full zoom.
+const FILL_BUFFER = 1.06;
+
 const IPHONE = {
   top: "10%",
   left: "31.5%",
@@ -31,21 +51,13 @@ const IPHONE = {
 };
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Video sources in priority order (WebM is ~60% smaller, MP4 as fallback)
-const VIDEO_SRC_WEBM = "/heroVideo.webm";
-const VIDEO_SRC_MP4  = "/heroVideo.mp4";
-
-const VIDEO_SRC_MOBILE_WEBM = "/heroVideoMobile.webm";
-const VIDEO_SRC_MOBILE_MP4  = "/heroVideoMobile.mp4";
-
 export default function MacMonitorSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   // ─── Smart lazy video loading ────────────────────────────────────────────
   // The video src is withheld until the loader fires `rsd:loaderDone`.
-  // This means the browser won't touch the 64 MB file during the loader phase.
+  // This keeps the reel (~2 MB mobile / ~8 MB desktop) from competing with the
+  // loader phase.
   // Once the event fires (~1.5 s in), the src is set immediately with
   // preload="auto" so the browser aggressively buffers it in the background —
   // well before the user scrolls down to this section.
@@ -70,7 +82,7 @@ export default function MacMonitorSection() {
   });
 
   // All state declared together — hooks must be in consistent order
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const [mounted, setMounted] = useState(false);
   // Exact scale needed to fill the viewport with the video screen hole.
   // Computed from actual viewport + container dimensions on mount/resize.
@@ -79,25 +91,23 @@ export default function MacMonitorSection() {
 
   useEffect(() => {
     const recalc = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
-      // ── Desktop: fills viewport WIDTH ─────────────────────────────────
-      // Container = min(68vw, 860px). Screen hole = 80% of container width.
-      const cW_d = Math.min(window.innerWidth * 0.68, 860);
-      const sW_d = cW_d * 0.80;
-      setMaxScaleDesktop((window.innerWidth / sW_d) * 1.02); // 2% buffer
+      // ── Desktop: the screen hole must cover the viewport WIDTH ────────
+      // Mirrors DESKTOP_BOX_CSS exactly, including the clamp — the previous
+      // version used a bare Math.min, so below ~441px it underestimated the
+      // container and overestimated the scale needed.
+      const boxW = Math.min(Math.max(vw * DESKTOP_BOX.vw, DESKTOP_BOX.min), DESKTOP_BOX.max);
+      setMaxScaleDesktop((vw / (boxW * 0.8)) * FILL_BUFFER);
 
-      // ── Mobile: fills viewport HEIGHT (portrait phone) ────────────────
-      // Container is square: min(96vw, no-cap). Screen height = 80% of that.
-      // We zoom until the screen height equals 100dvh.
-      const cS_m  = window.innerWidth * 1.5; // 150vw square — phone body appears large
-      const sH_m  = cS_m * 0.80;
-      const vh    = window.innerHeight;
-      const sW_m  = cS_m * 0.37;
-      const scaleH = (vh / sH_m) * 1.8;  // Increased buffer to massively push corners and notch off-screen
-      const scaleW = (window.innerWidth / sW_m) * 1.8;
-      setMaxScaleMobile(Math.max(scaleH, scaleW));
+      // ── Mobile: the hole must cover BOTH axes ─────────────────────────
+      // Derived from the requirement rather than the hand-tuned 1.8x that used
+      // to sit here; hiding the notch is imgOpacity's job, not the scale's.
+      const side = vw * MOBILE_REST_SIDE;
+      setMaxScaleMobile(
+        Math.max(vw / (side * MOBILE_HOLE_W), vh / (side * MOBILE_HOLE_H)) * FILL_BUFFER
+      );
     };
 
     recalc();
@@ -123,7 +133,7 @@ export default function MacMonitorSection() {
 
   // PNG frame (notch) fades out EARLIER — before the scale is fully done.
   // This hides the notch/corners before the fullscreen video takes over.
-  const imgOpacity             = useTransform(scrollYProgress, [0.46, 0.60], [1, 0]);
+  const imgOpacity             = useTransform(scrollYProgress, [0.42, 0.52], [1, 0]);
   // Background NEVER goes dark until the fullscreen video is fully opaque
   // and there is zero reason to see the bg colour anymore
   const bgColor = useTransform(
@@ -134,10 +144,10 @@ export default function MacMonitorSection() {
   // ─── Scroll hint visibility (merged into single event handler) ──────────
   const [scrolled, setScrolled] = useState(false);
 
-  // ─── Volume ramp + scroll hint ───────────────────────────────────────────
+  // ─── Scroll hint ─────────────────────────────────────────────────────────
+  // (There was a volume ramp here. It wrote videoRef.current.volume on an
+  //  element that is permanently muted, and the source has no audio track.)
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const vol = Math.min(1, latest / 0.60);
-    if (videoRef.current) videoRef.current.volume = vol;
     setScrolled(latest > 0.06);
   });
 
@@ -148,13 +158,13 @@ export default function MacMonitorSection() {
   return (
     <section
       ref={sectionRef}
-      style={{ height: "300vh" }}
+      style={{ height: "300svh" }}
       className="relative w-full"
     >
       <motion.div
         className="sticky top-0 w-full"
         style={{
-          height: "100dvh",
+          height: "100svh",
           backgroundColor: bgColor,
           overflow: "hidden",
         }}
@@ -183,7 +193,7 @@ export default function MacMonitorSection() {
                     height: "150vw",
                   }
                 : {
-                    width: "clamp(300px, 68vw, 860px)",
+                    width: DESKTOP_BOX_CSS,
                     aspectRatio: device.imageAspect,
                   }
               }
@@ -201,28 +211,9 @@ export default function MacMonitorSection() {
                   background: "#000",
                 }}
               >
-                {/* Video — src set lazily after rsd:loaderDone so the 64 MB file
-                    doesn't block the loader phase. preload=auto ensures aggressive
-                    buffering starts as soon as the src is set. */}
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload={videoSrcReady ? "auto" : "none"}
-                  suppressHydrationWarning
-                  className="w-full h-full object-cover"
-                  aria-label="Portfolio reel video"
-                >
-                  {videoSrcReady && (
-                    <>
-                      {/* WebM is served first — ~60% smaller than MP4 on Chrome/Firefox */}
-                      <source src={mounted && isMobile ? VIDEO_SRC_MOBILE_WEBM : VIDEO_SRC_WEBM} type="video/webm" />
-                      <source src={mounted && isMobile ? VIDEO_SRC_MOBILE_MP4 : VIDEO_SRC_MP4}  type="video/mp4" />
-                    </>
-                  )}
-                </video>
+                {/* Device selection, poster, reduced-motion and load-failure
+                    handling all live in HeroVideo. */}
+                <HeroVideo ready={videoSrcReady} />
               </div>
 
               <motion.div
@@ -256,7 +247,7 @@ export default function MacMonitorSection() {
         {/* Single element owns both entry (delayed fade-up) and scroll-exit.
             z-20 lifts it above the MacBook's transform stacking context. */}
         <motion.div
-          className="absolute bottom-8 right-8 z-20 flex flex-col items-end pointer-events-none"
+          className="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-8 z-20 flex flex-col items-center md:items-end pointer-events-none"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: scrolled ? 0 : 1, y: scrolled ? 4 : 0 }}
           transition={scrolled

@@ -1,7 +1,9 @@
 // src/app/contact/page.tsx
 // rsd.exe — Contact page
-// Total height = exactly 100dvh: dark section (flex-1) + white social strip (fixed height).
-// No scroll. Everything visible in one viewport.
+// Designed as a single viewport: dark section (flex-1) + white social strip.
+// That only holds when the viewport is actually tall enough — on a landscape
+// phone a hard 100dvh + overflow:hidden clipped the hero with no way to reach
+// it, so below the threshold the page is allowed to scroll instead.
 
 "use client";
 
@@ -19,13 +21,19 @@ export default function ContactPage() {
   return (
     // Outer shell = exactly 100dvh, flex-col, no overflow
     <div
+      className="contact-shell"
       style={{
-        height: "100dvh",
+        minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
       }}
     >
+      {/* Lock to one viewport only where there is room for it. */}
+      <style>{`
+        @media (min-height: 40rem) and (min-width: 48rem) {
+          .contact-shell { height: 100dvh; overflow: hidden; }
+        }
+      `}</style>
       {/* ── Dark hero — flex-1 fills remaining space ── */}
       <main
         id="contact-page"

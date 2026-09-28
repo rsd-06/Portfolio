@@ -7,6 +7,7 @@ import Script from "next/script";
 import { Cormorant_Garamond, DM_Mono, Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
 import LenisProvider    from "@/components/providers/LenisProvider";
+import ScrollResetOnRouteChange from "@/components/providers/ScrollResetOnRouteChange";
 import CustomCursor     from "@/components/ui/CustomCursor";
 import GrainOverlay     from "@/components/ui/GrainOverlay";
 import Navbar           from "@/components/layout/Navbar";
@@ -196,7 +197,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
       </head>
-      <body className="bg-bg text-text antialiased overflow-x-hidden" suppressHydrationWarning>
+      <body className="bg-base-bg text-text-primary antialiased" suppressHydrationWarning>
         {/* Google Analytics via Environment Variable */}
         {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
           <>
@@ -240,6 +241,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           appears identically across all pages.
         */}
         <LenisProvider>
+          {/* Resets scroll position on navigation (see the component for why) */}
+          <ScrollResetOnRouteChange />
+
           {/* Global one-time setup (image protection, etc.) */}
           <GlobalSetup />
 
@@ -249,8 +253,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* Fixed top nav */}
           <Navbar />
 
-          {/* Page-specific content (padded top for fixed nav) */}
-          <div className="pt-nav md:pt-nav-d">
+          {/* Page content. Each route owns its own offset for the fixed nav. */}
+          <div>
             {children}
           </div>
 
