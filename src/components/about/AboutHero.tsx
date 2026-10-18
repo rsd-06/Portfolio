@@ -50,7 +50,6 @@ export default function AboutHero() {
                                         width={20}
                                         height={20}
                                         className="object-contain invert-on-light"
-                                        style={{ filter: "var(--icon-filter, none)" }}
                                     />
                                 </a>
                                 {idx < SOCIALS.length - 1 && <span className="opacity-20 text-xs">|</span>}

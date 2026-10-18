@@ -45,10 +45,22 @@ export const SOCIAL = {
     icon: "/assets/socialMediaIcons/twitter_icon.png",
     handle: "@rsd_2006",
   },
+  leetcode: {
+    label: "LeetCode",
+    href: "https://leetcode.com/u/rsd06/",
+    icon: "/assets/socialMediaIcons/leetcode_icon.png",
+    handle: "rsd06",
+  },
 } satisfies Record<string, Social>;
 
 /** Icon row in the home hero and the About hero. */
-export const HERO_SOCIALS: Social[] = [SOCIAL.linkedin, SOCIAL.github, SOCIAL.instagram, SOCIAL.twitter];
+export const HERO_SOCIALS: Social[] = [
+  SOCIAL.linkedin,
+  SOCIAL.github,
+  SOCIAL.leetcode,
+  SOCIAL.instagram,
+  SOCIAL.twitter,
+];
 
 /** Text links in the global footer. */
 export const FOOTER_SOCIALS: Social[] = [SOCIAL.github, SOCIAL.linkedin, SOCIAL.twitter, SOCIAL.instagram];
@@ -63,9 +75,13 @@ export const CONTACT_SOCIALS: Social[] = [
 ];
 
 /** Profiles that identify the person to search engines (JSON-LD `sameAs`). */
-export const SAME_AS: string[] = [SOCIAL.github, SOCIAL.linkedin, SOCIAL.twitter, SOCIAL.instagram].map(
-  (s) => s.href
-);
+export const SAME_AS: string[] = [
+  SOCIAL.github,
+  SOCIAL.linkedin,
+  SOCIAL.leetcode,
+  SOCIAL.twitter,
+  SOCIAL.instagram,
+].map((s) => s.href);
 
 // The same address used on applications, so recruiters can match the two.
 export const CONTACT_EMAIL = "rsudharshan2006@gmail.com";

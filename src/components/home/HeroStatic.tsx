@@ -75,8 +75,7 @@ export default function HeroStatic() {
                             alt={social.label}
                             width={18}
                             height={18}
-                            className="object-contain"
-                            style={{ filter: "var(--icon-filter, none)" }}
+                            className="object-contain"
                         />
                     </a>
                     {idx < SOCIALS.length - 1 && <span className="opacity-20 text-xs">|</span>}
