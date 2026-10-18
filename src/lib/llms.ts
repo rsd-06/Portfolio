@@ -35,7 +35,7 @@ export function buildLlmsTxt({ full }: { full: boolean }): string {
 
   for (const p of PROJECTS) {
     out.push(
-      `- [${p.title}](${absoluteUrl(`/projects/${p.slug}`)}): ${p.summary} (${p.category}, ${p.year}, ${p.status}; code: ${p.repoUrl}${p.liveUrl ? `; live: ${p.liveUrl}` : ""})`
+      `- [${p.title}](${absoluteUrl(`/projects/${p.slug}`)}): ${p.summary} (${p.category}, ${p.year}, ${p.status}${p.repoUrl ? `; code: ${p.repoUrl}` : ""}${p.liveUrl ? `; live: ${p.liveUrl}` : ""})`
     );
   }
 

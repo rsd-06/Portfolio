@@ -130,15 +130,21 @@ export default function ProjectCard({ project, index }: { project: Project; inde
             ))}
           </div>
 
-          <a
-            href={project.repoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="f-mono text-[10px] opacity-45 hover:opacity-100 flex items-center gap-1 z-20 min-h-[44px] px-2 -mr-2 transition-opacity relative"
-          >
-            <SiGithub className="shrink-0" /> repo →
-          </a>
+          {project.repoUrl ? (
+            <a
+              href={project.repoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="f-mono text-[10px] opacity-45 hover:opacity-100 flex items-center gap-1 z-20 min-h-[44px] px-2 -mr-2 transition-opacity relative"
+            >
+              <SiGithub className="shrink-0" /> repo →
+            </a>
+          ) : (
+            <span className="f-mono text-[10px] opacity-35 flex items-center gap-1 min-h-[44px]">
+              <SiGithub className="shrink-0" /> private repo
+            </span>
+          )}
         </div>
       </div>
 

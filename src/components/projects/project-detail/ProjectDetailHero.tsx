@@ -159,15 +159,18 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
               )}
             </motion.div>
 
-            {/* Repo Activity under Tech Stack */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.9, ease: [0.19, 1, 0.22, 1] }}
-              className="mt-4"
-            >
-              <RepoActivityGrid repoUrl={project.repoUrl} boxSize={18} />
-            </motion.div>
+            {/* Repo Activity under Tech Stack. Skipped for private repos, whose
+                commit history isn't public. */}
+            {project.repoUrl && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.9, ease: [0.19, 1, 0.22, 1] }}
+                className="mt-4"
+              >
+                <RepoActivityGrid repoUrl={project.repoUrl} boxSize={18} />
+              </motion.div>
+            )}
           </div>
 
           {/* Right Column */}
@@ -187,14 +190,20 @@ export default function ProjectDetailHero({ project }: { project: Project }) {
               transition={{ duration: 0.8, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
               className="flex flex-col gap-3 md:items-end"
             >
-              <a
-                href={project.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 font-mono text-xs opacity-55 hover:opacity-100 transition-opacity"
-              >
-                <SiGithub /> View Repo →
-              </a>
+              {project.repoUrl ? (
+                <a
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 font-mono text-xs opacity-55 hover:opacity-100 transition-opacity"
+                >
+                  <SiGithub /> View Repo →
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-2 font-mono text-xs opacity-40">
+                  <SiGithub /> Private repository
+                </span>
+              )}
               {project.liveUrl && (
                 <a
                   href={project.liveUrl}

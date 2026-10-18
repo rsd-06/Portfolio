@@ -51,7 +51,9 @@ export default function RepoActivityGrid({ repoUrl, boxSize = 14 }: { repoUrl: s
       </div>
 
       {error ? (
-        <p className="f-mono text-xs opacity-40">{error}</p>
+        <p className="f-mono text-xs opacity-40">
+          {process.env.NODE_ENV === "production" ? "Repository activity is unavailable right now." : error}
+        </p>
       ) : (
         <div className="flex flex-wrap gap-[3px]">
           {squares.map((day, i) => (

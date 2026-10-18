@@ -48,7 +48,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
           name: project.title,
           description: project.summary,
           url: absoluteUrl(`/projects/${project.slug}`),
-          codeRepository: project.repoUrl,
+          ...(project.repoUrl ? { codeRepository: project.repoUrl } : {}),
           ...(project.liveUrl ? { sameAs: project.liveUrl } : {}),
           keywords: project.tags.join(", "),
           programmingLanguage: project.techStack.flatMap((t) => t.items),

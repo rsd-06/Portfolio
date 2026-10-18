@@ -73,13 +73,17 @@ export default function GitHubActivityGrid() {
     });
   };
 
+  // Visitors get a quiet fallback; the raw error and setup hint are for dev only.
+  // (Production once showed "GitHub 401 · Add GITHUB_TOKEN to .env.local" to everyone.)
   if (error) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="f-mono text-xs opacity-35">{error}</p>
-        <p className="f-mono text-[10px] opacity-25">
-          Add <code className="bg-[var(--color-border)] px-1 rounded">GITHUB_TOKEN</code> to <code className="bg-[var(--color-border)] px-1 rounded">.env.local</code>
-        </p>
+        <p className="f-mono text-xs opacity-35">GitHub activity is unavailable right now.</p>
+        {process.env.NODE_ENV !== "production" && (
+          <p className="f-mono text-[10px] opacity-25">
+            {error} · check <code className="bg-[var(--color-border)] px-1 rounded">GITHUB_TOKEN</code>
+          </p>
+        )}
       </div>
     );
   }
