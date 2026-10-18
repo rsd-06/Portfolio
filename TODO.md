@@ -1,43 +1,27 @@
-[] Build a real dark-mode toggle. globals.css already has ~66 lines of `.dark`
-   theme tokens plus the `@custom-variant dark` declaration, but nothing ever
-   adds the `.dark` class, so none of it is reachable today. Needs: a toggle,
-   system-preference detection, no flash on first paint, and an audit of the
-   literal rgba values in components that won't follow the theme.
+[] Verify on a real phone. `npm run audit:mobile` renders every route at
+   375x812 in headless Edge and passes (no overflow, nothing stuck invisible,
+   also with JavaScript off), but emulation is not a device: check touch
+   scrolling, the pinned MacMonitor zoom and the Hobbies carousel by hand.
 
-[] Verify the sub-768px layouts on a real phone. They were fixed and checked
-   against the emitted CSS, but never observed at an actual phone viewport.
+[] Fix the production GitHub token. The live /projects page reports
+   "GitHub 401": GITHUB_TOKEN on Vercel is missing or expired (the local one
+   works). Update it in Vercel → Settings → Environment Variables, then
+   redeploy. Visitors now see a quiet "unavailable" line instead of the error.
 
-[] Replace the project placeholder images. 9 image references in
-   src/data/projects.ts now point at /assets/projects/_shared/placeholder.jpg
-   because the real files were missing (gitpr had none at all). Drop the real
-   screenshots in and update the paths.
+[] Submit to Google: add the site in Search Console (Domain or URL-prefix
+   property), set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION on Vercel, then submit
+   https://sudharshan-r.vercel.app/sitemap.xml. Re-run `npm run check:seo`
+   against production after each deploy.
 
-[] Reconsider gating page content behind framer-motion entrance animations.
-   Every section starts at opacity:0 and is revealed by JS, so if the animation
-   does not run the page renders blank. Consider a MotionConfig with
-   reducedMotion="user", or a CSS fallback that shows content without JS.
+[] Demo videos for the remaining projects (Project.video). CodeCritter has its
+   launch video; SatSaathi, PeriodyX, PR Eval, SkillSync, Google Docs Mini and
+   rsd.exe need a 15–30 s screen recording each (needs real usage, e.g. a
+   signed-in walkthrough). Encode small: 720p H.264, no audio.
 
-[] Add LeetCode to the social icon rows: beside GitHub in the home hero, and
-   in the top-right icon row of the About hero. Add a `leetcode` entry (and an
-   icon PNG in public/assets/socialMediaIcons/) to src/data/socials.ts, then add
-   it to HERO_SOCIALS. Also consider SAME_AS (JSON-LD).
-
-[] Floating interactive pet (in the spirit of Meta's "dots"). Small, clean and
-   subtle; reacts to interaction — a few taps and it looks hurt, keep hitting
-   it and it gets offended, and so on. Later stage: give it knowledge about me
-   so it can answer questions. (Deferred.)
-
-[] Enhance the mobile view and responsiveness across all pages.
-
-[] Featured projects rail (home, HorizontalProjectsSection) scrolls too fast:
-   one quick wheel/trackpad flick moves 2–3 cards. Make it advance about one
-   card per gesture (or lower the scroll-to-x ratio).
-
-[] Overall scroll sensitivity is too high — one wheel/trackpad flick travels
-   too far across the whole site, not just the projects rail. Reduce it in
-   the Lenis setup (src/components/providers/LenisProvider.tsx: e.g. lower
-   wheelMultiplier below 1 and/or raise duration), then re-check the pinned
-   sections (MacMonitorSection zoom, HobbiesSection, TechStack) still feel right.
+[] SkillSync and Google Docs Mini have one screenshot each. SkillSync has no
+   live deployment of its own (skillsync.vercel.app belongs to an unrelated
+   site, so the link was removed); Google Docs Mini's live site only shows a
+   Clerk sign-in in development mode. Capture in-app screenshots when signed in.
 
 [] Switch the domain to sudharshan-r.dev once bought: add it in Vercel →
    Domains, set NEXT_PUBLIC_BASE_URL=https://sudharshan-r.dev (or change the
@@ -50,43 +34,39 @@
    public/hero.jpg, then set hasAudio: true in src/lib/heroVideo.ts so the
    "sound on" button appears.
 
-[] Sitemaps, robots.txt and proper SEO optimisation (per-page metadata,
-   OG images, structured data per project/blog, canonical domain).
+[] Review the 13 new blog posts before publishing (src/content/blogs/, dated
+   2026-10-19). They were drafted from the sources listed in each post and
+   spot-checked against them, but they are in your voice: confirm the personal
+   lines ("what I take from it") say what you actually think.
 
-[] Optimise for AI agents and LLM search (e.g. /llms.txt, clean semantic HTML,
-   structured data, crawlable text that doesn't depend on JS animations).
+[] SatSaathi UI bug (in the sat_saathi repo, not here): the Tamil landing
+   headline overflows under the image at 1440px wide.
 
-[] Add PyTorch and the other tools / tech I use to the tech stack
-   (src/components/about/TechStack.tsx, TECH_STACK).
-
-[] Blogs list: group posts by month by default (month separators).
-
-[] Write more blogs. Topics from my "Portfolio Blogs" list, with sources:
-   - Arundhati & Salman interview — https://youtu.be/tIekAj-ussc?si=kePDFUO9uy_Thj1G
-   - Michelin Stars reel — (source to add)
-   - Claude thinking levels — https://youtu.be/rKV5JcALQoQ?si=EZBnWuq1ESIIKwtZ
-   - CISC vs RISC, Von Neumann (vs Harvard) architecture — (source to add)
-   - Spec-Driven Development — (source to add)
-   - The Mom Test — https://youtu.be/TmNeVbk0hNQ
-   - Why warm countries are poorer — https://beyondtweets.substack.com/p/why-warm-countries-are-poorer
-   - GitHub Actions — (source to add)
-   - The Infinite Hotel Paradox — https://youtu.be/Uj3_KqkI9Zo
-     and the sizes-of-infinity follow-up — https://youtu.be/OxGsU8oIWjY?si=IMGhK81IosD7o_j0
-     (my notes: docs/blog-sources/infinite-hotel-paradox.md — Hilbert's hotel →
-     Cantor → Gödel → Turing → theory of computation → computers/phones)
-   - Hinduism is actually cool — https://youtu.be/njJTmkY7RqU?si=VRO95ab9Wu7Hz0h_
-   - Justice: What's The Right Thing To Do? (Harvard, Michael Sandel) —
-     YouTube lecture series, episodes 1–6
-   - Calhoun effect (Universe 25 / "behavioural sink") — https://youtu.be/LuCans9euxY?si=0nX8aQ6s91wLiYmL
-   - On the Heights of Despair (Cioran) — https://youtu.be/DNGXsbZHMMI?si=zvTcjd4dpqWHDdvd
-
-[] Projects: add CodeCritters and SatSaathi (GitHub repos) as new project
-   entries — collect images and write-up from the repos — and make them
-   featured. Un-feature SkillSync and rsd.exe (portfolio). Also collect the
-   missing images for the other projects, and add a short demo video for every
-   project to its detail page (Project.video).
+--- later ---
+[] Floating interactive pet (in the spirit of Meta's "dots"). Small, clean and
+   subtle; reacts to interaction — a few taps and it looks hurt, keep hitting
+   it and it gets offended, and so on. Later stage: give it knowledge about me
+   so it can answer questions.
+[] Navbar WORDS: add "Entrepreneur." when I start something of my own.
 
 --- done ---
 [x] Blogs slug component tracks sub headings and marks the side index
 [x] Back to Previous Blog link on blog pages
 [x] Scroll Down Hint on the Home Screen working and placed properly
+[x] Dark mode: dropped. The unreachable .dark tokens were removed instead.
+[x] Overall scroll sensitivity reduced (Lenis wheelMultiplier 0.75)
+[x] Featured rail: ~1 card per flick (RAIL_SCROLL_RATIO 1.6)
+[x] LeetCode in the home and About hero icon rows and JSON-LD
+[x] SEO: per-page canonicals (every page used to claim "/"), OG images,
+    BlogPosting / SoftwareSourceCode / Person / WebSite JSON-LD, full sitemap
+[x] LLM visibility: /llms.txt and /llms-full.txt, AI crawlers allowed,
+    content readable without JavaScript
+[x] Content no longer depends on framer-motion running (noscript fallback)
+[x] Tech stack: PyTorch, Hugging Face, Scikit-learn, Pandas, W&B, Rust,
+    Tauri, PostgreSQL, Vercel, Figma, Claude Code
+[x] Blogs grouped by month by default (toggle to flat)
+[x] 13 new blog posts from the "Portfolio Blogs" list
+[x] CodeCritter and SatSaathi added and featured; SkillSync and rsd.exe
+    un-featured; all placeholder images replaced
+[x] Mobile pass: all routes clean at 375px (npm run audit:mobile)
+[x] Project moved to D:\Projects\Portfolio

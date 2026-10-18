@@ -25,7 +25,15 @@ The brand name is **rsd.exe**. It's a design-led, animation-heavy, single-author
 | Analytics | `@vercel/analytics`, `@vercel/speed-insights`, optional GA | |
 | Lint | ESLint 10 flat config, `eslint-config-next` core-web-vitals + typescript | |
 
-There is **no test suite**. Verification = `npm run lint`, `npm run build`, and looking at the page in a browser (desktop and ≤ 767px).
+There is **no unit-test suite**. Verification is `npm run lint`, `npm run build`, and three rerunnable checks against a running server (`npm run dev` first):
+
+| Command | What it proves |
+|---|---|
+| `npm run check:blogs` | Every post has full frontmatter and compiles as MDX (no stray `{` or `<`). No server needed. |
+| `npm run check:seo [baseUrl]` | Every sitemap URL has a title, a 50+ char description, a canonical equal to its own URL, OG and Twitter tags, an OG image, and JSON-LD (BlogPosting or SoftwareSourceCode where relevant); every post is in the sitemap and in `/llms.txt`. |
+| `npm run audit:mobile [baseUrl] [routes…]` | Headless Edge at 375×812 in real time: no element past the right edge, no on-screen text stuck invisible. `NOJS=1` audits the no-JavaScript render. Screenshots land in `.mobile-audit/`. |
+
+In Git Bash, prefix route arguments with `MSYS_NO_PATHCONV=1` or `/` becomes a Windows path. The Claude preview pane does not paint while it's hidden (requestAnimationFrame runs at 0 fps), so animation-dependent checks there are inconclusive. Use `audit:mobile`.
 `npm run lint` currently exits non-zero on a **pre-existing baseline** (37 errors / 34 warnings, see FEATURESMAP §13 "Still open"). The bar is: no *new* problems in files you touch, and fix old ones there when it's cheap. `npm run build` must pass.
 
 ## 2. Commands
@@ -49,7 +57,7 @@ Environment (`.env.local`, git-ignored — never commit or print values):
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `src/app/layout.tsx` | Optional |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | `src/app/layout.tsx` | Optional |
 
-Platform: the owner develops on **Windows** (PowerShell scripts, OneDrive path). `next.config.ts` pins `turbopack.root` to `__dirname` because a stray lockfile in the user profile confused root inference — don't remove it.
+Platform: the owner develops on **Windows** (PowerShell scripts). The repo lives at `D:\Projects\Portfolio`; C: is nearly full, so keep caches and build output on D:. `next.config.ts` pins `turbopack.root` to `__dirname` because a stray lockfile in the user profile confused root inference — don't remove it.
 
 ## 3. Directory layout
 
@@ -80,7 +88,7 @@ Placement rules:
 
 ## 4. Design system — keep it consistent
 
-**Palette** (light theme is the only live theme; `.dark` tokens exist but are unreachable — see TODO):
+**Palette** (light only, by decision: there is no dark mode, and the old unreachable `.dark` tokens were deleted):
 
 | Token | Value | Tailwind utility |
 |---|---|---|
@@ -92,7 +100,7 @@ Placement rules:
 | `--color-bg-dark` / `--color-text-inv` | `#111111` / `#F5F4F0` | Contact page and footer |
 | Semantic aliases | `--color-bg`, `--color-text`, `--color-border` | Used heavily in inline styles |
 
-Translucent tints are written as `color-mix(in srgb, var(--color-text) 10%, transparent)` — prefer this over new literal `rgba(...)` so a future dark mode follows (literal rgba is one of the open TODO audit items).
+Translucent tints are written as `color-mix(in srgb, var(--color-text) 10%, transparent)` — prefer this over new literal `rgba(...)` so tints follow the tokens.
 
 **Typography** — use the role classes, not raw font families:
 
@@ -133,21 +141,27 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 6. **ProtoSem routability goes through `isDocumented()`** (`src/data/protosem.ts`). Timeline links, `generateStaticParams`, the sitemap and `WeekNavigation` all derive from it; never hand-code a week list elsewhere.
 7. **Server vs client.** Pages are Server Components where possible so they can export `metadata`; interactive sections opt in with `"use client"`. Every route `page.tsx` except `not-found.tsx` is a Server Component; when a page needs state, put it in a client child (e.g. `/projects` → `ProjectsView`) rather than marking the page `"use client"`. Anything using `fs` (`lib/mdx.ts`) is server-only.
 8. **GitHub data** goes through the `/api/github*` routes (server token, `revalidate: 86400`) and is cached client-side in `localStorage` for 24 h with versioned keys. Bump the key suffix (`-v1` → `-v2`) if you change the response shape.
-9. **SEO.** Root metadata + JSON-LD live in `layout.tsx`. The root layout sets `metadataBase: new URL(SITE_URL)`, so per-page `alternates.canonical` and `openGraph.url` are written **relative** (`"/about"`). Anything that needs an absolute URL outside metadata (JSON-LD, sitemap, robots, data) uses `SITE_URL` from `src/lib/site.ts`. Never hard-code the domain — changing it should only mean setting `NEXT_PUBLIC_BASE_URL`.
-10. **Images.** Prefer `next/image` (AVIF/WebP configured). A few `<img>` remain where needed (mockup frame, nav hover background, social icons). Right-click/drag on images is blocked globally by `GlobalSetup` + CSS; don't fight it per-component.
-11. **Comments** in this codebase explain *why*, often recording a previous bug ("Previously … so …"). Match that: comment non-obvious constraints, not what the code says. File headers use `// src/path/File.tsx` + one-line purpose.
+9. **SEO.** Every route's metadata comes from `pageMetadata({ path, title, description, eyebrow?, keywords?, article? })` in `src/lib/seo.ts`. It sets the canonical, `og:url`, OG and Twitter tags, and an `/og?title=…` share image. **Never put `alternates.canonical` or `openGraph.url` in the root layout:** Next merges metadata shallowly, so every child inherits them. That's how every page once declared itself a duplicate of `/`. The root layout sets `metadataBase` and the site-wide `Person` + `WebSite` JSON-LD graph. Post and project pages add `BlogPosting` / `SoftwareSourceCode` via `<JsonLd>` (`src/components/seo/JsonLd.tsx`, escapes `<`). JSON-LD needs absolute URLs, so use `absoluteUrl()`. `/llms.txt` and `/llms-full.txt` are generated from the same data (`src/lib/llms.ts`). Never hard-code the domain; changing it should only mean setting `NEXT_PUBLIC_BASE_URL`. Run `npm run check:seo` after touching any of this.
+10. **Content must survive without JavaScript.** framer-motion server-renders entrances at their starting state (`opacity:0` plus a transform). A `<noscript>` stylesheet in `layout.tsx` (`NO_JS_CSS`) resets exactly those, the clip-path headline reveal, and the home loader (`data-loader`). Keep new entrances in that shape (opacity 0 *with* a transform). Hover-only layers must not carry a transform, or they'll show without JS. Verify with `NOJS=1 npm run audit:mobile`.
+11. **Scroll feel.** Lenis `wheelMultiplier` (0.75) sets site-wide wheel distance. The featured rail's runway is `RAIL_SCROLL_RATIO` (1.6) × its horizontal travel. Tune those two numbers rather than adding per-section wheel handlers.
+12. **Images.** Prefer `next/image` (AVIF/WebP configured). A few `<img>` remain where needed (mockup frame, nav hover background, social icons). Right-click/drag on images is blocked globally by `GlobalSetup` + CSS; don't fight it per-component.
+13. **Comments** in this codebase explain *why*, often recording a previous bug ("Previously … so …"). Match that: comment non-obvious constraints, not what the code says. File headers use `// src/path/File.tsx` + one-line purpose.
 
 ## 6. Recipes
 
 **Add a project**
 1. Append an object to `PROJECTS` in `src/data/projects.ts` (fill every required `Project` field; use the next unused `index` string, zero-padded).
 2. Put images in `public/assets/projects/<slug>/` (`01.png`, `02.jpg`, …). `images[0]` is the card/hero image. Use `/assets/projects/_shared/placeholder.jpg` only temporarily.
-3. `featured: true` puts it on the home horizontal rail.
-4. Static params, sitemap, prev/next nav and marquee pick it up automatically.
+3. `featured: true` puts it on the home horizontal rail (array order is rail and grid order; keep `index` matching position).
+4. Omit `repoUrl` for a private repo: cards then say "private repo", and the commit grid and `codeRepository` are skipped. Never link a repo or `liveUrl` you haven't opened yourself. `skillsync.vercel.app` turned out to be someone else's site.
+5. `video` (optional) is a short muted demo, used for the card hover preview and on the detail page with `images[0]` as poster.
+6. Static params, sitemap, `/llms.txt`, JSON-LD, prev/next nav and marquee pick it up automatically.
 
 **Add a blog post**
 1. Create `src/content/blogs/<slug>.mdx` with frontmatter `title`, `date` (`YYYY-MM-DD`), `excerpt`, `category` (UPPERCASE), `readTime` (`"N MIN READ"`).
 2. Use `##` / `###` for headings (they feed the TOC; ids are generated from heading text). Fenced code renders via `CodeBlock`.
+3. MDX treats `{`, `}` and `<` in prose as code. Put maths and set notation in backticks. Run `npm run check:blogs`.
+4. Attribute sources in the first line (`*Notes on [title](url) by creator.*`), paraphrase rather than transcribe, and only state what the source says. The blog list groups by the `YYYY-MM` of `date`. The sitemap, `/llms.txt` and the post's JSON-LD pick it up automatically.
 
 **Document a ProtoSem week**
 1. In `src/data/protosem.ts`, add the week to `DOCUMENTED_WEEKS` (`status: "completed"` or `"current"`); update `PROGRAM_META.currentWeekId` as the program advances.
@@ -170,23 +184,14 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 
 ## 8. Open work (mirror of TODO.md + in-code)
 
-- [ ] Real dark-mode toggle (tokens exist in `.dark`; need toggle, system preference, no flash, rgba audit).
-- [ ] Verify sub-768px layouts on a real phone.
-- [ ] Replace project placeholder images in `src/data/projects.ts`.
-- [ ] Don't let page content depend on framer-motion running (opacity:0 gating) — `MotionConfig reducedMotion="user"` or a CSS/no-JS fallback.
-- [ ] `Navbar.tsx` `WORDS`: add "Entrepreneur." when applicable.
-- [ ] LeetCode in the home-hero and About-hero icon rows (via `src/data/socials.ts`).
-- [ ] Floating interactive pet (deferred).
-- [ ] Mobile / responsive pass.
-- [ ] Featured-projects rail: one flick moves 2–3 cards; make it ~1 card per gesture.
-- [ ] SEO: sitemap/robots/metadata/OG/structured data.
-- [ ] AI-agent / LLM searchability.
-- [ ] Tech stack: add PyTorch and tools.
-- [ ] Blog list grouped by month by default.
-- [ ] New blog posts (topics + sources in `TODO.md`; notes in `docs/blog-sources/`).
-- [ ] Projects: add CodeCritters + SatSaathi as featured; un-feature SkillSync + rsd.exe; images + demo videos for all.
-- [ ] Global scroll sensitivity too high (Lenis `wheelMultiplier` / `duration`).
+- [ ] Verify on a real phone (emulated audit passes).
+- [ ] Production `GITHUB_TOKEN` on Vercel is rejected (401); replace it.
+- [ ] Google Search Console: verify the site and submit the sitemap.
+- [ ] Demo videos for every project except CodeCritter; more screenshots for SkillSync and Google Docs Mini.
 - [ ] Move to `sudharshan-r.dev` once bought.
 - [ ] New hero montage encoded with `-KeepAudio`, then `hasAudio: true`.
+- [ ] Owner review of the 13 posts dated 2026-10-19.
+- Later: floating interactive pet; `Navbar.tsx` `WORDS` "Entrepreneur.".
+- Dropped: dark mode.
 
 `TODO.md` is the source of truth for the wording; this list is a pointer. See FEATURESMAP §13 for remaining inconsistencies.

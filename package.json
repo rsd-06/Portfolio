@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "check:blogs": "node scripts/check-blogs.mjs",
     "check:seo": "node scripts/check-seo.mjs",
+    "audit:mobile": "node scripts/mobile-audit.mjs",
     "compress-video": "powershell -ExecutionPolicy Bypass -File compress-video.ps1"
   },
   "dependencies": {

@@ -88,6 +88,19 @@ npm run build
 npm run lint
 ```
 
+### Quality checks
+With `npm run dev` running:
+```bash
+npm run check:blogs
+```
+```bash
+npm run check:seo
+```
+```bash
+npm run audit:mobile
+```
+> *`check:blogs` validates frontmatter and MDX for every post. `check:seo` audits canonicals, OG/Twitter tags, OG images, JSON-LD, the sitemap and `/llms.txt` for every URL. `audit:mobile` renders each route at 375×812 in headless Edge and flags overflow or stuck-invisible content (`NOJS=1` audits the no-JavaScript render). Pass a base URL to run against production, e.g. `npm run check:seo -- https://sudharshan-r.vercel.app`.*
+
 ---
 
 <p align="center">

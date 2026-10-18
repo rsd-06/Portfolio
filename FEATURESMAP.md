@@ -2,7 +2,7 @@
 
 A navigation map: **route → section → component → data/hook/lib**. Use it to find where any visible feature lives and what it depends on.
 
-> Snapshot taken 2026-10-18 at commit `7a1b08c`, updated 2026-10-19 after the consistency cleanup (see §13). All paths are relative to the repo root. Line counts are approximate.
+> Snapshot taken 2026-10-18 at commit `7a1b08c`, last updated 2026-10-19 (cleanup, SEO/LLM visibility, content, mobile and no-JS passes; see §13). All paths are relative to the repo root. Line counts are approximate.
 
 ---
 
@@ -26,7 +26,12 @@ A navigation map: **route → section → component → data/hook/lib**. Use it 
 | Site URL (metadataBase, canonicals, OG, JSON-LD, sitemap, robots) | `src/lib/site.ts` (`SITE_URL` ← `NEXT_PUBLIC_BASE_URL`) |
 | Tech stack icons (About + Home) | `src/components/about/TechStack.tsx` (`TECH_STACK`) |
 | Hobby cards | `src/components/about/HobbiesSection.tsx` (`HOBBY_CARDS`) |
-| SEO metadata / JSON-LD | `src/app/layout.tsx`, per-route `metadata` exports |
+| Page title / description / canonical / OG / Twitter | `pageMetadata()` in `src/lib/seo.ts`, called by every route's `metadata` / `generateMetadata` |
+| Share image (og:image) design | `src/app/og/route.tsx` (`/og?title=…&eyebrow=…`) |
+| Structured data | `src/app/layout.tsx` (Person + WebSite graph), post and project pages (`<JsonLd>`) |
+| What LLMs read | `src/lib/llms.ts` → `/llms.txt`, `/llms-full.txt` |
+| No-JavaScript fallback | `NO_JS_CSS` in `src/app/layout.tsx` |
+| Scroll sensitivity | `wheelMultiplier` in `LenisProvider.tsx`; `RAIL_SCROLL_RATIO` in `HorizontalProjectsSection.tsx` |
 
 ---
 
@@ -79,8 +84,10 @@ Defined in `src/app/layout.tsx` (Server Component). Render order:
 | 404 | `src/app/not-found.tsx` | Client | Self-contained (mouse-drift "404", back / home / projects links) |
 | `/api/github` | `src/app/api/github/route.ts` | Route handler, `revalidate: 86400` | GitHub GraphQL contributions for `rsd-06` (needs `GITHUB_TOKEN`) |
 | `/api/github/repo?owner&repo` | `src/app/api/github/repo/route.ts` | Route handler, `revalidate: 86400` | Last-30-day commit counts (token optional) |
-| `/sitemap.xml` | `src/app/sitemap.ts` | Metadata route | Static routes + every `PROJECTS` slug + every `DOCUMENTED` week, base = `SITE_URL` |
-| `/robots.txt` | `src/app/robots.ts` | Metadata route | Allow all; sitemap URL from `SITE_URL` |
+| `/sitemap.xml` | `src/app/sitemap.ts` | Metadata route | Static routes + every project + every blog post (real `lastModified`) + every `DOCUMENTED` week, base = `SITE_URL` |
+| `/robots.txt` | `src/app/robots.ts` | Metadata route | Allow all (AI crawlers included), disallow `/api/`; sitemap URL from `SITE_URL` |
+| `/og` | `src/app/og/route.tsx` | Route handler (`next/og`) | 1200×630 share card |
+| `/llms.txt`, `/llms-full.txt` | `src/app/llms.txt/route.ts`, `src/app/llms-full.txt/route.ts` | Static route handlers | Site summary for LLMs; `-full` adds project write-ups and post bodies |
 | `/manifest.webmanifest` | `src/app/manifest.ts` | Metadata route | |
 
 ---
@@ -140,13 +147,17 @@ page.tsx
 
 **Data:** `src/data/projects.ts` → `interface Project`, `PROJECTS[]`.
 
-| Slug | index | featured | Images |
-|---|---|---|---|
-| `periodyx` | 01 | ✔ | 4 real jpgs (+ unused `01.gif`) |
-| `skillsync` | 02 | ✔ | 1 real + placeholder |
-| `googledocsmini` | 03 | — | 1 real + placeholder |
-| `portfolio` | 04 | — | 1 real + placeholder |
-| `gitpr-evaluation-env` | 05 | ✔ | 1 real (`gitpr/01.png`) |
+| Slug | index | featured | Media | Repo |
+|---|---|---|---|---|
+| `codecritter` | 01 | ✔ | launch poster + 3 screenshots, `demo.mp4` (20 s) | public |
+| `satsaathi` | 02 | ✔ | 3 screenshots (EN, HI landing; sign-in) | **private** (no `repoUrl`) |
+| `periodyx` | 03 | ✔ | 4 jpgs (+ unused `01.gif`) | public |
+| `gitpr-evaluation-env` | 04 | ✔ | `gitpr/01.png` | public |
+| `skillsync` | 05 | — | 1 screenshot; no live URL | public |
+| `googledocsmini` | 06 | — | 1 screenshot | public |
+| `portfolio` | 07 | — | home + About captures | public |
+
+`repoUrl` is optional: when absent, cards say "private repo", and the commit grid and JSON-LD `codeRepository` are skipped.
 
 Listing page:
 
@@ -180,13 +191,13 @@ Files: `src/components/projects/{ProjectsView,ProjectsHero,GitHubActivityGrid,Vi
 | Piece | File | Notes |
 |---|---|---|
 | Loader | `src/lib/mdx.ts` | `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` (date desc). Reads `src/content/blogs/*.mdx` with gray-matter. Defaults for missing frontmatter. |
-| List UI | `src/components/blogs/BlogsLayout.tsx` | Search (title+excerpt), category filter, newest/oldest sort. |
+| List UI | `src/components/blogs/BlogsLayout.tsx` | Search (title+excerpt), category chips (one swipeable row on phones), newest/oldest sort, grouped by month by default (`groupByMonth`, keyed on `YYYY-MM`) with a flat toggle. |
 | Card | `src/components/blogs/BlogCard.tsx` | Suppresses navigation while text is selected. |
 | Detail | `src/app/blogs/[slug]/page.tsx` | Headings parsed from raw markdown (`## `, `### `) → ids via `generateId`; custom `h2`/`h3`/`pre` MDX components; typography via arbitrary `[&_p]:` variants on `<article>`. |
 | TOC | `src/components/blogs/BlogTOC.tsx` | Single IntersectionObserver; topmost visible heading wins. `lg+` only. |
 | Code | `src/components/blogs/CodeBlock.tsx` | Copy button. (Different from the ProtoSem `CodeBlock`.) |
 
-Posts: `the-architecture-of-modern-portfolio.mdx` (2026-07-24, SYSTEM DESIGN), `www-vs-internet.mdx` (2026-08-02, FUNDAMENTALS).
+Posts (15): `the-architecture-of-modern-portfolio` (2026-07-24), `www-vs-internet` (2026-08-02), and 13 dated 2026-10-19: `the-infinite-hotel-paradox`, `the-mom-test`, `why-warm-countries-are-poorer`, `justice-sandel-lectures-1-6`, `india-at-50-arundhati-roy-salman-rushdie`, `hinduism-is-actually-cool`, `universe-25-calhoun`, `on-the-heights-of-despair`, `what-claude-thinks-beneath-the-surface`, `cisc-vs-risc-von-neumann-vs-harvard`, `spec-driven-development`, `github-actions-explained`, `how-a-tyre-company-invented-michelin-stars`. Each opens with its source link. Validate with `npm run check:blogs`.
 
 ---
 
@@ -258,7 +269,10 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 | `src/lib/breakpoints.ts` | `BREAKPOINTS`, `up()`, `below()` (−0.02px) | useMediaQuery |
 | `src/lib/heroVideo.ts` | `HERO_VIDEO` (poster, desktop[], mobile[]) | HeroVideo |
 | `src/lib/site.ts` | `SITE_URL` | layout (`metadataBase`, JSON-LD), sitemap, robots, `data/projects.ts` |
-| `src/lib/mdx.ts` | `BlogPost`, `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes |
+| `src/lib/mdx.ts` | `BlogPost`, `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes, sitemap, llms |
+| `src/lib/seo.ts` | `pageMetadata()`, `ogImageUrl()`, `absoluteUrl()`, `SITE_NAME`, `AUTHOR` | every route, `/og`, JSON-LD |
+| `src/lib/llms.ts` | `buildLlmsTxt()`, `llmsResponse()` | `/llms.txt`, `/llms-full.txt` |
+| `src/components/seo/JsonLd.tsx` | `JsonLd` (escapes `<`) | layout, post and project pages |
 | `src/lib/utils.ts` | `cn()` (clsx + tailwind-merge) | *unused today; kept because shadcn components (components.json) import it* |
 | `src/components/ui/ImageLightbox.tsx` | `ImageLightbox` | ProjectDetailMedia, ProtoSem `Gallery` |
 | `src/data/socials.ts` | `SOCIAL`, `HERO_SOCIALS`, `FOOTER_SOCIALS`, `CONTACT_SOCIALS`, `SAME_AS`, `CONTACT_EMAIL` | HeroStatic, AboutHero, GlobalFooter, contact page, ContactReveal, layout JSON-LD |
@@ -285,10 +299,10 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 |---|---|
 | `hero.jpg`, `heroVideo.{webm,mp4}`, `heroVideoMobile.{webm,mp4}` | `lib/heroVideo.ts` |
 | `assets/homePageImages/{macbook,iPhone14}.png` | MacMonitorSection |
-| `assets/projects/<slug>/*`, `assets/projects/_shared/placeholder.jpg` | `data/projects.ts` |
+| `assets/projects/<slug>/*` (incl. `codecritter/demo.mp4`) | `data/projects.ts` (`_shared/placeholder.jpg` is no longer referenced) |
 | `assets/aboutPageImages/**`, `assets/aboutPage/hobbyIcons/*` | About sections |
 | `assets/protoSemPage/**` | Week 0 / Week 7 |
-| `assets/socialMediaIcons/*_icon.png` | HeroStatic, AboutHero, contact strip |
+| `assets/socialMediaIcons/*_icon.png` (incl. `leetcode_icon.png`) | HeroStatic, AboutHero, contact strip |
 | `Sudharshan_R_Resume.pdf` | Navbar "Resume" |
 | `logo.svg` | *not referenced in src* |
 | `assets/projects/periodyx/01.gif` | *not referenced* (1.5 MB; candidate for the project's demo `video`) |
@@ -299,31 +313,18 @@ Repo-only (not served): `docs/blog-sources/*.md` — research notes for future b
 
 ## 12. Open TODOs
 
-From `TODO.md` (open):
+`TODO.md` is the source of truth. Open as of 2026-10-19:
 
-1. **Dark mode toggle.** `globals.css` has `.dark` tokens + `@custom-variant dark` but nothing adds `.dark`. Needs toggle, system detection, no first-paint flash, audit of hard-coded rgba values.
-2. **Verify sub-768px layouts on a real phone.**
-3. **Replace project placeholder images** in `src/data/projects.ts` (`/assets/projects/_shared/placeholder.jpg`; skillsync, googledocsmini and portfolio still have one each).
-4. **Reconsider gating content behind framer-motion entrance animations** (opacity:0 until JS runs → blank page without JS). Options: `MotionConfig reducedMotion="user"` or CSS fallback.
-5. **LeetCode** in the home-hero and About-hero icon rows → add to `src/data/socials.ts` + `HERO_SOCIALS`.
-6. **Floating interactive pet** (Meta "dots"-like; hurt → offended reactions; later trained on my info). Deferred.
-7. **Mobile / responsive pass** across pages.
-8. **Featured-projects rail scrolls too fast** (one flick = 2–3 cards) → `HorizontalProjectsSection`.
-9. **Sitemaps, robots.txt, proper SEO.**
-10. **AI-agent / LLM searchability** (e.g. `/llms.txt`, structured data).
-11. **Tech stack additions** (PyTorch, tools) → `TECH_STACK` in `TechStack.tsx`.
-12. **Month separators on the blog list** (default grouping) → `BlogsLayout.tsx`.
-13. **New blog posts** — topic list with sources in `TODO.md`; Infinite Hotel notes in `docs/blog-sources/infinite-hotel-paradox.md`.
-14. **New projects CodeCritters + SatSaathi** (featured); un-feature SkillSync + rsd.exe; images + demo videos for every project.
-15. **Global scroll sensitivity too high** → Lenis options in `LenisProvider.tsx` (`wheelMultiplier`, `duration`).
-16. **Move to `sudharshan-r.dev`** once bought (Vercel domain + `NEXT_PUBLIC_BASE_URL`; later `hello@` forwarding).
-17. **New hero montage** → encode with `-KeepAudio`, set `HERO_VIDEO.hasAudio = true`.
+1. **Real-phone check.** The emulated audit (`npm run audit:mobile`, with and without JS) passes on every route.
+2. **Production `GITHUB_TOKEN`** on Vercel is rejected (live /projects reported GitHub 401). Owner must replace it.
+3. **Google Search Console** verification and sitemap submission (owner).
+4. **Demo videos** for every project except CodeCritter; more screenshots for SkillSync and Google Docs Mini.
+5. **Domain move** to `sudharshan-r.dev` once bought.
+6. **New hero montage** with `-KeepAudio`, then `HERO_VIDEO.hasAudio = true`.
+7. **Owner review** of the 13 posts dated 2026-10-19.
+8. **SatSaathi** (other repo): the Tamil landing headline overflows at 1440px.
 
-Done in `TODO.md`: blog TOC tracks headings; prev/next blog links; home scroll hint.
-
-In-code:
-
-- `src/components/layout/Navbar.tsx:11` — `// TODO: Add Entrepreneur. when I start something of my own.` (append to `WORDS`).
+Later: floating interactive pet; `Navbar.tsx` `WORDS` "Entrepreneur.". Dropped: dark mode.
 
 ---
 
@@ -350,10 +351,17 @@ In-code:
 |---|---|---|
 | A | whole repo | `npm run lint` fails on a pre-existing baseline (37 errors, 34 warnings: `no-explicit-any`, `react-hooks/set-state-in-effect`, `no-unescaped-entities`, `static-components` in ProjectDetailMedia, unused vars). Build passes. Don't add to it; fix files as you touch them. |
 | B | `public/logo.svg`, `public/assets/projects/periodyx/01.gif` | Unreferenced assets (kept; see §11). |
-| C | `src/app/blogs/page.tsx`, `src/app/blogs/[slug]/page.tsx` | Blog pages have title/description but no canonical or OG fields (falls under the SEO TODO). |
 | D | Navbar | Link list is still written out twice (desktop + mobile overlay). |
-| E | `next.config.ts` headers | `/_next/static/:path*` is sent `immutable` in **dev** too, where chunk URLs don't change between edits — the browser can keep running stale client code after a change. Hard-reload, use a fresh port, or scope the header to production (Next already sets immutable for production static assets). |
 
 ### Fixed 2026-10-19 (second pass)
 
 - **Hero reel never played** — `HeroVideo` checked `networkState === NETWORK_NO_SOURCE` right after inserting `<source>` elements, but inserting a source sets exactly that state synchronously while selection begins, so the component always fell back to the poster. Failure is now detected via `onError` on the last `<source>`.
+
+### Fixed 2026-10-19 (third pass)
+
+- **Every page claimed to be the homepage.** The root layout's `alternates.canonical: "/"` and `openGraph.url` were inherited by every route. Metadata now comes from `pageMetadata()` per route. `scripts/check-seo.mjs` went from 42 failures to 0, and now covers 29 URLs.
+- **Project titles showed "— rsd.exe" twice** (explicit suffix plus the layout template).
+- **No-JS render was blank** for project cards, the blog list and the footer, and the home loader never lifted. Fixed with `NO_JS_CSS`.
+- **`skillsync.vercel.app` is an unrelated site.** The link is removed.
+- **Production leaked a dev hint** ("GitHub 401 · Add GITHUB_TOKEN to .env.local"). Visitors now see a quiet fallback.
+- **`next.config.ts` sent `immutable` for `/_next/static` in dev too**, pinning stale client code. The rule is removed, since Next handles production itself.
