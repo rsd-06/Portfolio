@@ -24,15 +24,25 @@
 .PARAMETER Variant
     Which outputs to produce: Desktop, Mobile, or Both (default).
 
+.PARAMETER KeepAudio
+    Keep the soundtrack (Opus in WebM, AAC in MP4) instead of stripping it.
+    Pair with the home page "sound on" button, and set hasAudio: true in
+    src/lib/heroVideo.ts afterwards.
+
 .EXAMPLE
     npm run compress-video -- -InputPath "C:\raw\hero-master.mov"
+
+.EXAMPLE
+    npm run compress-video -- -InputPath "C:\raw\hero-master.mov" -KeepAudio
 #>
 param(
     [Parameter(Mandatory = $true)]
     [string]$InputPath,
 
     [ValidateSet("Desktop", "Mobile", "Both")]
-    [string]$Variant = "Both"
+    [string]$Variant = "Both",
+
+    [switch]$KeepAudio
 )
 
 $ErrorActionPreference = "Stop"
@@ -89,43 +99,43 @@ function Invoke-Encode {
     Write-Host "  ok - $sizeMb MB" -ForegroundColor Green
 }
 
-# The hero video is always rendered muted, so audio is stripped (-an) rather
-# than re-encoded. That alone removes a meaningful slice of the file.
+# By default the hero plays muted, so audio is stripped (-an) rather than
+# re-encoded, which removes a meaningful slice of the file. -KeepAudio keeps a
+# compact soundtrack for the "sound on" button. Concatenated with + rather than
+# nested in @(...) so each flag stays a separate ffmpeg argument.
+$webmAudio = if ($KeepAudio) { @("-c:a", "libopus", "-b:a", "96k") } else { @("-an") }
+$mp4Audio  = if ($KeepAudio) { @("-c:a", "aac", "-b:a", "128k") } else { @("-an") }
 
 if ($Variant -in @("Desktop", "Both")) {
-    Invoke-Encode "Desktop VP9 1080p" @(
+    Invoke-Encode "Desktop VP9 1080p" (@(
         "-y", "-v", "error", "-i", $inputFull,
         "-vf", "scale=1920:-2",
         "-c:v", "libvpx-vp9", "-crf", "32", "-b:v", "0",
-        "-deadline", "good", "-cpu-used", "2", "-row-mt", "1",
-        "-an", $outputs.DesktopWebm
-    ) $outputs.DesktopWebm
+        "-deadline", "good", "-cpu-used", "2", "-row-mt", "1"
+    ) + $webmAudio + @($outputs.DesktopWebm)) $outputs.DesktopWebm
 
-    Invoke-Encode "Desktop H.264 1080p" @(
+    Invoke-Encode "Desktop H.264 1080p" (@(
         "-y", "-v", "error", "-i", $inputFull,
         "-vf", "scale=1920:-2",
         "-c:v", "libx264", "-crf", "26", "-preset", "slow",
-        "-profile:v", "high", "-pix_fmt", "yuv420p",
-        "-an", "-movflags", "+faststart", $outputs.DesktopMp4
-    ) $outputs.DesktopMp4
+        "-profile:v", "high", "-pix_fmt", "yuv420p"
+    ) + $mp4Audio + @("-movflags", "+faststart", $outputs.DesktopMp4)) $outputs.DesktopMp4
 }
 
 if ($Variant -in @("Mobile", "Both")) {
-    Invoke-Encode "Mobile VP9 720p" @(
+    Invoke-Encode "Mobile VP9 720p" (@(
         "-y", "-v", "error", "-i", $inputFull,
         "-vf", "scale=1280:-2",
         "-c:v", "libvpx-vp9", "-crf", "36", "-b:v", "0",
-        "-deadline", "good", "-cpu-used", "2", "-row-mt", "1",
-        "-an", $outputs.MobileWebm
-    ) $outputs.MobileWebm
+        "-deadline", "good", "-cpu-used", "2", "-row-mt", "1"
+    ) + $webmAudio + @($outputs.MobileWebm)) $outputs.MobileWebm
 
-    Invoke-Encode "Mobile H.264 720p" @(
+    Invoke-Encode "Mobile H.264 720p" (@(
         "-y", "-v", "error", "-i", $inputFull,
         "-vf", "scale=1280:-2",
         "-c:v", "libx264", "-crf", "30", "-preset", "slow",
-        "-profile:v", "main", "-pix_fmt", "yuv420p",
-        "-an", "-movflags", "+faststart", $outputs.MobileMp4
-    ) $outputs.MobileMp4
+        "-profile:v", "main", "-pix_fmt", "yuv420p"
+    ) + $mp4Audio + @("-movflags", "+faststart", $outputs.MobileMp4)) $outputs.MobileMp4
 }
 
 Write-Host "`nAll encodes finished." -ForegroundColor Green

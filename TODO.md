@@ -33,6 +33,23 @@
    one quick wheel/trackpad flick moves 2–3 cards. Make it advance about one
    card per gesture (or lower the scroll-to-x ratio).
 
+[] Overall scroll sensitivity is too high — one wheel/trackpad flick travels
+   too far across the whole site, not just the projects rail. Reduce it in
+   the Lenis setup (src/components/providers/LenisProvider.tsx: e.g. lower
+   wheelMultiplier below 1 and/or raise duration), then re-check the pinned
+   sections (MacMonitorSection zoom, HobbiesSection, TechStack) still feel right.
+
+[] Switch the domain to sudharshan-r.dev once bought: add it in Vercel →
+   Domains, set NEXT_PUBLIC_BASE_URL=https://sudharshan-r.dev (or change the
+   fallback in src/lib/site.ts), redirect sudharshan-r.vercel.app and
+   rsd-exe.vercel.app to it. Later: hello@sudharshan-r.dev via Cloudflare
+   Email Routing → rsudharshan2006@gmail.com.
+
+[] New hero video edit (15–20 s montage): encode with
+   `npm run compress-video -- -InputPath <master> -KeepAudio`, refresh
+   public/hero.jpg, then set hasAudio: true in src/lib/heroVideo.ts so the
+   "sound on" button appears.
+
 [] Sitemaps, robots.txt and proper SEO optimisation (per-page metadata,
    OG images, structured data per project/blog, canonical domain).
 

@@ -110,8 +110,8 @@ page.tsx
 | Grainient | `src/components/Grainient.tsx` | OGL fragment-shader gradient (grain/warp props). Only used by LoaderScreen. |
 | useAssetLoader | `src/hooks/useAssetLoader.ts` | Preloads images only (videos intentionally excluded); writes `--loader-progress` CSS var. |
 | HeroStatic | `src/components/home/HeroStatic.tsx` | Scroll-linked label drift, hint fades at 100px. |
-| MacMonitorSection | `src/components/home/MacMonitorSection.tsx` | Constants `MACBOOK`, `IPHONE`, `DESKTOP_BOX`, `MOBILE_REST_SIDE`, `FILL_BUFFER` calibrate the screen hole. Spring-smoothed scale over scroll `[0, 0.75]`. Video src withheld until `rsd:loaderDone`. |
-| HeroVideo | `src/components/home/HeroVideo.tsx` | `useLoaderDone` via `useSyncExternalStore` on `window.__rsd_loaderDone`. Poster on reduced motion / failure. Mobile sources fall back to desktop if empty. |
+| MacMonitorSection | `src/components/home/MacMonitorSection.tsx` | Constants `MACBOOK`, `IPHONE`, `DESKTOP_BOX`, `MOBILE_REST_SIDE`, `FILL_BUFFER` calibrate the screen hole. Spring-smoothed scale over scroll `[0, 0.55]`. Video src withheld until `rsd:loaderDone`. **Sound toggle** (bottom-right pill, Volume2/VolumeX) shows once progress > 0.5, only if `HERO_VIDEO.hasAudio` and not reduced motion; click-only unmute, auto-muted while the section is out of view (`useInView`). |
+| HeroVideo | `src/components/home/HeroVideo.tsx` | `useLoaderDone` via `useSyncExternalStore` on `window.__rsd_loaderDone`. `muted` prop written to the element in an effect (React only sets the attribute on mount). Poster on reduced motion, `<video>` error, or error on the **last** `<source>`. Mobile sources fall back to desktop if empty. |
 | HorizontalProjectsSection | `src/components/home/HorizontalProjectsSection.tsx` | Vertical scroll → horizontal rail. Writes `__rsd_homeScrollY` continuously; `saveHomeScroll()` sets `__rsd_restoreScrollY` only when leaving via a project card. |
 | IdentityStatement | `src/components/home/IdentityStatement.tsx` | Variant factories that animate to *resting* opacity (not always 1). |
 
@@ -238,7 +238,7 @@ contact/page.tsx (server, metadata) — one-viewport shell when ≥ 48rem wide A
 ├─ <main> dark (--color-bg-dark)
 │   └─ ContactHero
 │       ├─ ContactClock ── live IST (Asia/Kolkata), 1 s tick
-│       └─ ContactReveal ─ "( Let's talk ↗ )" → Email (hello.rsd06@gmail.com) + Instagram card
+│       └─ ContactReveal ─ "( Let's talk ↗ )" → Email (`CONTACT_EMAIL`) + Instagram card
 └─ social strip (CONTACT_SOCIALS: LinkedIn, GitHub, Instagram, Threads, Twitter)
 ```
 Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
@@ -315,6 +315,9 @@ From `TODO.md` (open):
 12. **Month separators on the blog list** (default grouping) → `BlogsLayout.tsx`.
 13. **New blog posts** — topic list with sources in `TODO.md`; Infinite Hotel notes in `docs/blog-sources/infinite-hotel-paradox.md`.
 14. **New projects CodeCritters + SatSaathi** (featured); un-feature SkillSync + rsd.exe; images + demo videos for every project.
+15. **Global scroll sensitivity too high** → Lenis options in `LenisProvider.tsx` (`wheelMultiplier`, `duration`).
+16. **Move to `sudharshan-r.dev`** once bought (Vercel domain + `NEXT_PUBLIC_BASE_URL`; later `hello@` forwarding).
+17. **New hero montage** → encode with `-KeepAudio`, set `HERO_VIDEO.hasAudio = true`.
 
 Done in `TODO.md`: blog TOC tracks headings; prev/next blog links; home scroll hint.
 
@@ -349,3 +352,8 @@ In-code:
 | B | `public/logo.svg`, `public/assets/projects/periodyx/01.gif` | Unreferenced assets (kept; see §11). |
 | C | `src/app/blogs/page.tsx`, `src/app/blogs/[slug]/page.tsx` | Blog pages have title/description but no canonical or OG fields (falls under the SEO TODO). |
 | D | Navbar | Link list is still written out twice (desktop + mobile overlay). |
+| E | `next.config.ts` headers | `/_next/static/:path*` is sent `immutable` in **dev** too, where chunk URLs don't change between edits — the browser can keep running stale client code after a change. Hard-reload, use a fresh port, or scope the header to production (Next already sets immutable for production static assets). |
+
+### Fixed 2026-10-19 (second pass)
+
+- **Hero reel never played** — `HeroVideo` checked `networkState === NETWORK_NO_SOURCE` right after inserting `<source>` elements, but inserting a source sets exactly that state synchronously while selection begins, so the component always fell back to the poster. Failure is now detected via `onError` on the last `<source>`.

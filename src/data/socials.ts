@@ -67,4 +67,5 @@ export const SAME_AS: string[] = [SOCIAL.github, SOCIAL.linkedin, SOCIAL.twitter
   (s) => s.href
 );
 
-export const CONTACT_EMAIL = "hello.rsd06@gmail.com";
+// The same address used on applications, so recruiters can match the two.
+export const CONTACT_EMAIL = "rsudharshan2006@gmail.com";

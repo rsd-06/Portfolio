@@ -2,9 +2,13 @@
 
 import { useRef, useEffect, useState } from "react";
 import HeroVideo from "@/components/home/HeroVideo";
-import { useIsMobile } from "@/hooks/useMediaQuery";
+import { useIsMobile, usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { HERO_VIDEO } from "@/lib/heroVideo";
+import { Volume2, VolumeX } from "lucide-react";
 import {
   motion,
+  AnimatePresence,
+  useInView,
   useScroll,
   useTransform,
   useSpring,
@@ -141,15 +145,27 @@ export default function MacMonitorSection() {
     [0.88, 1.0],
     ["var(--bg-base)", "#000000"]
   );
-  // ─── Scroll hint visibility (merged into single event handler) ──────────
+  // ─── Scroll hint + sound button visibility (one scroll handler) ─────────
   const [scrolled, setScrolled] = useState(false);
-
-  // ─── Scroll hint ─────────────────────────────────────────────────────────
-  // (There was a volume ramp here. It wrote videoRef.current.volume on an
-  //  element that is permanently muted, and the source has no audio track.)
+  // The sound toggle appears once the frame has faded and the video owns the
+  // screen; before that it would float over the mockup.
+  const [videoFullscreen, setVideoFullscreen] = useState(false);
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     setScrolled(latest > 0.06);
+    setVideoFullscreen(latest > 0.5);
   });
+
+  // ─── Sound ───────────────────────────────────────────────────────────────
+  // Muted by default and only ever unmuted by an explicit click: browsers block
+  // audio until a user gesture (scrolling is not one), and surprise sound is
+  // hostile to anyone browsing at work. Sound is cut as soon as the section
+  // leaves the viewport so it never plays under the projects rail, and comes
+  // back if the visitor scrolls back up with sound still switched on.
+  const reducedMotion = usePrefersReducedMotion();
+  const sectionInView = useInView(sectionRef);
+  const [soundOn, setSoundOn] = useState(false);
+  const canToggleSound = HERO_VIDEO.hasAudio && !reducedMotion;
+  const videoMuted = !(canToggleSound && soundOn && sectionInView);
 
   // ─── Derived device values (safe: defaults to MacBook on SSR) ───────────
   const device    = mounted && isMobile ? IPHONE   : MACBOOK;
@@ -213,7 +229,7 @@ export default function MacMonitorSection() {
               >
                 {/* Device selection, poster, reduced-motion and load-failure
                     handling all live in HeroVideo. */}
-                <HeroVideo ready={videoSrcReady} />
+                <HeroVideo ready={videoSrcReady} muted={videoMuted} />
               </div>
 
               <motion.div
@@ -274,6 +290,39 @@ export default function MacMonitorSection() {
             </svg>
           </div>
         </motion.div>
+
+        {/* ── Sound toggle ───────────────────────────────────────────────── */}
+        <AnimatePresence>
+          {canToggleSound && videoFullscreen && (
+            <motion.button
+              type="button"
+              onClick={() => setSoundOn((on) => !on)}
+              aria-pressed={soundOn}
+              aria-label={soundOn ? "Mute video" : "Turn video sound on"}
+              className="f-mono absolute z-20 bottom-[max(2rem,env(safe-area-inset-bottom))] right-[var(--page-px)] flex items-center gap-2 rounded-full uppercase cursor-pointer"
+              style={{
+                minHeight: "44px",
+                padding: "0 1rem",
+                fontSize: "var(--text-2xs)",
+                letterSpacing: "0.18em",
+                color: "var(--color-text-inv)",
+                background: "color-mix(in srgb, var(--color-bg-dark) 45%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-text-inv) 25%, transparent)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+              }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.35, ease: [0.19, 1, 0.22, 1] }}
+            >
+              {soundOn ? <Volume2 size={14} aria-hidden="true" /> : <VolumeX size={14} aria-hidden="true" />}
+              <span>{soundOn ? "sound on" : "sound off"}</span>
+            </motion.button>
+          )}
+        </AnimatePresence>
 
       </motion.div>
     </section>

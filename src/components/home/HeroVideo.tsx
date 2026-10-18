@@ -15,6 +15,11 @@ type Props = {
    * keep preload="none" so the reel never competes with the loader phase.
    */
   ready?: boolean;
+  /**
+   * Starts true; the owner flips it from a user click (browsers only allow
+   * sound after a gesture, and scrolling does not count as one).
+   */
+  muted?: boolean;
   className?: string;
   ariaLabel?: string;
 };
@@ -48,6 +53,7 @@ function useLoaderDone(initial: boolean) {
 
 export default function HeroVideo({
   ready = false,
+  muted = true,
   className = "w-full h-full object-cover",
   ariaLabel = "Portfolio reel video",
 }: Props) {
@@ -71,12 +77,14 @@ export default function HeroVideo({
 
   const showPosterOnly = reducedMotion || failed;
 
+  // React only applies the `muted` attribute on mount, so later changes have to
+  // be written to the element directly.
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || showPosterOnly || !loaderDone) return;
-    // `error` on <source> does not bubble, so check the element's own state.
-    if (v.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) setFailed(true);
-  }, [loaderDone, showPosterOnly, sourceKey]);
+    if (!v) return;
+    v.muted = muted;
+    if (!muted && v.paused) v.play().catch(() => { /* still blocked: stays muted-looking, harmless */ });
+  }, [muted, sourceKey]);
 
   if (showPosterOnly) {
     return (
@@ -106,8 +114,21 @@ export default function HeroVideo({
       aria-label={ariaLabel}
       onError={() => setFailed(true)}
     >
+      {/* Failure is detected on the LAST <source>: the browser tries them in
+          order and only reaches the last one's error once every candidate has
+          failed. (This used to read networkState right after the sources were
+          inserted — but inserting a source sets NETWORK_NO_SOURCE synchronously
+          while selection starts, so a healthy video was always declared failed
+          and the hero showed the poster instead of the reel.) */}
       {loaderDone &&
-        sources.map((s) => <source key={s.src} src={s.src} type={s.type} />)}
+        sources.map((s, i) => (
+          <source
+            key={s.src}
+            src={s.src}
+            type={s.type}
+            onError={i === sources.length - 1 ? () => setFailed(true) : undefined}
+          />
+        ))}
     </video>
   );
 }

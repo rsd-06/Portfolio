@@ -17,6 +17,14 @@ export const HERO_VIDEO = {
   /** Shown before the video can paint, under reduced motion, and if loading fails. */
   poster: "/hero.jpg",
 
+  /**
+   * Whether the encodes carry an audio track. Gates the "sound on" button on the
+   * home page — the current files were encoded with audio stripped, so the
+   * button would toggle silence. Re-encode with
+   * `npm run compress-video -- -InputPath <master> -KeepAudio`, then set true.
+   */
+  hasAudio: false,
+
   /** 1080p — 8.2 MB WebM / 11.0 MB MP4 */
   desktop: [
     { src: "/heroVideo.webm", type: "video/webm" },

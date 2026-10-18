@@ -11,7 +11,7 @@
 
 ## 🌟 Introduction
 
-Welcome to the source code of **[rsd.exe](https://rsd-exe.vercel.app/)**! This portfolio is designed to be more than just a resume—it's a digital reflection of my design philosophy, engineering skills, and my continuous learning journey (including my time at KCT and the ProtoSem ASADI apprenticeship).
+Welcome to the source code of **[rsd.exe](https://sudharshan-r.vercel.app/)**! This portfolio is designed to be more than just a resume—it's a digital reflection of my design philosophy, engineering skills, and my continuous learning journey (including my time at KCT and the ProtoSem ASADI apprenticeship).
 
 ## 🎨 Design Philosophy & Inspiration
 
@@ -69,14 +69,14 @@ Here is a quick reference for common tasks in this repository:
 ```bash
 npm run dev
 ```
-> *Needs `GITHUB_TOKEN` in `.env.local` for the GitHub activity grid. Optional: `NEXT_PUBLIC_BASE_URL` (defaults to `https://rsd-exe.vercel.app`), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.*
+> *Needs `GITHUB_TOKEN` in `.env.local` for the GitHub activity grid. Optional: `NEXT_PUBLIC_BASE_URL` (defaults to `https://sudharshan-r.vercel.app`), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.*
 
 ### Compress a New Hero Video
 Keep the raw master **outside** `public/` and pass its path:
 ```bash
 npm run compress-video -- -InputPath "C:\path\to\hero-master.mov"
 ```
-> *Uses FFmpeg (must be on PATH) to write `public/heroVideo.{webm,mp4}` (1080p) and `public/heroVideoMobile.{webm,mp4}` (720p), audio stripped. Add `-Variant Desktop` or `-Variant Mobile` to encode only one. Refresh `public/hero.jpg` (the poster) if the footage changed; sources are listed in `src/lib/heroVideo.ts`.*
+> *Uses FFmpeg (must be on PATH) to write `public/heroVideo.{webm,mp4}` (1080p) and `public/heroVideoMobile.{webm,mp4}` (720p), audio stripped. Add `-Variant Desktop` or `-Variant Mobile` to encode only one, and `-KeepAudio` to keep the soundtrack (then set `hasAudio: true` in `src/lib/heroVideo.ts` to show the "sound on" button). Refresh `public/hero.jpg` (the poster) if the footage changed; sources are listed in `src/lib/heroVideo.ts`.*
 
 ### Build for Production
 ```bash

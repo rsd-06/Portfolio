@@ -2,7 +2,7 @@
 
 # CLAUDE.md — rsd.exe Portfolio
 
-Personal portfolio of **Sudharshan R** (GitHub `rsd-06`), deployed on Vercel at `https://rsd-exe.vercel.app`.
+Personal portfolio of **Sudharshan R** (GitHub `rsd-06`), deployed on Vercel at `https://sudharshan-r.vercel.app`.
 The brand name is **rsd.exe**. It's a design-led, animation-heavy, single-author Next.js site with no backend beyond two GitHub proxy routes.
 
 **Read [FEATURESMAP.md](FEATURESMAP.md) first.** It maps every route → component → data/hook, lists the window-level contracts between components, the open TODOs and known inconsistencies. Keep it updated when you add, move or delete a component, route, data field or asset folder.
@@ -35,7 +35,7 @@ npm run dev            # next dev
 npm run build          # next build (type-checks + SSG all slugs)
 npm run start
 npm run lint           # eslint .
-npm run compress-video -- -InputPath "C:\path\to\raw-master.mov" [-Variant Desktop|Mobile|Both]
+npm run compress-video -- -InputPath "C:\path\to\raw-master.mov" [-Variant Desktop|Mobile|Both] [-KeepAudio]
 ```
 
 `compress-video.ps1` needs `ffmpeg` on PATH and refuses to read from its own output paths in `public/`. Keep raw masters outside `public/`.
@@ -45,7 +45,7 @@ Environment (`.env.local`, git-ignored — never commit or print values):
 | Var | Used in | Required |
 |---|---|---|
 | `GITHUB_TOKEN` | `src/app/api/github/route.ts` (required), `api/github/repo/route.ts` (optional) | For the contributions grid |
-| `NEXT_PUBLIC_BASE_URL` | `src/lib/site.ts`, `src/app/robots.ts` | Optional; defaults to `https://rsd-exe.vercel.app` |
+| `NEXT_PUBLIC_BASE_URL` | `src/lib/site.ts`, `src/app/robots.ts` | Optional; defaults to `https://sudharshan-r.vercel.app` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `src/app/layout.tsx` | Optional |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | `src/app/layout.tsx` | Optional |
 
@@ -127,7 +127,8 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 1. **Lenis owns window scroll.** `document.body.style.overflow = "hidden"` alone does nothing. To lock scroll use `useScrollLock(locked)` (depth-counted, stops Lenis). Components that hijack wheel/touch (HobbiesSection, overlays) must `lenis.stop()`/`start()` and handle `lenis` being null. Use `data-lenis-prevent` on inner scroll regions.
 2. **Scroll restoration is deliberate.** `ScrollResetOnRouteChange` forces top on fresh navigation and leaves back/forward alone. `__rsd_restoreScrollY` is set *only* when leaving home via a project card and is consumed once. Don't collapse it into `__rsd_homeScrollY`.
 3. **Home loader contract.** `LoaderScreen` runs once per hard load (module flag `loaderHasRun`), then dispatches `window` event `rsd:loaderDone`. Heavy assets (hero video) must wait for it — check `window.__rsd_loaderDone` too, for SPA returns. Don't make the loader wait on videos.
-4. **Hero video** sources live only in `src/lib/heroVideo.ts` (WebM first, MP4 fallback; mobile list may be empty → desktop fallback). Poster is `public/hero.jpg`.
+4. **Hero video** sources live only in `src/lib/heroVideo.ts` (WebM first, MP4 fallback; mobile list may be empty → desktop fallback). Poster is `public/hero.jpg`. `HERO_VIDEO.hasAudio` gates the "sound on" button — keep it `false` unless the files were encoded with `-KeepAudio` (check with `ffprobe -select_streams a`). Sound is only ever enabled by a click (browsers ignore scroll as a gesture) and is cut while the section is off screen. Don't detect source failure from `networkState` right after inserting `<source>` children — it is `NETWORK_NO_SOURCE` during normal selection; use `onError` on the last `<source>`.
+   Dev gotcha: `next.config.ts` marks `/_next/static` immutable even in dev, so after editing client code the browser may run a stale chunk. Hard-reload or use a fresh port before concluding a change "didn't work".
 5. **MacMonitorSection geometry** constants (`MACBOOK`, `IPHONE`, `DESKTOP_BOX`, `MOBILE_HOLE_*`, `FILL_BUFFER`) are calibrated to the PNG mockups. The CSS clamp and the zoom maths share `DESKTOP_BOX` — change both through that one constant.
 6. **ProtoSem routability goes through `isDocumented()`** (`src/data/protosem.ts`). Timeline links, `generateStaticParams`, the sitemap and `WeekNavigation` all derive from it; never hand-code a week list elsewhere.
 7. **Server vs client.** Pages are Server Components where possible so they can export `metadata`; interactive sections opt in with `"use client"`. Every route `page.tsx` except `not-found.tsx` is a Server Component; when a page needs state, put it in a client child (e.g. `/projects` → `ProjectsView`) rather than marking the page `"use client"`. Anything using `fs` (`lib/mdx.ts`) is server-only.
@@ -184,5 +185,8 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 - [ ] Blog list grouped by month by default.
 - [ ] New blog posts (topics + sources in `TODO.md`; notes in `docs/blog-sources/`).
 - [ ] Projects: add CodeCritters + SatSaathi as featured; un-feature SkillSync + rsd.exe; images + demo videos for all.
+- [ ] Global scroll sensitivity too high (Lenis `wheelMultiplier` / `duration`).
+- [ ] Move to `sudharshan-r.dev` once bought.
+- [ ] New hero montage encoded with `-KeepAudio`, then `hasAudio: true`.
 
 `TODO.md` is the source of truth for the wording; this list is a pointer. See FEATURESMAP §13 for remaining inconsistencies.
