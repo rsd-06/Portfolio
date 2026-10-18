@@ -33,6 +33,9 @@ export default function LenisProvider({ children }: { children: ReactNode }) {
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
+      // At 1 a single trackpad flick travelled most of a screen. Touch scrolling
+      // is native and unaffected.
+      wheelMultiplier: 0.75,
       // Kills wheel momentum the moment an internal link is clicked. Without
       // this, Lenis keeps writing its stale animatedScroll back to the window
       // across the navigation, so the next page paints already scrolled.

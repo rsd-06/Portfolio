@@ -829,6 +829,10 @@ function OverlayTextPanel({ project, isMobile }: { project: Project; isMobile: b
   );
 }
 
+// Vertical scroll spent per pixel of horizontal travel. At 1:1 one flick slid
+// past two or three cards; the longer runway makes a flick move about one.
+const RAIL_SCROLL_RATIO = 1.6;
+
 export default function HorizontalProjectsSection() {
   const containerRef = useRef<HTMLElement>(null);
   const trackRef     = useRef<HTMLDivElement>(null);
@@ -883,7 +887,7 @@ export default function HorizontalProjectsSection() {
         style={{
           position: "relative",
           width: "100%",
-          height: `calc(100svh + ${scrollRange}px)`,
+          height: `calc(100svh + ${scrollRange * RAIL_SCROLL_RATIO}px)`,
           backgroundColor: "var(--color-bg)",
         }}
       >
@@ -948,7 +952,7 @@ export default function HorizontalProjectsSection() {
                       letterSpacing: "0.2em",
                     }}
                   >
-                    &middot; 03 projects
+                    &middot; {String(PROJECTS.length).padStart(2, "0")} projects
                   </p>
                 </div>
                 
