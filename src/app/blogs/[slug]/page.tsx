@@ -6,6 +6,8 @@ import { Metadata } from "next";
 import { CodeBlock } from "@/components/blogs/CodeBlock";
 import BlogTOC from "@/components/blogs/BlogTOC";
 import ScrollProgressTracker from "@/components/about/ScrollProgressTracker";
+import JsonLd from "@/components/seo/JsonLd";
+import { AUTHOR, absoluteUrl, ogImageUrl, pageMetadata } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,11 +17,14 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   try {
     const params = await props.params;
     const blog = getBlogBySlug(params.slug);
-    return {
+    return pageMetadata({
+      path: `/blogs/${blog.slug}`,
       title: blog.title,
       description: blog.excerpt,
-    };
-  } catch (e) {
+      eyebrow: blog.category,
+      article: { publishedTime: blog.date, tags: [blog.category] },
+    });
+  } catch {
     return { title: "Blog Not Found" };
   }
 }
@@ -71,6 +76,22 @@ export default async function BlogDetailPage(props: Props) {
 
   return (
     <main className="min-h-screen bg-base-bg text-text-primary pt-[var(--nav-h,120px)] pb-32 px-[var(--page-px)]">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: blog.title,
+          description: blog.excerpt,
+          datePublished: blog.date,
+          url: absoluteUrl(`/blogs/${blog.slug}`),
+          mainEntityOfPage: absoluteUrl(`/blogs/${blog.slug}`),
+          articleSection: blog.category,
+          image: absoluteUrl(ogImageUrl(blog.title, blog.category)),
+          author: { "@type": "Person", name: AUTHOR, url: absoluteUrl("/") },
+          publisher: { "@type": "Person", name: AUTHOR, url: absoluteUrl("/") },
+          inLanguage: "en-IN",
+        }}
+      />
       <ScrollProgressTracker />
       <div className="flex flex-col gap-16">
         {/* Back Link */}

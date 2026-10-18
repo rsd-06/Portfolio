@@ -8,6 +8,7 @@ import Week0Content from "@/components/protosem/weeks/Week0Content";
 import Week1Content from "@/components/protosem/weeks/Week1Content";
 import Week7Content from "@/components/protosem/weeks/Week7Content";
 import WeekNavigation from "@/components/protosem/WeekNavigation";
+import { pageMetadata } from "@/lib/seo";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -24,10 +25,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const week = PROTOSEM_WEEKS.find((w) => w.slug === slug);
   if (!week) return { title: "Week not found" };
-  return {
+  return pageMetadata({
+    path: `/protosem/${week.slug}`,
     title: week.title,
-    description: week.excerpt,
-  };
+    description: `ProtoSem ${week.title}: ${week.excerpt}`,
+    eyebrow: "protosem",
+    keywords: week.tags,
+  });
 }
 
 // Map slugs to content components

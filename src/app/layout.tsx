@@ -16,7 +16,9 @@ import GlobalSetup      from "@/components/providers/GlobalSetup";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { SITE_URL } from "@/lib/site";
-import { SAME_AS } from "@/data/socials";
+import { CONTACT_EMAIL, SAME_AS } from "@/data/socials";
+import { ogImageUrl } from "@/lib/seo";
+import JsonLd from "@/components/seo/JsonLd";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 // Only Cormorant is preloaded — it's used in the loader screen, so it must be
@@ -98,9 +100,8 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Sudharshan R", url: SITE_URL }],
   category: "technology",
-  alternates: {
-    canonical: "/",
-  },
+  // No canonical or og:url here: children would inherit them. Each page sets
+  // its own through pageMetadata() in lib/seo.
   openGraph: {
     title: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
     description:
@@ -108,7 +109,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: "rsd.exe",
-    url: "/",
+    images: [{ url: ogImageUrl("Sudharshan R — building through software"), width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
@@ -116,6 +117,7 @@ export const metadata: Metadata = {
     description:
       "Portfolio of Sudharshan R — EIE student at KCT Coimbatore, full-stack developer, ML enthusiast, and Project Based Learner at Forge Innovation & Ventures.",
     creator: "@rsd_2006",
+    images: [ogImageUrl("Sudharshan R — building through software")],
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
@@ -135,10 +137,12 @@ export const metadata: Metadata = {
 
 /* ── Root Layout ─────────────────────────────────────────────── */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const schemaMarkup = {
-    "@context": "https://schema.org",
+  const person = {
     "@type": "Person",
+    "@id": `${SITE_URL}/#person`,
     "name": "Sudharshan R",
+    "image": `${SITE_URL}/hero.jpg`,
+    "email": `mailto:${CONTACT_EMAIL}`,
     "alternateName": ["R Sudharshan", "rsd.exe"],
     "url": SITE_URL,
     "jobTitle": "Full-Stack Developer & ML Enthusiast",
@@ -173,9 +177,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "knowsAbout": [
       "Full-Stack Development", "React", "Next.js", "Node.js", "Machine Learning",
       "Artificial Intelligence", "AI Agents", "LLMs", "Project Based Learning",
-      "MERN Stack", "TypeScript", "Python", "Cloud Computing"
+      "MERN Stack", "TypeScript", "Python", "Cloud Computing",
+      "PyTorch", "Reinforcement Learning", "Remote Sensing", "Rust", "Tauri"
     ],
     "sameAs": SAME_AS
+  };
+
+  const schemaMarkup = {
+    "@context": "https://schema.org",
+    "@graph": [
+      person,
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        "url": SITE_URL,
+        "name": "rsd.exe",
+        "alternateName": "Sudharshan R — Portfolio",
+        "inLanguage": "en-IN",
+        "author": { "@id": `${SITE_URL}/#person` },
+        "publisher": { "@id": `${SITE_URL}/#person` },
+      },
+    ],
   };
 
   return (
@@ -218,10 +240,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
 
         {/* JSON-LD Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-        />
+        <JsonLd data={schemaMarkup} />
 
         {/*
           Layout structure:

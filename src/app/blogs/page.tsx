@@ -1,11 +1,14 @@
 import { getAllBlogs } from "@/lib/mdx";
 import BlogsLayout from "@/components/blogs/BlogsLayout";
-import { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
+  path: "/blogs",
   title: "Blogs",
-  description: "Blogs and thoughts on software engineering, design, and life.",
-};
+  description:
+    "Writing by Sudharshan R on software engineering, computer science fundamentals, AI, startups, philosophy and the ideas behind them.",
+  eyebrow: "writing",
+});
 
 export default function BlogsPage() {
   const blogs = getAllBlogs();

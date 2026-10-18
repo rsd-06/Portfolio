@@ -8,16 +8,17 @@
 // A Server Component so it can carry metadata; the interactive parts live in
 // ContactHero.
 
-import type { Metadata } from "next";
 import ContactHero from "@/components/contact/ContactHero";
 import { CONTACT_SOCIALS } from "@/data/socials";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
+  path: "/contact",
   title: "Contact",
   description:
     "Get in touch with Sudharshan R — full-stack developer and ML enthusiast based in Coimbatore, India. Open to internships, collaborations and conversations.",
-  alternates: { canonical: "/contact" },
-};
+  eyebrow: "contact",
+});
 
 export default function ContactPage() {
   return (
