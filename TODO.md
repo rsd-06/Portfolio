@@ -17,6 +17,58 @@
    does not run the page renders blank. Consider a MotionConfig with
    reducedMotion="user", or a CSS fallback that shows content without JS.
 
+[] Add LeetCode to the social icon rows: beside GitHub in the home hero, and
+   in the top-right icon row of the About hero. Add a `leetcode` entry (and an
+   icon PNG in public/assets/socialMediaIcons/) to src/data/socials.ts, then add
+   it to HERO_SOCIALS. Also consider SAME_AS (JSON-LD).
+
+[] Floating interactive pet (in the spirit of Meta's "dots"). Small, clean and
+   subtle; reacts to interaction — a few taps and it looks hurt, keep hitting
+   it and it gets offended, and so on. Later stage: give it knowledge about me
+   so it can answer questions. (Deferred.)
+
+[] Enhance the mobile view and responsiveness across all pages.
+
+[] Featured projects rail (home, HorizontalProjectsSection) scrolls too fast:
+   one quick wheel/trackpad flick moves 2–3 cards. Make it advance about one
+   card per gesture (or lower the scroll-to-x ratio).
+
+[] Sitemaps, robots.txt and proper SEO optimisation (per-page metadata,
+   OG images, structured data per project/blog, canonical domain).
+
+[] Optimise for AI agents and LLM search (e.g. /llms.txt, clean semantic HTML,
+   structured data, crawlable text that doesn't depend on JS animations).
+
+[] Add PyTorch and the other tools / tech I use to the tech stack
+   (src/components/about/TechStack.tsx, TECH_STACK).
+
+[] Blogs list: group posts by month by default (month separators).
+
+[] Write more blogs. Topics from my "Portfolio Blogs" list, with sources:
+   - Arundhati & Salman interview — https://youtu.be/tIekAj-ussc?si=kePDFUO9uy_Thj1G
+   - Michelin Stars reel — (source to add)
+   - Claude thinking levels — https://youtu.be/rKV5JcALQoQ?si=EZBnWuq1ESIIKwtZ
+   - CISC vs RISC, Von Neumann (vs Harvard) architecture — (source to add)
+   - Spec-Driven Development — (source to add)
+   - The Mom Test — https://youtu.be/TmNeVbk0hNQ
+   - Why warm countries are poorer — https://beyondtweets.substack.com/p/why-warm-countries-are-poorer
+   - GitHub Actions — (source to add)
+   - The Infinite Hotel Paradox — https://youtu.be/Uj3_KqkI9Zo
+     and the sizes-of-infinity follow-up — https://youtu.be/OxGsU8oIWjY?si=IMGhK81IosD7o_j0
+     (my notes: docs/blog-sources/infinite-hotel-paradox.md — Hilbert's hotel →
+     Cantor → Gödel → Turing → theory of computation → computers/phones)
+   - Hinduism is actually cool — https://youtu.be/njJTmkY7RqU?si=VRO95ab9Wu7Hz0h_
+   - Justice: What's The Right Thing To Do? (Harvard, Michael Sandel) —
+     YouTube lecture series, episodes 1–6
+   - Calhoun effect (Universe 25 / "behavioural sink") — https://youtu.be/LuCans9euxY?si=0nX8aQ6s91wLiYmL
+   - On the Heights of Despair (Cioran) — https://youtu.be/DNGXsbZHMMI?si=zvTcjd4dpqWHDdvd
+
+[] Projects: add CodeCritters and SatSaathi (GitHub repos) as new project
+   entries — collect images and write-up from the repos — and make them
+   featured. Un-feature SkillSync and rsd.exe (portfolio). Also collect the
+   missing images for the other projects, and add a short demo video for every
+   project to its detail page (Project.video).
+
 --- done ---
 [x] Blogs slug component tracks sub headings and marks the side index
 [x] Back to Previous Blog link on blog pages

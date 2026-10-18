@@ -4,18 +4,20 @@
 // That only holds when the viewport is actually tall enough — on a landscape
 // phone a hard 100dvh + overflow:hidden clipped the hero with no way to reach
 // it, so below the threshold the page is allowed to scroll instead.
+//
+// A Server Component so it can carry metadata; the interactive parts live in
+// ContactHero.
 
-"use client";
-
+import type { Metadata } from "next";
 import ContactHero from "@/components/contact/ContactHero";
+import { CONTACT_SOCIALS } from "@/data/socials";
 
-const SOCIALS = [
-  { label: "LinkedIn",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/", iconSrc: "/assets/socialMediaIcons/linkedin_icon.png" },
-  { label: "GitHub",    href: "https://github.com/rsd-06",                           iconSrc: "/assets/socialMediaIcons/github_icon.png" },
-  { label: "Instagram", href: "https://www.instagram.com/rsd_exe/",                  iconSrc: "/assets/socialMediaIcons/instagram_icon.png" },
-  { label: "Threads",   href: "https://www.threads.com/@rsd_exe",                    iconSrc: "/assets/socialMediaIcons/threads_icon.png" },
-  { label: "Twitter",   href: "https://x.com/rsd_2006",                              iconSrc: "/assets/socialMediaIcons/twitter_icon.png" },
-];
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Get in touch with Sudharshan R — full-stack developer and ML enthusiast based in Coimbatore, India. Open to internships, collaborations and conversations.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (
@@ -60,7 +62,7 @@ export default function ContactPage() {
         }}
       >
         <nav className="flex flex-row justify-between md:justify-start gap-x-4 sm:gap-x-6 gap-y-2" aria-label="Social media links">
-          {SOCIALS.map(({ label, href, iconSrc }) => (
+          {CONTACT_SOCIALS.map(({ label, href, icon }) => (
             <a
               key={label}
               href={href}
@@ -75,21 +77,18 @@ export default function ContactPage() {
                 fontSize: "var(--text-2xs)",
                 letterSpacing: "0.14em",
                 textTransform: "uppercase",
-                opacity: 1,
                 color: "var(--text-primary)",
                 textDecoration: "none",
                 minHeight: "36px",
-                transition: "opacity 0.2s ease",
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
             >
-              <img 
-                src={`${iconSrc}?v=2`} 
-                alt={`${label} icon`} 
-                width="16" 
-                height="16" 
-                style={{ flexShrink: 0, objectFit: "contain", display: "block" }} 
+              {/* eslint-disable-next-line @next/next/no-img-element -- 16px icons; next/image buys nothing here */}
+              <img
+                src={`${icon}?v=2`}
+                alt={`${label} icon`}
+                width="16"
+                height="16"
+                style={{ flexShrink: 0, objectFit: "contain", display: "block" }}
               />
               <span className="hidden md:inline">{label}</span>
             </a>

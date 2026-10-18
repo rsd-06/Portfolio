@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "AI", "student developer", "engineering student",
   ],
   alternates: {
-    canonical: "https://rsd.exe/about",
+    canonical: "/about",
   },
   openGraph: {
     title: "About — rsd.exe | Sudharshan R",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     type: "profile",
     locale: "en_IN",
     siteName: "rsd.exe",
-    url: "https://rsd.exe/about",
+    url: "/about",
   },
   twitter: {
     card: "summary_large_image",

@@ -1,1 +1,188 @@
 @AGENTS.md
+
+# CLAUDE.md — rsd.exe Portfolio
+
+Personal portfolio of **Sudharshan R** (GitHub `rsd-06`), deployed on Vercel at `https://rsd-exe.vercel.app`.
+The brand name is **rsd.exe**. It's a design-led, animation-heavy, single-author Next.js site with no backend beyond two GitHub proxy routes.
+
+**Read [FEATURESMAP.md](FEATURESMAP.md) first.** It maps every route → component → data/hook, lists the window-level contracts between components, the open TODOs and known inconsistencies. Keep it updated when you add, move or delete a component, route, data field or asset folder.
+
+---
+
+## 1. Stack (what is actually used)
+
+| Concern | Choice | Notes |
+|---|---|---|
+| Framework | **Next.js 16.1.6**, App Router, Turbopack | See AGENTS.md: read `node_modules/next/dist/docs/` before using a Next API you aren't sure of. `params` is a `Promise` and must be awaited. |
+| UI | React 19.2 | |
+| Language | TypeScript 5, `strict: true`, alias `@/*` → `src/*` | |
+| Styling | **Tailwind CSS v4, CSS-first** (no `tailwind.config`), `src/app/globals.css` | `@theme` tokens + `:root` CSS variables. `tw-animate-css` and `shadcn/tailwind.css` imported. |
+| Animation | **framer-motion 12** (primary), **Lenis** smooth scroll | No GSAP in use. |
+| WebGL | `ogl` (only `Grainient`, in the loader) | Three.js / R3F / GSAP were removed as unused — ask before adding a new animation or 3D library. |
+| Content | MDX via `next-mdx-remote/rsc` + `gray-matter` | `src/content/blogs/*.mdx` |
+| Icons | `lucide-react` (UI icons), `react-icons` (`Si*`/`Fa*` brand logos) | |
+| Fonts | `next/font/google`: Cormorant Garamond, DM Mono, Instrument Serif, Inter | |
+| Analytics | `@vercel/analytics`, `@vercel/speed-insights`, optional GA | |
+| Lint | ESLint 10 flat config, `eslint-config-next` core-web-vitals + typescript | |
+
+There is **no test suite**. Verification = `npm run lint`, `npm run build`, and looking at the page in a browser (desktop and ≤ 767px).
+`npm run lint` currently exits non-zero on a **pre-existing baseline** (37 errors / 34 warnings, see FEATURESMAP §13 "Still open"). The bar is: no *new* problems in files you touch, and fix old ones there when it's cheap. `npm run build` must pass.
+
+## 2. Commands
+
+```bash
+npm run dev            # next dev
+npm run build          # next build (type-checks + SSG all slugs)
+npm run start
+npm run lint           # eslint .
+npm run compress-video -- -InputPath "C:\path\to\raw-master.mov" [-Variant Desktop|Mobile|Both]
+```
+
+`compress-video.ps1` needs `ffmpeg` on PATH and refuses to read from its own output paths in `public/`. Keep raw masters outside `public/`.
+
+Environment (`.env.local`, git-ignored — never commit or print values):
+
+| Var | Used in | Required |
+|---|---|---|
+| `GITHUB_TOKEN` | `src/app/api/github/route.ts` (required), `api/github/repo/route.ts` (optional) | For the contributions grid |
+| `NEXT_PUBLIC_BASE_URL` | `src/lib/site.ts`, `src/app/robots.ts` | Optional; defaults to `https://rsd-exe.vercel.app` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `src/app/layout.tsx` | Optional |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | `src/app/layout.tsx` | Optional |
+
+Platform: the owner develops on **Windows** (PowerShell scripts, OneDrive path). `next.config.ts` pins `turbopack.root` to `__dirname` because a stray lockfile in the user profile confused root inference — don't remove it.
+
+## 3. Directory layout
+
+```
+src/
+  app/                 routes (App Router); layout.tsx = global shell + SEO + JSON-LD
+    api/github/        GitHub GraphQL contributions + per-repo commit proxy
+  components/
+    layout/            Navbar, GlobalFooter, ConditionalFooter
+    providers/         LenisProvider, ScrollResetOnRouteChange, GlobalSetup
+    ui/                CustomCursor, GrainOverlay, ImageLightbox (generic, cross-page)
+    home/ about/ projects/ projects/project-detail/ blogs/ contact/ protosem/
+    protosem/weeks/    one WeekNContent.tsx per documented week
+    protosem/weeks/blocks/  reusable week-page primitives (barrel: index.ts)
+    Grainient.tsx              (root-level, react-bits style import)
+  content/blogs/       *.mdx posts
+  data/                projects.ts, protosem.ts, socials.ts — the content source of truth
+  hooks/               useMediaQuery, useScrollLock, useAssetLoader, useGitHubContributions, useRepoActivity
+  lib/                 breakpoints, scrollLock, heroVideo, site, mdx, utils
+public/                hero video + poster, resume PDF, assets/<page>/...
+```
+
+Placement rules:
+- A component used by one page goes in that page's folder. Promote to `components/ui/` only when a second page needs it (that's how `ImageLightbox` got there).
+- Note: `ScrollProgressTracker` lives in `components/about/` but is used by projects and blogs too. Import it from there; don't create a copy.
+- Data that is content (text, lists, links) goes in `src/data/` if more than one component reads it; otherwise a `SCREAMING_CASE` const at the top of the component file (`SOCIALS`, `HOBBY_CARDS`, `TECH_STACK`, `WORDS`, …) is the house pattern.
+- **Social links, handles and the contact email live only in `src/data/socials.ts`.** Each surface picks its own ordered subset (`HERO_SOCIALS`, `FOOTER_SOCIALS`, `CONTACT_SOCIALS`, `SAME_AS`). Never re-inline a profile URL in a component.
+
+## 4. Design system — keep it consistent
+
+**Palette** (light theme is the only live theme; `.dark` tokens exist but are unreachable — see TODO):
+
+| Token | Value | Tailwind utility |
+|---|---|---|
+| `--bg-base` | `#FBF9F6` warm off-white | `bg-base-bg` |
+| `--bg-surface` / `--bg-soft` | `#F6F4F0` / `#EDE9E2` | `bg-base-surface` / `bg-base-soft` |
+| `--text-primary` / `--text-secondary` / `--text-muted` | `#1F1F1F` / `#4A4A4A` / `#737373` | `text-text-primary` etc. |
+| `--border-subtle` | `#E2E2DF` | `border-border-subtle` |
+| `--accent-main` | `#5227FF` purple (also `--accent-soft/glow/hover/text`) | `bg-accent-main` / `text-accent-main` or `var(--accent-main)`. `bg-accent` is shadcn's neutral grey, not the brand purple. |
+| `--color-bg-dark` / `--color-text-inv` | `#111111` / `#F5F4F0` | Contact page and footer |
+| Semantic aliases | `--color-bg`, `--color-text`, `--color-border` | Used heavily in inline styles |
+
+Translucent tints are written as `color-mix(in srgb, var(--color-text) 10%, transparent)` — prefer this over new literal `rgba(...)` so a future dark mode follows (literal rgba is one of the open TODO audit items).
+
+**Typography** — use the role classes, not raw font families:
+
+| Class | Font | Use for |
+|---|---|---|
+| `.f-display` | Cormorant Garamond 300, tight tracking | Page titles, big headings, numbers |
+| `.f-mono` | DM Mono | Labels, nav, metadata, small caps-style UI text (often `uppercase tracking-widest`, low opacity) |
+| `.f-accent` | Instrument Serif italic | Taglines, soft sub-lines |
+| `.f-quote` | Cormorant italic | Quotes |
+| body | Inter (`--font-body`) | Prose |
+
+Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `text-hero` in `@theme`. Use `var(--text-*)` or `clamp()`; avoid fixed px font sizes for headings.
+
+**Spacing & layout**
+- Horizontal page gutter is always `var(--page-px)` (`clamp(1rem, 5vw, 4rem)`), e.g. `px-[var(--page-px)]`.
+- The navbar is fixed; each page owns its top offset (`pt-48`/`pt-32`/`var(--nav-h)` = 5rem). Page titles follow the About/Projects pattern: `absolute top-32 left-[var(--page-px)]`, `f-display text-7xl`.
+- Hairline rules: 1px `var(--color-border)` (`.rule`, `.rule-dark`).
+- Tap targets ≥ 44px (`minHeight: "44px"`) on interactive text links/buttons.
+- Breakpoints are Tailwind stock (640/768/1024/1280). In JS use `useIsMobile` / `useIsDesktop` / `useIsTouch` / `useBreakpointUp|Down` from `@/hooks/useMediaQuery` — never `window.innerWidth < 768`.
+
+**Motion vocabulary**
+- Standard easing is expo-out `[0.19, 1, 0.22, 1]` (named `EASE` or `EXPO` locally; `blocks/motion.ts` exports it for ProtoSem).
+- Entrances: `initial={{ opacity: 0, y: 10–40 }}` → `whileInView`/`animate` with `viewport={{ once: true }}`, 0.6–0.9 s. Headline reveals use `clipPath: "inset(0 100% 0 0)" → "inset(0 0% 0 0)"`.
+- Hover affordances: opacity 0.35–0.55 → 1, small `translateX` nudges.
+- Respect reduced motion: `usePrefersReducedMotion()` in JS; the global CSS media query already kills CSS transitions. LenisProvider disables smooth scroll entirely under reduced motion, so consumers must handle `useLenis() === null`.
+- Gate hover-only behaviour behind `useIsTouch()` and give touch an equivalent (see `ProjectCard` in-view autoplay, `TechStack` tap-to-toggle).
+
+**Tone of copy:** lowercase mono labels (`all projects`, `philosophy`), short declarative sentences with full stops ("Code. Build. Grow."), bracketed mono links (`[Grid]`, `( Let's talk ↗ )`), arrows `→ ← ↗` in link text.
+
+## 5. Architectural rules and gotchas
+
+1. **Lenis owns window scroll.** `document.body.style.overflow = "hidden"` alone does nothing. To lock scroll use `useScrollLock(locked)` (depth-counted, stops Lenis). Components that hijack wheel/touch (HobbiesSection, overlays) must `lenis.stop()`/`start()` and handle `lenis` being null. Use `data-lenis-prevent` on inner scroll regions.
+2. **Scroll restoration is deliberate.** `ScrollResetOnRouteChange` forces top on fresh navigation and leaves back/forward alone. `__rsd_restoreScrollY` is set *only* when leaving home via a project card and is consumed once. Don't collapse it into `__rsd_homeScrollY`.
+3. **Home loader contract.** `LoaderScreen` runs once per hard load (module flag `loaderHasRun`), then dispatches `window` event `rsd:loaderDone`. Heavy assets (hero video) must wait for it — check `window.__rsd_loaderDone` too, for SPA returns. Don't make the loader wait on videos.
+4. **Hero video** sources live only in `src/lib/heroVideo.ts` (WebM first, MP4 fallback; mobile list may be empty → desktop fallback). Poster is `public/hero.jpg`.
+5. **MacMonitorSection geometry** constants (`MACBOOK`, `IPHONE`, `DESKTOP_BOX`, `MOBILE_HOLE_*`, `FILL_BUFFER`) are calibrated to the PNG mockups. The CSS clamp and the zoom maths share `DESKTOP_BOX` — change both through that one constant.
+6. **ProtoSem routability goes through `isDocumented()`** (`src/data/protosem.ts`). Timeline links, `generateStaticParams`, the sitemap and `WeekNavigation` all derive from it; never hand-code a week list elsewhere.
+7. **Server vs client.** Pages are Server Components where possible so they can export `metadata`; interactive sections opt in with `"use client"`. Every route `page.tsx` except `not-found.tsx` is a Server Component; when a page needs state, put it in a client child (e.g. `/projects` → `ProjectsView`) rather than marking the page `"use client"`. Anything using `fs` (`lib/mdx.ts`) is server-only.
+8. **GitHub data** goes through the `/api/github*` routes (server token, `revalidate: 86400`) and is cached client-side in `localStorage` for 24 h with versioned keys. Bump the key suffix (`-v1` → `-v2`) if you change the response shape.
+9. **SEO.** Root metadata + JSON-LD live in `layout.tsx`. The root layout sets `metadataBase: new URL(SITE_URL)`, so per-page `alternates.canonical` and `openGraph.url` are written **relative** (`"/about"`). Anything that needs an absolute URL outside metadata (JSON-LD, sitemap, robots, data) uses `SITE_URL` from `src/lib/site.ts`. Never hard-code the domain — changing it should only mean setting `NEXT_PUBLIC_BASE_URL`.
+10. **Images.** Prefer `next/image` (AVIF/WebP configured). A few `<img>` remain where needed (mockup frame, nav hover background, social icons). Right-click/drag on images is blocked globally by `GlobalSetup` + CSS; don't fight it per-component.
+11. **Comments** in this codebase explain *why*, often recording a previous bug ("Previously … so …"). Match that: comment non-obvious constraints, not what the code says. File headers use `// src/path/File.tsx` + one-line purpose.
+
+## 6. Recipes
+
+**Add a project**
+1. Append an object to `PROJECTS` in `src/data/projects.ts` (fill every required `Project` field; use the next unused `index` string, zero-padded).
+2. Put images in `public/assets/projects/<slug>/` (`01.png`, `02.jpg`, …). `images[0]` is the card/hero image. Use `/assets/projects/_shared/placeholder.jpg` only temporarily.
+3. `featured: true` puts it on the home horizontal rail.
+4. Static params, sitemap, prev/next nav and marquee pick it up automatically.
+
+**Add a blog post**
+1. Create `src/content/blogs/<slug>.mdx` with frontmatter `title`, `date` (`YYYY-MM-DD`), `excerpt`, `category` (UPPERCASE), `readTime` (`"N MIN READ"`).
+2. Use `##` / `###` for headings (they feed the TOC; ids are generated from heading text). Fenced code renders via `CodeBlock`.
+
+**Document a ProtoSem week**
+1. In `src/data/protosem.ts`, add the week to `DOCUMENTED_WEEKS` (`status: "completed"` or `"current"`); update `PROGRAM_META.currentWeekId` as the program advances.
+2. Create `src/components/protosem/weeks/WeekNContent.tsx` **using `WeekShell` and the `blocks/` primitives** (Week1Content is the shortest example; Week7Content shows the media and technical blocks).
+3. Register it in `WEEK_CONTENT` in `src/app/protosem/[slug]/page.tsx`.
+4. Assets go in `public/assets/protoSemPage/weekN/`. Compress videos and provide a poster jpg.
+
+**Add a route**
+- Server `page.tsx` with a `metadata` export, `<main className="bg-base-bg min-h-screen …">`, page title pattern from §4, add it to the Navbar link arrays (desktop *and* mobile copies) and to `src/app/sitemap.ts`.
+
+## 7. Working agreements
+
+- Keep changes small and in the existing idiom; this is a hand-crafted site, so don't introduce new UI libraries, CSS frameworks or state managers without asking.
+- After any change that affects layout, check both ≥ 1024px and ≤ 767px widths, and reduced motion if animation changed.
+- Run `npm run lint` and `npm run build` before calling something done.
+- Update `FEATURESMAP.md` (routes, component tables, §10 globals, §12 TODOs, §13 inconsistencies) in the same change.
+- When you finish a `TODO.md` item, move it under `--- done ---` with `[x]`.
+- Don't commit `.env*`, `.next/`, or `tsconfig.tsbuildinfo` (already git-ignored).
+- Commits are authored by the owner alone. Don't add AI co-author trailers.
+
+## 8. Open work (mirror of TODO.md + in-code)
+
+- [ ] Real dark-mode toggle (tokens exist in `.dark`; need toggle, system preference, no flash, rgba audit).
+- [ ] Verify sub-768px layouts on a real phone.
+- [ ] Replace project placeholder images in `src/data/projects.ts`.
+- [ ] Don't let page content depend on framer-motion running (opacity:0 gating) — `MotionConfig reducedMotion="user"` or a CSS/no-JS fallback.
+- [ ] `Navbar.tsx` `WORDS`: add "Entrepreneur." when applicable.
+- [ ] LeetCode in the home-hero and About-hero icon rows (via `src/data/socials.ts`).
+- [ ] Floating interactive pet (deferred).
+- [ ] Mobile / responsive pass.
+- [ ] Featured-projects rail: one flick moves 2–3 cards; make it ~1 card per gesture.
+- [ ] SEO: sitemap/robots/metadata/OG/structured data.
+- [ ] AI-agent / LLM searchability.
+- [ ] Tech stack: add PyTorch and tools.
+- [ ] Blog list grouped by month by default.
+- [ ] New blog posts (topics + sources in `TODO.md`; notes in `docs/blog-sources/`).
+- [ ] Projects: add CodeCritters + SatSaathi as featured; un-feature SkillSync + rsd.exe; images + demo videos for all.
+
+`TODO.md` is the source of truth for the wording; this list is a pointer. See FEATURESMAP §13 for remaining inconsistencies.

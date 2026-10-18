@@ -7,21 +7,22 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CONTACT_EMAIL, SOCIAL } from "@/data/socials";
 
 const CONTACTS = [
   {
     label: "Email",
-    display: "hello.rsd06@gmail.com",
-    href: "mailto:hello.rsd06@gmail.com",
+    display: CONTACT_EMAIL,
+    href: `mailto:${CONTACT_EMAIL}`,
     isExternal: false,
-    ariaLabel: "Send an email to hello.rsd06@gmail.com",
+    ariaLabel: `Send an email to ${CONTACT_EMAIL}`,
   },
   {
-    label: "Instagram",
-    display: "@rsd_exe",
-    href: "https://www.instagram.com/rsd_exe/",
+    label: SOCIAL.instagram.label,
+    display: SOCIAL.instagram.handle,
+    href: SOCIAL.instagram.href,
     isExternal: true,
-    ariaLabel: "Follow rsd_exe on Instagram — opens in new tab",
+    ariaLabel: `Follow ${SOCIAL.instagram.handle} on Instagram — opens in new tab`,
   },
 ];
 

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     "Sudharshan R", "rsd.exe", "EIE", "student developer",
   ],
   alternates: {
-    canonical: "https://rsd.exe/protosem",
+    canonical: "/protosem",
   },
   openGraph: {
     title: "ProtoSem — ASADI Apprenticeship at Forge | rsd.exe",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: "rsd.exe",
-    url: "https://rsd.exe/protosem",
+    url: "/protosem",
   },
   twitter: {
     card: "summary_large_image",

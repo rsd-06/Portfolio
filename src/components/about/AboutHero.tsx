@@ -3,13 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
-
-const SOCIALS = [
-    { label: "LinkedIn",  icon: "/assets/socialMediaIcons/linkedin_icon.png",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/" },
-    { label: "GitHub",    icon: "/assets/socialMediaIcons/github_icon.png",    href: "https://github.com/rsd-06" },
-    { label: "Instagram", icon: "/assets/socialMediaIcons/instagram_icon.png", href: "https://www.instagram.com/rsd_exe/" },
-    { label: "Twitter",   icon: "/assets/socialMediaIcons/twitter_icon.png",   href: "https://x.com/rsd_2006" },
-];
+import { HERO_SOCIALS as SOCIALS } from "@/data/socials";
 
 export default function AboutHero() {
     return (

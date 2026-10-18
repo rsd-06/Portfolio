@@ -9,14 +9,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-
-// ── Social links ───────────────────────────────────────────────
-const SOCIALS = [
-  { label: "GitHub",    href: "https://github.com/rsd-06" },
-  { label: "LinkedIn",  href: "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/" },
-  { label: "Twitter",   href: "https://x.com/rsd_2006" },
-  { label: "Instagram", href: "https://www.instagram.com/rsd_exe/" },
-];
+import { FOOTER_SOCIALS as SOCIALS } from "@/data/socials";
 
 const BIG_WORDS = ["Code.", "Build.", "Grow."];
 

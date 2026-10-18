@@ -15,6 +15,8 @@ import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import GlobalSetup      from "@/components/providers/GlobalSetup";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
+import { SITE_URL } from "@/lib/site";
+import { SAME_AS } from "@/data/socials";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 // Only Cormorant is preloaded — it's used in the loader screen, so it must be
@@ -63,6 +65,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  // Resolves every relative metadata URL (canonical, OG) against the real origin.
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
     template: "%s — rsd.exe",
@@ -92,10 +96,10 @@ export const metadata: Metadata = {
     // General
     "Full-Stack Developer in India", "Indian developer",
   ],
-  authors: [{ name: "Sudharshan R", url: "https://rsd.exe" }],
+  authors: [{ name: "Sudharshan R", url: SITE_URL }],
   category: "technology",
   alternates: {
-    canonical: "https://rsd.exe",
+    canonical: "/",
   },
   openGraph: {
     title: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
@@ -104,7 +108,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     siteName: "rsd.exe",
-    url: "https://rsd.exe",
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
@@ -136,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Person",
     "name": "Sudharshan R",
     "alternateName": ["R Sudharshan", "rsd.exe"],
-    "url": "https://rsd.exe",
+    "url": SITE_URL,
     "jobTitle": "Full-Stack Developer & ML Enthusiast",
     "description": "3rd year Electronics and Instrumentation Engineering student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem — Forge Innovation and Ventures, KCT Tech Park.",
     "alumniOf": {
@@ -171,12 +175,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       "Artificial Intelligence", "AI Agents", "LLMs", "Project Based Learning",
       "MERN Stack", "TypeScript", "Python", "Cloud Computing"
     ],
-    "sameAs": [
-      "https://github.com/rsd-06",
-      "https://www.linkedin.com/in/sudharshan-r-b0a8b0254/",
-      "https://x.com/rsd_2006",
-      "https://www.instagram.com/rsd_exe/"
-    ]
+    "sameAs": SAME_AS
   };
 
   return (

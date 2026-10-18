@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useState, useRef } from "react";
 import { useAssetLoader } from "@/hooks/useAssetLoader";
 import { useLenis } from "@/components/providers/LenisProvider";
 import Grainient from "@/components/Grainient";
+import { HERO_VIDEO } from "@/lib/heroVideo";
 
 // Module-level flag — survives SPA navigation, resets on hard reload.
 let loaderHasRun = false;
@@ -15,11 +16,17 @@ type WindowWithScroll = Window & { __rsd_restoreScrollY?: number };
 const MIN_MS = 1500; // minimum loader duration — preserves the rsd.exe animation
 const EASE = [0.19, 1, 0.22, 1] as const;
 
+// Module-level so the arrays keep their identity: useAssetLoader depends on them,
+// and inline literals restarted the preload on every progress re-render.
+// (This used to request /assets/hero.jpg, which does not exist; the onerror path
+// counted it as done, so the loader only worked by accident.)
+const LOADER_ASSETS = {
+  images: [HERO_VIDEO.poster],
+  videos: [] as string[], // videos are no longer blocking — they load after loaderDone
+};
+
 export default function LoaderScreen() {
-  const { progress, ready } = useAssetLoader({
-    images: ["/assets/hero.jpg"],
-    videos: [], // videos are no longer blocking — they load after loaderDone
-  });
+  const { progress, ready } = useAssetLoader(LOADER_ASSETS);
 
   const lenis = useLenis();
 

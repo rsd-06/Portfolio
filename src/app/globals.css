@@ -21,7 +21,9 @@
 
   --color-border-subtle: var(--border-subtle);
 
-  --color-accent: var(--accent-main);
+  /* Named accent-main, not accent: shadcn's @theme inline block below defines
+     --color-accent (a neutral grey) and wins, so `bg-accent` never meant purple. */
+  --color-accent-main: var(--accent-main);
   --color-accent-soft: var(--accent-soft);
   --color-accent-glow: var(--accent-glow);
   --color-accent-hover: var(--accent-hover);

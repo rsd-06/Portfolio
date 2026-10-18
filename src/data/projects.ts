@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/site";
+
 export interface Project {
   slug:        string;
   index:       string;        // "01", "02", "03"...
@@ -138,7 +140,7 @@ export const PROJECTS: Project[] = [
       { category: "Fonts",      items: ["Cormorant Garamond", "DM Mono", "Instrument Serif"] },
     ],
     repoUrl:    "https://github.com/rsd-06/Portfolio",
-    liveUrl:    "https://rsd.exe",
+    liveUrl:    SITE_URL,
     status:     "Ongoing",
     completion: 95,
     images:     [
@@ -150,7 +152,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug:       "gitpr-evaluation-env",
-    index:      "03",
+    index:      "05",
     title:      "PR Evaluation Env & Model Training",
     category:   "AI · Reinforcement Learning",
     year:       "2026",
@@ -172,7 +174,7 @@ export const PROJECTS: Project[] = [
     status:     "Completed",
     completion: 100,
     images:     [
-      "/assets/projects/_shared/placeholder.jpg",
+      "/assets/projects/gitpr/01.png",
     ],
     featured:   true,
     tags:       ["ai", "reinforcement-learning", "multi-agent", "hackathon"],

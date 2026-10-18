@@ -30,13 +30,14 @@ This project leverages a cutting-edge modern web stack:
 - **Animations & Scrolling:** 
   - [Framer Motion](https://www.framer.com/motion/) — For layout animations, page transitions, and complex UI micro-interactions.
   - [Lenis](https://lenis.studiofreight.com/) — For buttery-smooth, native-feeling smooth scrolling.
-  - [GSAP](https://gsap.com/) — For specialized timeline animations.
-- **3D & WebGL:** 
-  - [Three.js](https://threejs.org/) & [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber/)
-  - [OGL](https://github.com/oframe/ogl) — For lightweight WebGL shaders (the Grainient background).
-- **Content:** `next-mdx-remote` and `gray-matter` for parsing markdown blogs/projects.
-- **Icons & Assets:** `lucide-react`, `react-icons`, and `next-video` for seamless video handling.
+- **WebGL:** [OGL](https://github.com/oframe/ogl) — a lightweight shader for the Grainient gradient behind the loader.
+- **Content:** `next-mdx-remote` and `gray-matter` for the MDX blog (`src/content/blogs`); projects and ProtoSem weeks are typed data in `src/data`.
+- **Video:** plain `<video>` with WebM + MP4 sources, encoded by `compress-video.ps1` (FFmpeg).
+- **Icons:** `lucide-react` and `react-icons`.
+- **Data:** GitHub GraphQL/REST via `/api/github` route handlers (needs `GITHUB_TOKEN`).
 - **Analytics:** Vercel Analytics & Speed Insights.
+
+For a full component map see [FEATURESMAP.md](FEATURESMAP.md).
 
 ## 📂 Project Structure
 
@@ -45,14 +46,14 @@ src/
 ├── app/                  # Next.js App Router pages and layouts
 │   ├── about/            # About page (Server Component)
 │   ├── blogs/            # Markdown-driven blog system
-│   ├── contact/          # Contact page and forms
+│   ├── contact/          # Contact page (reveal card, live IST clock)
 │   ├── projects/         # Portfolio projects gallery
 │   ├── protosem/         # ASADI Apprenticeship logs (merged to main)
 │   ├── layout.tsx        # Global layout, fonts, and SEO JSON-LD
 │   └── page.tsx          # Home page entry
 ├── components/           # Reusable UI components
 │   ├── home/             # Home page specific sections (Loader, Hero, etc.)
-│   ├── ui/               # Generic UI elements (buttons, inputs)
+│   ├── ui/               # Cross-page UI (cursor, grain overlay, image lightbox)
 │   └── ...
 ├── data/                 # Static data (projects, timelines, etc.)
 ├── hooks/                # Custom React hooks (e.g., useAssetLoader)
@@ -68,14 +69,14 @@ Here is a quick reference for common tasks in this repository:
 ```bash
 npm run dev
 ```
-> *Note: This command also runs `next-video sync` in the background.*
+> *Needs `GITHUB_TOKEN` in `.env.local` for the GitHub activity grid. Optional: `NEXT_PUBLIC_BASE_URL` (defaults to `https://rsd-exe.vercel.app`), `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`.*
 
 ### Compress a New Hero Video
-If you ever change the placeholder hero video, drop the new raw `.mp4` into the `/public` directory (named `heroVideo.mp4` or `heroVideoMobile.mp4`) and run:
+Keep the raw master **outside** `public/` and pass its path:
 ```bash
-npm run compress-video
+npm run compress-video -- -InputPath "C:\path\to\hero-master.mov"
 ```
-> *This automatically invokes FFmpeg via a PowerShell script to generate highly compressed WebM and MP4 formats, reducing a 64MB video to ~8MB for lightning-fast loading.*
+> *Uses FFmpeg (must be on PATH) to write `public/heroVideo.{webm,mp4}` (1080p) and `public/heroVideoMobile.{webm,mp4}` (720p), audio stripped. Add `-Variant Desktop` or `-Variant Mobile` to encode only one. Refresh `public/hero.jpg` (the poster) if the footage changed; sources are listed in `src/lib/heroVideo.ts`.*
 
 ### Build for Production
 ```bash
