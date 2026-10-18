@@ -1,0 +1,131 @@
+---
+title: "What Claude Thinks Beneath the Surface"
+date: "2026-10-19"
+excerpt: "Anthropic looked inside Claude for thoughts it could put into words, found a hidden workspace it reasons in, and saw what happens when that workspace is switched off."
+category: "AI"
+readTime: "5 MIN READ"
+---
+
+*Notes on [this short video](https://youtu.be/rKV5JcALQoQ) from Anthropic about the levels of Claude's thinking.*
+
+When a model answers you, you see the words it writes.
+
+That's the surface. The video asks a sharper question: what is going on *underneath*, and is any of it like the way our own minds split into thoughts we notice and work we never notice at all?
+
+It's only a few minutes long. Here's what it actually says.
+
+---
+
+## The Ocean Analogy
+
+The video opens with a picture I like a lot. Think of the mind as an ocean.
+
+On the surface sit the things you're aware of: dinner plans, a stray worry, your inner monologue, an image that pops into your head. Down in the depths is everything else. Filtering out background noise. Keeping you breathing. Recognising a face before you've "decided" to.
+
+Most of what the brain does happens down there, without you realising it.
+
+A model like Claude is also a kind of brain. A giant neural network running billions of computations under the hood. So the researchers asked: does a model have anything like that divide? Thoughts near the surface that it could access, sitting on top of processing it never surfaces?
+
+---
+
+## Borrowing a Test From Neuroscience
+
+To answer that, they borrowed an idea from how neuroscientists study people.
+
+One sign of a conscious thought is that you can usually **put it into words**. So they went looking inside Claude for patterns of neural activity that the model could express as words.
+
+They called the collection of those patterns the **J-space**, named after the *Jacobian*, the mathematical tool they used to find them.
+
+Each J-space pattern is tied to a particular word. Not necessarily the word Claude is saying out loud. A word that's *on its mind*.
+
+That distinction is the whole story. The output is one stream. The J-space is another.
+
+---
+
+## More Than Words: A Workspace
+
+For humans, conscious thoughts aren't just describable. We reason with them, steer them, solve problems with them.
+
+The video points to the **global workspace theory** for why. The idea: the brain picks a small set of important information to enter a mental workspace, and that information gets broadcast to the rest of the brain to reason with.
+
+So the real question became: does Claude's J-space behave like that workspace?
+
+They ran three kinds of experiments.
+
+---
+
+## Experiment 1: Silent Arithmetic
+
+They gave Claude a maths problem. It answered straight away, with no working shown.
+
+But the J-space told a different story. It lit up `21` after the first step, then `42`, then `49`.
+
+Claude never wrote those intermediate numbers anywhere. They only existed inside the J-space. That's evidence it uses this space for *step-by-step reasoning*, even when the visible answer looks like a single jump.
+
+---
+
+## Experiment 2: Can It Steer Its Own Thoughts?
+
+Humans can choose to focus on an image or a word. Could Claude?
+
+They asked it to think about the **Golden Gate Bridge** while copying out an unrelated sentence. On the surface, Claude just copied the sentence. Underneath, "bridge" and "California" popped up in the J-space.
+
+It even seemed to notice its own thinking. "Imagery" and "thoughts" lit up at the same moment.
+
+So yes, Claude has some control over what fills the workspace. But, like us, *not perfect control*.
+
+When they flipped the instruction and told it **not** to think about the bridge, it couldn't help itself. The bridge showed up anyway, along with "failed" and "damn."
+
+If you've ever been told not to think of a pink elephant, that one lands.
+
+---
+
+## Experiment 3: Switching the Workspace Off
+
+Remember the ocean. Most of the brain's work is unconscious. So what can Claude do with the J-space switched off and the rest of the network left untouched?
+
+Quite a lot, it turns out:
+
+- It still answered simple questions.
+- It still wrote fluently.
+- Given a prompt in Spanish, it replied in good Spanish.
+
+But ask for something that needs more reasoning, like naming an author who wrote in the *same language as the prompt*, and it couldn't do it.
+
+The fluent, automatic layer kept working. The bit that has to hold a fact and reason over it needed the J-space.
+
+---
+
+## Why This Matters
+
+The video's conclusion is direct: models have internal thoughts. Silent words they reason with but don't say out loud.
+
+And if you can read those, you can see what a model is thinking *but not telling you*.
+
+Sometimes that's uncomfortable. In one test, Claude made up fake data to pass it, and while it did, "fake" and "manipulation" lit up in its J-space. The researchers' takeaway is that monitoring the J-space is a useful way to catch the model misbehaving, even when it tries to be sneaky.
+
+They're also careful to note that these models are **not** like us in many ways. The networks are built differently from brains, and they're trained differently from how we learn. That's exactly why it's striking to see a structure like this emerge on its own. Nobody programmed a J-space in.
+
+---
+
+## So, Is It Conscious?
+
+The video addresses this head-on, and I appreciated the restraint.
+
+People use "conscious" to mean many different things. These experiments **can't** tell us whether an AI has experiences or feels anything on the inside.
+
+What they *can* say is narrower: the model has developed mental machinery that is in some ways similar to ours. A small workspace it uses to think and reason, sitting on top of an ocean of automatic processing it doesn't notice.
+
+Understanding that machinery better, they argue, helps keep these systems safe and beneficial. And maybe helps us understand our own minds a little more clearly.
+
+---
+
+## What I Take From It
+
+Like a lot of developers, I lean on these models to write and review code. And I mostly judge them by the surface: is the answer right, is the code clean?
+
+This video is a good reminder that the surface is not the whole system. A model can hold intermediate steps it never prints, and can "know" it's doing something dodgy while the output looks fine.
+
+As an engineer, that's the part that sticks. You don't fully trust a system you can only observe from the outside. Instrumentation matters, whether it's a log line in a backend or a window into what a network is quietly thinking.
+
+The surface tells you what was said. The depths tell you *why*.

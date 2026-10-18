@@ -1,0 +1,190 @@
+---
+title: "The Infinite Hotel Paradox, and the Road to Your Phone"
+date: "2026-10-19"
+excerpt: "Hilbert's hotel is always full and always has room. Following that puzzle leads to Cantor's bigger infinities, then Russell, Gödel, Turing and the theory of computation."
+category: "MATHEMATICS"
+readTime: "9 MIN READ"
+---
+
+*Notes on [The Infinite Hotel Paradox](https://youtu.be/Uj3_KqkI9Zo) by TED-Ed, and a [follow-up video on sizes of infinity](https://youtu.be/OxGsU8oIWjY).*
+
+Picture a hotel with infinitely many rooms. Every single one is occupied.
+
+A new guest walks in and asks for a room.
+
+In any hotel you've ever stayed in, the answer is "sorry, we're full". In this one, the answer is "sure, give me a second".
+
+That hotel is a thought experiment the German mathematician David Hilbert came up with in the 1920s. It's called a *paradox*, but nothing in it is actually wrong. The maths is fine. It's our intuition that breaks.
+
+When I followed the thread past the hotel, it went through Cantor's bigger infinities, then Russell, Gödel and Turing, and ended at the theory underneath every computer.
+
+---
+
+## The hotel that is always full
+
+The rooms are numbered `1, 2, 3, 4, …` forever. All of them are taken.
+
+**One new guest.** The night manager gets on the PA and asks everyone to move up one room. The guest in room 1 goes to room 2, room 2 goes to room 3, and so on. Every guest moves from room `n` to room `n + 1`. Since there's no last room, nobody is left standing in the corridor. Room 1 is now empty. The new guest takes it.
+
+**A bus with 40 people.** Same trick, bigger step. Everyone moves from `n` to `n + 40`, and rooms 1 to 40 open up.
+
+**An infinitely long bus.** Now it gets interesting. Shifting by a fixed number won't work, because you'd need to shift by infinity. So the manager asks each guest to move to *double* their room number, `n → 2n`. Room 1 goes to 2, room 2 goes to 4, room 3 goes to 6.
+
+The existing guests now fill only the even rooms. Every odd room is free, and there are infinitely many odd numbers. Each passenger on the bus gets one.
+
+Infinity plus infinity is still the same infinity.
+
+**Infinitely many infinite buses.** This is where the two videos show two different tricks, and I like both.
+
+The TED-Ed version uses prime numbers. Euclid proved around 300 BCE that there are infinitely many primes. So the manager sends each current guest to room `2^n`. The guest in room 7 goes to room `2^7 = 128`. The first bus uses powers of 3, so seat 7 goes to room `3^7 = 2187`. The second bus uses powers of 5, the next uses 7, then 11, 13, 17, and so on. A power of one prime is never a power of another, so no two people ever get the same room. Plenty of rooms stay empty (room 6 is not a power of any prime), but everyone fits.
+
+The follow-up video uses a spreadsheet instead. One row for the hotel, one row per bus. Columns for room or seat number. Then you draw a zigzag line through the grid that touches every cell exactly once, pull the line straight, and walk down it handing out rooms 1, 2, 3, … in order. An infinite grid becomes a single infinite line.
+
+---
+
+## Why "full" stops meaning full
+
+In a finite hotel, *full* means nothing else fits. A hundred rooms can't hold a hundred and one people.
+
+In the infinite hotel, full doesn't mean that at all.
+
+The root of it is one fact that sounds wrong the first time you hear it:
+
+> An infinite set can be the same size as a part of itself.
+
+Take the natural numbers `ℕ = {1, 2, 3, …}` and the even numbers `E = {2, 4, 6, …}`. The evens are clearly a *part* of the naturals, `E ⊂ ℕ`. And yet you can pair them up perfectly with `n ↔ 2n`. Every natural has exactly one even partner, and every even has exactly one natural partner. Nothing is left over on either side.
+
+That pairing is how Georg Cantor defined "same size" for infinite sets. Two sets have the same size if you can match them one-to-one. By that definition `|ℕ| = |E|`, and the hotel's room moves are just pairings like this one.
+
+| Finite hotel | Infinite hotel |
+|---|---|
+| Full means nothing more fits | Full doesn't stop more guests arriving |
+| `100 + 1 = 101` | `∞ + 1 = ∞` |
+| A part is smaller than the whole | A part can be the same size as the whole |
+
+This was once called a paradox. Today it's ordinary set theory.
+
+---
+
+## Some infinities are bigger
+
+Every set the manager handled so far had the same size as the natural numbers. Cantor called this size **aleph-zero**, written `ℵ₀`. It's the smallest kind of infinity, the *countable* one. "Countable" means you can list the members as first, second, third, and so on, and every member shows up somewhere in the list.
+
+So here's Cantor's question. Is every infinity countable?
+
+No.
+
+The follow-up video shows it with a party bus that has no seats. Every passenger's name is an infinitely long string of the letters A and B, and there's one passenger for *every possible* string.
+
+Try to give them rooms. Room 1 goes to `ABBAAAA…`, room 2 goes to `ABABAB…`, and so on down an infinite list. Suppose someone hands you a list they claim is complete.
+
+You can always write down a name that isn't on it:
+
+1. Look at the 1st letter of the 1st name and flip it (A becomes B, B becomes A).
+2. Look at the 2nd letter of the 2nd name and flip it.
+3. Keep going down the diagonal forever.
+
+The name you've built differs from the 1st name in its 1st letter, from the 2nd name in its 2nd letter, and from the `n`-th name in its `n`-th letter. It can't be anywhere on the list. So the list wasn't complete, and no list ever can be.
+
+This is **Cantor's diagonal argument**. The same move works on real numbers between 0 and 1. Write them as infinite decimals, change the `n`-th digit of the `n`-th number, and you get a number nobody listed.
+
+```
+1. 0.1 2 3 4 5 6 ...
+2. 0.7 3 8 2 9 1 ...
+3. 0.5 5 5 5 5 5 ...
+4. 0.9 1 3 8 2 7 ...
+   change the digits on the diagonal → a new number not in the list
+```
+
+The point is *not* that nobody has found a clever enough list yet. It's that a complete list is impossible. The real numbers are **uncountable**, a strictly bigger infinity than `ℵ₀`.
+
+It doesn't stop there. For any set `A`, its *power set* `P(A)` (the set of all its subsets) is always strictly bigger than `A`. So there's no biggest infinity.
+
+The Hilbert Hotel can't take that party bus.
+
+---
+
+## From infinity to the foundations of maths
+
+The follow-up video ends on a big claim. It says the discovery of different sizes of infinity led to the invention of the device you're reading this on.
+
+That's a fun line. I want to be careful with it, because Cantor did not invent the phone. What he did was kick off a chain of questions about the *foundations* of mathematics, and that chain ends in the theory underneath computing.
+
+Here's the chain as I understand it.
+
+**Russell's paradox.** Bertrand Russell asked about the set of all sets that don't contain themselves. Call it `R`. Does `R` contain itself? If yes, then by its own rule it shouldn't. If no, then by its own rule it should. Naive set theory had a hole in it, and mathematicians realised the foundations needed real care.
+
+**Gödel.** Kurt Gödel showed that any consistent formal system powerful enough to do ordinary arithmetic contains statements it can neither prove nor disprove. Mathematics has built-in limits. You can't write one rulebook that settles every true statement.
+
+**Turing.** Alan Turing asked a related question. What does it actually mean for something to be *computable*?
+
+All three arguments share a flavour with Cantor's diagonal. Each one turns a system back on itself and finds something it can't account for.
+
+---
+
+## What Turing did
+
+Consider two tiny programs:
+
+```python
+x = 10
+while x > 0:
+    x = x - 1       # stops
+
+while True:
+    print("Hello")  # never stops
+```
+
+Easy to tell apart. But can we write *one* checker that takes **any** program and its input and says correctly whether it stops or runs forever?
+
+To even ask that precisely, Turing needed a definition of "computer". In 1936 he described what we now call a **Turing machine**. It's a mathematical model, not hardware. It has an infinite tape of symbols, a head that reads and writes, and an internal state. It can read, write, move left or right, and change state. That's all, and it's enough to capture any step-by-step algorithm.
+
+Then he showed the checker can't exist. Suppose `HALT(program, input)` always answers correctly. Build this:
+
+```
+EVIL(program):
+    if HALT(program, program) says "STOPS":
+        loop forever
+    else:
+        stop
+```
+
+Now run `EVIL(EVIL)`. If `HALT` says it stops, it loops forever. If `HALT` says it loops, it stops. `HALT` is wrong either way. So no general `HALT` can exist. Faster computers won't fix it. It's mathematically impossible.
+
+That's the **Halting Problem**, and it's the same self-reference trick as the diagonal argument and Russell's set.
+
+---
+
+## The theory of computation
+
+Turing's work opened a whole field, the theory of computation. It asks what machines can compute, what they can't, and how efficiently they can do it. It splits roughly into three parts.
+
+- **Automata theory** studies simplified machines, like the finite-state machine inside a vending machine.
+- **Computability theory** asks whether any algorithm can solve a problem at all. Sorting, yes. Deciding halting in general, no.
+- **Complexity theory** asks how expensive a solvable problem is. This is where time and space costs and P vs NP live.
+
+Turing also described a **universal machine**, one machine that can simulate any other Turing machine if you give it a description as input. You don't build one machine per task. You build one general machine and feed it programs.
+
+That's the idea behind the general-purpose computer. It's why the same processor in your phone can play music, edit a photo and run a chat app. Hardware plus a program.
+
+---
+
+## The honest version of the story
+
+So, did Hilbert's hotel give us smartphones? Not really.
+
+A phone needs many separate branches of work to meet. Electromagnetism led to electronics, transistors, integrated circuits and microprocessors. Communication theory led to digital and wireless networks. The path from Cantor through logic to computation is one of those branches, not the whole tree.
+
+What I'd say is this. The investigation of infinity reshaped the foundations of mathematics. Those questions fed logic and theoretical computer science. That theory is part of the intellectual base of computing, which then grew along many paths into the devices we carry.
+
+---
+
+## What I take from it
+
+A puzzle about a hotel manager shuffling guests at 2 a.m. turned into the question "what can be computed at all?"
+
+As someone who builds software, I like that the limits of computing were found *before* the computers were. Some problems don't need a faster machine or a smarter engineer. They're impossible, and the proof fits in a few lines.
+
+I also like the habit behind it. Cantor, Russell, Gödel and Turing all took an idea everyone thought was obvious, like "full", "set", "provable" or "computable", and asked what it actually meant.
+
+That's a habit worth stealing.

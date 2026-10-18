@@ -1,0 +1,186 @@
+---
+title: "GitHub Actions, Explained Like You Actually Have to Use It"
+date: "2026-10-19"
+excerpt: "Workflows, triggers, jobs, steps and runners: what GitHub Actions is, how a YAML file turns a git push into a test run, and the pieces worth knowing early."
+category: "DEVOPS"
+readTime: "6 MIN READ"
+---
+
+*Notes from the official GitHub Actions docs, and from the CI file in one of my own repos.*
+
+Every time you push code, someone should check it.
+
+Does it build? Do the tests pass? Did you leave a lint error that will annoy the next person? You *could* run all of that by hand before every push. You won't. Nobody does, at least not every time.
+
+So you hand the job to a robot. On GitHub, that robot is **GitHub Actions**.
+
+---
+
+## The One-Line Version
+
+GitHub Actions runs commands for you on a fresh machine whenever something happens in your repository.
+
+That's it. Something happens (a push, a pull request, a timer going off), GitHub spins up a computer, runs the steps you wrote down, and reports back with a green tick or a red cross.
+
+An analogy: think of it as a checklist taped to the door of your repo. Every time someone walks in with new code, a clerk picks up the checklist and works through it line by line. If any line fails, the clerk stops and tells you which one.
+
+---
+
+## Where It Lives
+
+The checklist is a YAML file inside your repository, in one specific folder:
+
+```text
+.github/workflows/ci.yml
+```
+
+Any `.yml` file in `.github/workflows/` is a **workflow**. You can have as many as you like. One for tests, one for deploys, one that runs a cleanup job every night.
+
+Because the file lives in the repo, it's versioned with your code. Change the pipeline in a pull request, and reviewers see that change like any other diff.
+
+---
+
+## The Vocabulary
+
+There are five words you need. Everything else hangs off them.
+
+- **Workflow.** The whole YAML file. One automated process.
+- **Event.** What starts it. Declared under `on:`.
+- **Job.** A group of steps that runs on one machine. A workflow can have several.
+- **Step.** A single command, or a single reusable action.
+- **Runner.** The machine the job runs on.
+
+They nest like this: a workflow has jobs, a job has steps, and each job gets its own runner.
+
+### Events
+
+The common triggers:
+
+- `push` runs when commits land on a branch.
+- `pull_request` runs when a PR is opened or updated. This is the one that puts the check marks on your PR page.
+- `schedule` runs on a cron expression, like a nightly build. The times are in UTC, which has surprised more than one person.
+- `workflow_dispatch` adds a "Run workflow" button in the Actions tab so you can kick it off by hand.
+
+You can filter them too. `push` to `main` only, or only when files under `docs/` change.
+
+### Runners
+
+GitHub hosts runners for you, with Ubuntu, Windows and macOS images. You pick one with `runs-on: ubuntu-latest`. Every job starts on a **clean machine**, so nothing from the last run leaks into this one. That's a feature: if it passes in CI, it isn't passing because of some file that only exists on your laptop.
+
+You can also register your own machine as a **self-hosted runner** if you need special hardware or network access.
+
+---
+
+## A Small, Real Example
+
+Here's a workflow for a Node project that lints and tests on every push and pull request:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+```
+
+Line by line:
+
+1. `actions/checkout` clones your repo onto the runner. Without it, the machine is empty.
+2. `actions/setup-node` installs Node. The `cache: npm` line tells it to cache downloaded packages between runs.
+3. `npm ci` installs exact versions from the lockfile.
+4. Lint, then test. If either exits non-zero, the job fails and the PR shows a red cross.
+
+Notice the two kinds of step. `uses:` pulls in a prebuilt **action**. `run:` executes a shell command. Most workflows are a few `uses:` lines to set up the machine, then a few `run:` lines that do your project's actual work.
+
+---
+
+## Actions: Other People's Steps
+
+An **action** is a reusable step someone already wrote. `actions/checkout` and `actions/setup-node` are maintained by GitHub. Thousands more live on the **GitHub Marketplace**: setting up Python, logging into a cloud provider, posting to Slack.
+
+The `@v4` at the end pins a version. Pin it. An action is code that runs inside your pipeline, so treat it like any other dependency you're choosing to trust.
+
+---
+
+## Features Worth Knowing Early
+
+### Matrix builds
+
+Want to test on three Node versions? Don't copy the job three times. Use a matrix:
+
+```yaml
+strategy:
+  matrix:
+    node: [18, 20, 22]
+```
+
+Then set `node-version: ${{ matrix.node }}`. GitHub runs one job per value, in parallel. Add an `os` list too and it runs every combination.
+
+### Secrets
+
+API keys and tokens never go in the YAML. You store them in the repo's settings as **secrets** and reference them by name:
+
+```yaml
+env:
+  API_TOKEN: ${{ secrets.API_TOKEN }}
+```
+
+GitHub masks secret values in the logs. By default, workflows triggered from a fork's pull request don't get your secrets, which stops a stranger's PR from printing them.
+
+### Caching
+
+Installing dependencies from scratch on every run is slow. `setup-node` can cache for you, as above, and the general-purpose `actions/cache` action can cache any folder keyed on a file hash, such as your lockfile. Same lockfile, same cache, faster run.
+
+### Artifacts
+
+Each job's machine is thrown away when it finishes. If you want to keep something (a build output, a coverage report, a screenshot from a failing test), upload it with `actions/upload-artifact`. You can download it from the run page, or pass it to a later job.
+
+### Job ordering
+
+Jobs in a workflow run **in parallel** by default. If one must wait for another, say so with `needs:`. That's how you build a pipeline: test first, deploy only if tests pass.
+
+---
+
+## What This Looks Like in a Real Repo
+
+For SatSaathi, a project I'm working on, the CI workflow has three jobs:
+
+- A **JS job** that installs with pnpm, then runs a translation-key check, lint, typecheck and tests.
+- A **Python job** that sets up the environment with uv, then runs ruff, pyright and pytest across each package.
+- A **compose-health job** that `needs` both of the above. It boots the stack with Docker Compose, polls the API's health endpoint until it reports every check as ok, prints the container logs if anything failed, and tears everything down at the end.
+
+Nothing exotic. The same five words from earlier, arranged into a pipeline. Two independent checks in parallel, then one integration check that only runs when both pass.
+
+The compose job is the one I find most useful. Unit tests tell you the pieces work. Booting the whole stack on a clean machine tells you they work *together*.
+
+---
+
+## A Note on Cost
+
+Public repositories on GitHub-hosted runners are free for standard usage. Private repositories get a monthly allowance of minutes depending on your plan, and some runner types use it up faster than others. The exact numbers change, so check GitHub's billing docs rather than trusting a blog post, including this one.
+
+---
+
+## What I Take From It
+
+CI used to sound like something big teams set up. It isn't. It's one YAML file, and the first version can be ten lines.
+
+The real value isn't the automation. It's that the rules stop living in your head. "Run the tests before you push" is a habit you'll eventually skip. A workflow that blocks the merge doesn't get tired.
+
+For a student project, that matters more than it sounds. The day a teammate pushes at 2 a.m. before a deadline, you'll want something checking the code that isn't you.
+
+Write the ten lines. Add more when something breaks.

@@ -1,0 +1,150 @@
+---
+title: "CISC vs RISC, Von Neumann vs Harvard: Two Questions Every Processor Answers"
+date: "2026-10-19"
+excerpt: "Two debates that get mixed up constantly: how big a processor's instructions should be, and whether code and data share one memory. Here's each one, and why it shows up on an Arduino."
+category: "COMPUTER ARCHITECTURE"
+readTime: "6 MIN READ"
+---
+
+Every processor quietly answers two design questions.
+
+**One:** how much work should a single instruction do?
+
+**Two:** do instructions and data live in the same memory, or separate ones?
+
+The first question is *CISC vs RISC*. The second is *Von Neumann vs Harvard*. People mash them together all the time, as if they were one debate. They're not. They're two independent axes, and any chip sits somewhere on both.
+
+Let's take them one at a time.
+
+---
+
+## Question One: How Big Is an Instruction?
+
+An instruction set architecture (ISA) is the contract between software and hardware. It's the list of operations a compiler is allowed to emit, and the processor promises to execute.
+
+There are two broad philosophies for writing that list.
+
+### CISC: Do More Per Instruction
+
+**CISC** stands for *Complex Instruction Set Computer*. The idea is that one instruction can do a lot.
+
+A single CISC instruction might read a value from memory, add it to a register, and write the result back. Instructions come in different lengths, and many of them can work directly on memory operands.
+
+The motivation made sense historically. Memory was expensive and slow, and a lot of code was written by hand in assembly. Dense instructions meant smaller programs and less tedious assembly.
+
+The classic example is **x86**, the architecture inside most desktop and laptop processors from Intel and AMD.
+
+### RISC: Do Less, Do It Fast
+
+**RISC** stands for *Reduced Instruction Set Computer*. The bet is the opposite: keep each instruction simple and regular, and make every one of them fast.
+
+The defining habits of a RISC design:
+
+- **Load/store architecture.** Only dedicated load and store instructions touch memory. Arithmetic works on registers only.
+- **Regular encoding.** Instructions are typically a fixed size, which makes decoding simple.
+- **Lots of general-purpose registers**, so values stay close to the ALU instead of bouncing to memory.
+
+That same "read, add, write back" job becomes three instructions: load, add, store. More instructions, but each one is easy to decode and easy to pipeline.
+
+The examples you'll meet: **ARM** (inside nearly every phone) and **RISC-V** (an open ISA anyone can implement without a licence).
+
+An analogy: CISC is a Swiss Army knife. One tool, many tricks. RISC is a tray of simple, sharp tools, each perfect for one job, picked up very quickly.
+
+---
+
+## The Line Has Blurred
+
+Here's the part textbooks sometimes skip.
+
+Modern x86 chips don't execute those complex instructions directly. The front end of the processor **decodes each x86 instruction into smaller internal operations**, usually called *micro-ops*. Those micro-ops look a lot like RISC instructions, and the core schedules and executes them out of order.
+
+So on the inside, a modern x86 core behaves much like a RISC machine with a CISC translator bolted to the front.
+
+Meanwhile, RISC designs have picked up extras over the years. ARM has a compact 16-bit Thumb encoding to save code space. RISC-V has an optional compressed instruction extension for the same reason.
+
+The honest summary today:
+
+| | CISC | RISC |
+|---|---|---|
+| **Philosophy** | Rich instructions, more work each | Simple instructions, fast each |
+| **Memory access** | Many instructions can use memory operands | Only loads and stores touch memory |
+| **Encoding** | Variable length | Mostly fixed length |
+| **Examples** | x86 | ARM, RISC-V |
+| **Today** | Translates to micro-ops internally | Adds compact encodings for density |
+
+CISC vs RISC is now less a war and more a question of *what the ISA exposes to software*. What happens inside the core is a separate story.
+
+---
+
+## Question Two: Where Do Code and Data Live?
+
+Now the second axis. Forget instruction size entirely. This one is about **memory organisation**.
+
+A program has two kinds of things in memory: the **instructions** (the code) and the **data** the code works on. Do they share one memory, or get one each?
+
+### Von Neumann: One Memory, One Road
+
+In a **Von Neumann architecture**, instructions and data live in the *same* memory, reached over the *same* bus.
+
+This is elegant. Code is just data. A program can load another program into memory and run it. Memory is one flexible pool, used however the program needs.
+
+The catch is the shared road.
+
+The CPU can fetch an instruction or move a piece of data, but over a single path it can't do both at once. As processors got faster than memory, they spent more and more time waiting on that road. This is the famous **Von Neumann bottleneck**, a term popularised by John Backus.
+
+Picture a kitchen with one narrow door. The chef needs both recipes and ingredients brought in, but only one person fits through the door at a time. The chef is fast. The door is the limit.
+
+### Harvard: Two Memories, Two Roads
+
+A **Harvard architecture** gives instructions and data **separate memories with separate buses**. The name comes from the Harvard Mark I, which read its instructions from punched tape, separately from its data.
+
+Now the CPU can fetch the next instruction *while* reading or writing data. Two doors into the kitchen.
+
+The trade-off is flexibility. Memory is split up front, and treating code as data (or data as code) becomes awkward or impossible.
+
+### Modified Harvard: What Your Laptop Actually Does
+
+Most modern general-purpose processors are neither pure model. They're **modified Harvard**.
+
+Closest to the core, they have **separate L1 caches**: an instruction cache and a data cache. So in the hot path, instruction fetch and data access happen in parallel, Harvard-style.
+
+Further out, the caches feed from a **single unified main memory**, Von Neumann style. Programs still see one address space, and code can still be loaded as data.
+
+You get the bandwidth of Harvard where it matters most and the flexibility of Von Neumann everywhere else.
+
+---
+
+## Why This Matters on a Microcontroller
+
+This is where it stops being theory for me. A lot of my hands-on work is on Arduino and ESP32 boards, and the memory question shows up directly in the code.
+
+**AVR**, the family behind classic Arduino boards like the Uno, is a Harvard design. Your program lives in **flash**. Your variables live in a much smaller **SRAM**. They're separate address spaces.
+
+You feel this the first time you run low on RAM. A string literal in your sketch normally gets copied into SRAM at startup. On AVR, Arduino lets you keep constant data in flash instead, using `PROGMEM` or the `F()` macro for strings, and read it back with special functions. That's the Harvard split, leaking up into your C++.
+
+**PIC** microcontrollers are another well-known Harvard family. Their program memory and data memory are separate, and even use different word widths.
+
+On the **ESP32**, the ESP-IDF framework lets you place a function in internal instruction RAM with `IRAM_ATTR`, which is commonly done for interrupt handlers. Again, the distinction between where code lives and where data lives is something you deal with, not just something you read about.
+
+And the other axis turns up too. Newer ESP32 variants such as the ESP32-C3 are built on **RISC-V**. So the open RISC ISA from the first half of this post is sitting on boards people buy for hobby projects.
+
+---
+
+## Two Axes, Not One Debate
+
+Put it together:
+
+- **CISC vs RISC** is about the *instruction set*: how much each instruction does.
+- **Von Neumann vs Harvard** is about *memory organisation*: whether code and data share a path.
+
+They're independent. An x86 laptop is CISC on the outside, micro-ops inside, and modified Harvard in its caches. An AVR is a RISC-style design with a Harvard memory layout. You need both labels to describe a chip.
+
+---
+
+## What I Take From It
+
+As an instrumentation student who builds on microcontrollers, I find these "textbook" choices are visible in everyday code. Running out of SRAM on an AVR isn't an exam question. It's a Harvard architecture reminding you it exists.
+
+The bigger lesson for me is about abstractions. x86 kept a complex interface for compatibility and changed everything underneath. Modern CPUs keep one address space for programmers and split it under the hood for speed.
+
+The interface you program against and the machine that runs it are rarely the same thing. Knowing both is what lets you write code that fits the hardware, instead of fighting it.

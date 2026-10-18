@@ -1,0 +1,126 @@
+---
+title: "Spec-Driven Development: Write the Contract Before the Code"
+date: "2026-10-19"
+excerpt: "Write down what you're building, the interfaces and how you'll know it's done, before writing code. Why it matters more with AI agents, and how I used it on SatSaathi."
+category: "SOFTWARE ENGINEERING"
+readTime: "6 MIN READ"
+---
+
+Most projects start with an editor and an idea.
+
+You open a file, start typing, and figure out what you're building *while* you build it. For a weekend script, that's fine. For anything bigger, it's how you end up three weeks in, rewriting the same module for the fourth time because you only just realised what it was supposed to do.
+
+**Spec-driven development** flips the order. You write down what you're building, precisely, *before* you write the code. Then you build against that document.
+
+It sounds like bureaucracy. In practice, it's the opposite.
+
+---
+
+## The Core Idea
+
+Spec-driven development is a three-step loop:
+
+1. **Spec.** Write the contract: what the system must do, the interfaces between its parts, and the acceptance criteria that tell you it's done.
+2. **Plan.** Break the spec into ordered, checkable steps.
+3. **Implement.** Write code against the plan, and check each step against the spec.
+
+The key word is *contract*. A spec isn't a vague wish list. It's a set of decisions that the code is now obliged to honour.
+
+An analogy: an architect doesn't hand bricklayers a mood board. They hand over drawings with dimensions. Nobody argues about where a wall goes once it's on paper. The arguing happened earlier, when moving a wall cost an eraser instead of a sledgehammer.
+
+---
+
+## What Goes Into a Spec
+
+A useful spec usually covers three things.
+
+### Requirements
+
+What must the system do? What is explicitly *out* of scope? The out-of-scope list is underrated. It stops "while I'm here" features from quietly doubling the work.
+
+### Interfaces
+
+How do the parts talk to each other? Function signatures, API routes, data shapes, error formats, the names of things. Interfaces are where separate pieces of work meet, so they're where most integration bugs live. Pin them down early and parallel work stops colliding.
+
+### Acceptance Criteria
+
+How will you know it's done? Not "it works on my machine", but something you can check: a command that should succeed, a test that should pass, an endpoint that should return a specific response.
+
+If you can't write the acceptance criteria, you don't yet know what you're building. That's useful information, and it's much cheaper to discover in a document than in a codebase.
+
+---
+
+## Why It Matters More With AI Agents
+
+This is where spec-driven development goes from "nice discipline" to "basically required."
+
+AI coding agents are fast and capable, but they fill gaps with *guesses*. Give an agent a vague prompt and it will confidently invent an API shape, pick a library version from memory, and make a dozen small decisions you never see. Each guess is plausible. Together, they drift.
+
+A spec closes those gaps before the agent starts:
+
+- **It removes ambiguity.** The agent doesn't have to guess a name or a data shape if the spec already fixed it.
+- **It survives context limits.** An agent's working memory is finite. A written spec is a durable source of truth any fresh session can re-read.
+- **It makes review possible.** You can check the agent's output against the acceptance criteria instead of reading every line and hoping.
+- **It splits work cleanly.** With interfaces pinned, separate tasks (or separate agents) can work in parallel without stepping on each other.
+
+The human's job shifts. Less typing, more deciding. The spec is where your judgment lives. The code is where it gets executed.
+
+---
+
+## A Real Example: SatSaathi
+
+I've been using this approach on **SatSaathi**, our team's project for Smart India Hackathon 2026. It's built for an ISRO problem statement: an assistant that lets you ask questions about satellite imagery in plain language, with the interface localised into English, Hindi, Tamil and Bengali.
+
+Before any code, the project got a written architecture spec and a phase-by-phase implementation plan. A few things from those documents show the idea better than any definition.
+
+### A Fixed Pipeline as the Contract
+
+The spec defines every user query as a **Job** that always passes through the same **eight steps, in order**: `ask`, `imagery`, `understand`, `preprocess`, `compute`, `vision_language`, `verify`, `answer`.
+
+Those step keys are written as a fixed enum, shared by the backend, the frontend, the translations and the exported trace, and the spec says outright that they are never renamed.
+
+That one decision does a lot of work. Frontend and backend can be built separately because they already agree on the vocabulary. The spec also lists, for each step, its final behaviour *and* what the early, stubbed version does in the meantime. So "done for this phase" is unambiguous even when the real model isn't there yet.
+
+### Verifying the Stack Before Pinning It
+
+The spec opens with a **version verification pass**. Every library in the planned stack was checked against its current published state before any version was pinned.
+
+That pass caught real problems. One example: the task queue library's dependency chain capped the Redis client below its current major version, so installing everything at "latest" wouldn't resolve. The spec records the conflict and pins a compatible version, with a note to revisit when the ceiling moves. It also caught packages that had been renamed upstream.
+
+This is exactly the kind of thing an AI agent would get wrong from memory. Writing it into the spec means nobody, human or agent, has to rediscover it.
+
+### Phases With a Definition of Done
+
+The work is split into **five phases**: skeleton, backend plumbing, frontend foundation, the main workspace, then remaining pages and polish. The spec says to stop and report after each one.
+
+The Phase 1 plan starts with **global constraints**: what must *not* be built yet, which versions are pinned, which tools were chosen over which alternatives and why. It ends that section with a concrete **definition of done**: a single command brings the services up, and a health endpoint returns `ok`.
+
+Most tasks inside the plan follow the same rhythm. Write a failing test, run it to see it fail, implement, run it to see it pass. The acceptance criteria aren't a paragraph at the end. They're built into every step.
+
+### When Reality Disagrees
+
+My favourite detail: the plan contains a **correction note** written during execution. An ESLint configuration approach in the original plan crashed against the current version of the Next.js lint config. Instead of silently patching the code, the plan itself was updated to explain what broke and why the fix works.
+
+That's the point of a living spec. It isn't sacred. But when it changes, it changes *on paper first*, so the document and the code never quietly disagree.
+
+---
+
+## The Common Objections
+
+**"It's slower."** It's slower to start. It's much faster to finish, because you skip the rewrite cycles caused by discovering requirements halfway through.
+
+**"Specs go stale."** Only if you treat them as write-once. Update the spec when you learn something, like the correction note above, and it stays the source of truth.
+
+**"Agile says working software over documentation."** Sure. A spec isn't a two-hundred-page requirements binder. It's the minimum set of decisions that lets you build without guessing. Keep it as short as the problem allows.
+
+---
+
+## What I Take From It
+
+The biggest change for me is *where the thinking happens*.
+
+Without a spec, I make design decisions in the middle of implementation, under the pressure of a half-written function. With one, I make them up front, when changing my mind costs a sentence instead of a refactor.
+
+With AI agents in the loop, that matters even more. The agent can write code faster than I can. What it can't do is decide what the code should be.
+
+That part is still my job. The spec is where I do it.
