@@ -135,6 +135,17 @@ export const metadata: Metadata = {
   },
 };
 
+// Without JavaScript, framer-motion's server-rendered starting states never
+// animate away: entrances stay at opacity 0 and the home loader covers the
+// page forever. This only targets those starting states (opacity 0 paired with
+// a transform, the clip-path headline reveal, the loader), not elements that
+// are hidden on purpose until hover (those never carry a transform).
+const NO_JS_CSS = `
+[style*="opacity:0;"][style*="transform:"],[style$="opacity:0"][style*="transform:"],[style="opacity:0"]{opacity:1!important;transform:none!important;filter:none!important}
+[style*="clip-path:inset(0 100% 0 0)"]{clip-path:none!important}
+[data-loader]{display:none!important}
+`;
+
 /* ── Root Layout ─────────────────────────────────────────────── */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const person = {
@@ -217,6 +228,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://vitals.vercel-insights.com" />
+        <noscript>
+          <style>{NO_JS_CSS}</style>
+        </noscript>
       </head>
       <body className="bg-base-bg text-text-primary antialiased" suppressHydrationWarning>
         {/* Google Analytics via Environment Variable */}

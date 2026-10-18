@@ -162,6 +162,7 @@ export default function LoaderScreen() {
           exit={{ clipPath: "inset(0 0 100% 0)" }}
           transition={{ duration: 1, ease: EASE }}
           aria-live="polite"
+          data-loader
         >
           {/* Background — solid fallback shown instantly */}
           <div className="absolute inset-0 bg-[#F5F4F0] -z-20" />
