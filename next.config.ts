@@ -15,18 +15,11 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
 
-  // Aggressive cache headers for all static assets served from /_next/static
+  // No rule for /_next/static: Next already serves hashed production chunks as
+  // immutable, and a custom immutable header also applied in dev, where chunk
+  // URLs don't change between edits, so browsers kept running stale code.
   async headers() {
     return [
-      {
-        source: "/_next/static/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
       {
         // Cache fonts and images in /public aggressively
         source: "/assets/:path*",
