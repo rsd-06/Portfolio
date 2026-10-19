@@ -119,10 +119,12 @@ export const metadata: Metadata = {
     creator: "@rsd_2006",
     images: [ogImageUrl("Sudharshan R — building through software")],
   },
-  // Search Console token. It is printed in every page's <head>, so it is
-  // public by design and lives here rather than in a Vercel secret.
+  // Search Console and Bing Webmaster tokens. They are printed in every
+  // page's <head>, so they are public by design and live here rather than in
+  // Vercel secrets.
   verification: {
     google: "bXv91YFMS7jJaOD7XNBr5gCVJgwGSNL4bBsJG9K9Dcs",
+    other: { "msvalidate.01": "A79F05DA43CF7AE483ABAA1EA0F5A656" },
   },
   robots: {
     index: true,
