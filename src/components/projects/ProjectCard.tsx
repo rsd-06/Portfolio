@@ -63,6 +63,7 @@ export default function ProjectCard({ project, index }: { project: Project; inde
       <div className="relative w-full aspect-[16/10] overflow-hidden rounded-md bg-[var(--color-border)]">
         {project.video ? (
           <video
+            suppressHydrationWarning
             ref={videoRef}
             src={project.video}
             poster={project.images[0]}

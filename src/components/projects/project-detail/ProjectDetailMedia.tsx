@@ -83,7 +83,11 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
   );
 
   const videoEl = (
+    // Browser extensions (speed controllers, downloaders) tag <video> elements
+    // before React hydrates (e.g. data-video="0"), which React reports as a
+    // mismatch. This silences attribute mismatches on this element only.
     <video
+      suppressHydrationWarning
       ref={videoRef}
       src={src}
       poster={poster}
@@ -167,6 +171,7 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
               }}
             >
               <video
+                suppressHydrationWarning
                 src={src}
                 poster={poster}
                 autoPlay

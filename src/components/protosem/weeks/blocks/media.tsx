@@ -106,6 +106,7 @@ export function VideoFigure({
         }}
       >
         <video
+          suppressHydrationWarning
           src={src}
           poster={poster}
           controls

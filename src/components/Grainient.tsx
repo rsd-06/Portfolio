@@ -153,11 +153,26 @@ const Grainient: React.FC<GrainientProps> = ({
 
   useEffect(() => {
     if (!containerRef.current) return;
+    const container = containerRef.current;
+
+    // WebGL can be unavailable (hardware acceleration off, or the browser's
+    // cap on live contexts reached). OGL's Renderer then logs an error and
+    // throws on the null context, so ask the canvas first and, without a
+    // context, paint a still gradient in the same colours. OGL reuses the
+    // context already created on the canvas it is given.
+    const attrs = { alpha: true, antialias: false };
+    const glCanvas = document.createElement('canvas');
+    if (!(glCanvas.getContext('webgl2', attrs) ?? glCanvas.getContext('webgl', attrs))) {
+      container.style.background = `linear-gradient(${blendAngle + 135}deg, ${color1}, ${color2} 55%, ${color3})`;
+      return () => {
+        container.style.background = '';
+      };
+    }
 
     const renderer = new Renderer({
+      canvas: glCanvas,
       webgl: 2,
-      alpha: true,
-      antialias: false,
+      ...attrs,
       dpr: Math.min(window.devicePixelRatio || 1, 2)
     });
 
@@ -167,7 +182,6 @@ const Grainient: React.FC<GrainientProps> = ({
     canvas.style.height = '100%';
     canvas.style.display = 'block';
 
-    const container = containerRef.current;
     container.appendChild(canvas);
 
     const geometry = new Triangle(gl);
@@ -235,6 +249,10 @@ const Grainient: React.FC<GrainientProps> = ({
       } catch {
         // Ignore
       }
+      // Removing the canvas does not free its context. Without this every
+      // remount (Strict Mode, HMR, each loader run) leaked one until the
+      // browser refused new ones with "unable to create webgl context".
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, [
     timeSpeed,
