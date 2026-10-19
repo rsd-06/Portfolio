@@ -10,7 +10,7 @@ export const metadata = pageMetadata({
   path: "/",
   title: "rsd.exe — Sudharshan R | Full-Stack Developer & Builder",
   description:
-    "Portfolio of Sudharshan R — EIE student at KCT Coimbatore building full-stack products, ML pipelines, RL environments and developer tools. Projects, writing and the ProtoSem apprenticeship log.",
+    "Portfolio of Sudharshan R — aspiring software engineer and EIE student at Kumaraguru College of Technology (KCT), Coimbatore, building full-stack products, ML pipelines, RL environments and developer tools. Projects, writing and the ProtoSem apprenticeship log.",
   eyebrow: "portfolio",
 });
 

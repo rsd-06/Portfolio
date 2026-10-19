@@ -81,13 +81,15 @@ export const metadata: Metadata = {
     template: "%s — rsd.exe",
   },
   description:
-    "Portfolio of Sudharshan R — 3rd year EIE student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem (Forge Innovation & Ventures, KCT Tech Park). Building with React, Next.js, Node.js, and AI.",
+    "Portfolio of Sudharshan R — 3rd year EIE student at Kumaraguru College of Technology (KCT), Coimbatore. Aspiring software engineer, full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem (Forge Innovation & Ventures, KCT Tech Park). Building with React, Next.js, Node.js, and AI.",
   keywords: [
     // Identity
-    "Sudharshan R", "R Sudharshan", "rsd.exe", "rsd", "rsudh",
+    "Sudharshan R", "R Sudharshan", "Sudharshan", "rsd.exe", "rsd", "rsudh",
+    "Sudharshan R KCT", "Sudharshan KCT", "Sudharshan R Coimbatore",
     // Role
     "portfolio", "Full-Stack Developer", "Software Developer", "SDE", "Builder", "Entrepreneur",
-    "Coder", "Developer", "Engineer",
+    "Coder", "Developer", "Engineer", "Software Engineer", "Software Engineering",
+    "Aspiring Software Engineer", "Software Engineer Aspirant", "Software Engineer Aspirer",
     // Technical skills
     "React Developer", "Next.js Developer", "Node.js", "Express.js", "MongoDB", "MERN Stack",
     "TypeScript", "JavaScript", "Python", "Full-Stack", "Creative Coding",
@@ -95,9 +97,10 @@ export const metadata: Metadata = {
     "Artificial Intelligence", "LLM", "AI Agents", "Multi-modal AI",
     "Cloud Computing", "Vercel", "REST API",
     // Education
-    "KCT", "Kumaraguru College of Technology", "Coimbatore", "India",
-    "EIE", "Electronics and Instrumentation Engineering",
-    "3rd year student", "engineering student", "student developer",
+    "KCT", "Kumaraguru College of Technology", "Kumaraguru", "KCT Coimbatore",
+    "Kumaraguru College of Technology Coimbatore", "Coimbatore", "Tamil Nadu", "India",
+    "EIE", "Electronics and Instrumentation Engineering", "Engineering",
+    "Student", "3rd year student", "engineering student", "student developer", "KCT student",
     // Programs & Organizations
     "PBL", "Project Based Learning", "Project Based Learner",
     "ProtoSem", "Forge", "Forge Innovation and Ventures", "KCT Tech Park",
@@ -165,14 +168,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "name": "Sudharshan R",
     "image": `${SITE_URL}/hero.jpg`,
     "email": `mailto:${CONTACT_EMAIL}`,
-    "alternateName": ["R Sudharshan", "rsd.exe"],
+    "alternateName": ["R Sudharshan", "Sudharshan", "rsd.exe"],
     "url": SITE_URL,
-    "jobTitle": "Full-Stack Developer & ML Enthusiast",
+    "jobTitle": "Aspiring Software Engineer · Full-Stack Developer",
     "description": "3rd year Electronics and Instrumentation Engineering student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, and Project Based Learner at ProtoSem — Forge Innovation and Ventures, KCT Tech Park.",
+    // Current student: affiliation says "studies here now"; alumniOf alone
+    // reads as a graduate. Both point at the same college node.
+    "affiliation": { "@id": `${SITE_URL}/#kct` },
     "alumniOf": {
       "@type": "CollegeOrUniversity",
+      "@id": `${SITE_URL}/#kct`,
       "name": "Kumaraguru College of Technology",
-      "alternateName": "KCT",
+      "alternateName": ["KCT", "Kumaraguru"],
+      "url": "https://www.kct.ac.in",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Coimbatore",
@@ -197,7 +205,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }
     ],
     "knowsAbout": [
-      "Full-Stack Development", "React", "Next.js", "Node.js", "Machine Learning",
+      "Software Engineering", "Full-Stack Development", "React", "Next.js", "Node.js", "Machine Learning",
       "Artificial Intelligence", "AI Agents", "LLMs", "Project Based Learning",
       "MERN Stack", "TypeScript", "Python", "Cloud Computing",
       "PyTorch", "Reinforcement Learning", "Remote Sensing", "Rust", "Tauri"

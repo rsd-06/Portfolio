@@ -16,13 +16,14 @@ export const metadata = pageMetadata({
   description:
     "Meet Sudharshan R — 3rd year Electronics and Instrumentation Engineering (EIE) student at Kumaraguru College of Technology (KCT), Coimbatore. Full-stack developer, ML enthusiast, Project Based Learner, and apprentice at Forge Innovation & Ventures (KCT Tech Park).",
   keywords: [
-    "Sudharshan R", "About Sudharshan", "rsd.exe",
-    "KCT", "Kumaraguru College of Technology", "Coimbatore", "Tamil Nadu", "India",
+    "Sudharshan R", "R Sudharshan", "About Sudharshan", "rsd.exe",
+    "KCT", "Kumaraguru", "Kumaraguru College of Technology", "KCT student", "Coimbatore", "Tamil Nadu", "India",
     "EIE", "Electronics and Instrumentation Engineering", "3rd year",
     "PBL", "Project Based Learning", "Project Based Learner",
     "ProtoSem", "Forge", "Forge Innovation and Ventures", "KCT Tech Park", "ASADI",
     "Full-Stack Developer", "MERN Stack", "React", "Next.js", "Machine Learning",
-    "AI", "student developer", "engineering student",
+    "AI", "student developer", "engineering student", "Student", "Engineering",
+    "Software Engineer", "Aspiring Software Engineer", "SDE",
   ],
 });
 

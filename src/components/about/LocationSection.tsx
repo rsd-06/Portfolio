@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 
 export default function LocationSection() {
     return (
@@ -39,6 +40,11 @@ export default function LocationSection() {
                 <p className="font-inter font-light text-lg md:text-xl text-text-primary opacity-85 max-w-[45ch] mt-6 leading-relaxed mx-auto">
                     Building global digital experiences from South India.<br />
                     Coimbatore, Tamil Nadu — the textile city.
+                </p>
+
+                <p className="mt-8 inline-flex items-center gap-2 f-mono text-xs uppercase tracking-[0.16em] text-text-primary opacity-75">
+                    <MapPin size={13} strokeWidth={1.5} aria-hidden="true" />
+                    Studying at Kumaraguru College of Technology
                 </p>
             </motion.div>
             </section>
