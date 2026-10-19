@@ -8,9 +8,10 @@
    works). Update it in Vercel → Settings → Environment Variables, then
    redeploy. Visitors now see a quiet "unavailable" line instead of the error.
 
-[] Submit to Google: add the site in Search Console (Domain or URL-prefix
-   property), set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION on Vercel, then submit
-   https://sudharshan-r.vercel.app/sitemap.xml. Re-run `npm run check:seo`
+[] Submit to Google: the verification meta tag is in src/app/layout.tsx.
+   Click Verify in Search Console, then submit
+   https://sudharshan-r.vercel.app/sitemap.xml. For Bing (Edge, DuckDuckGo),
+   import the site from Search Console in Bing Webmaster Tools. Re-run `npm run check:seo`
    against production after each deploy.
 
 [] Google Docs Mini demo: two accounts editing one document side by side.

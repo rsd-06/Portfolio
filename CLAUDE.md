@@ -56,7 +56,6 @@ Environment (`.env.local`, git-ignored — never commit or print values):
 | `GITHUB_TOKEN` | `src/app/api/github/route.ts` (required), `api/github/repo/route.ts` (optional) | For the contributions grid |
 | `NEXT_PUBLIC_BASE_URL` | `src/lib/site.ts`, `src/app/robots.ts` | Optional; defaults to `https://sudharshan-r.vercel.app` |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `src/app/layout.tsx` | Optional |
-| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | `src/app/layout.tsx` | Optional |
 
 Platform: the owner develops on **Windows** (PowerShell scripts). The repo lives at `D:\Projects\Portfolio`; C: is nearly full, so keep caches and build output on D:. `next.config.ts` pins `turbopack.root` to `__dirname` because a stray lockfile in the user profile confused root inference — don't remove it.
 
