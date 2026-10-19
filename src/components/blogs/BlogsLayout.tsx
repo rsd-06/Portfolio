@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { BlogPost } from "@/lib/mdx";
+import type { BlogSummary } from "@/lib/mdx";
 import BlogCard from "./BlogCard";
 import { motion } from "framer-motion";
 import ScrollProgressTracker from "@/components/about/ScrollProgressTracker";
 
-type MonthGroup = { key: string; label: string; posts: BlogPost[] };
+type MonthGroup = { key: string; label: string; posts: BlogSummary[] };
 
 // Keyed on the "YYYY-MM" prefix of the frontmatter date rather than a parsed
 // Date, so a post dated on the 1st can't slide into the previous month in
 // timezones west of UTC. Input order (the chosen sort) is preserved.
-function groupByMonth(posts: BlogPost[]): MonthGroup[] {
+function groupByMonth(posts: BlogSummary[]): MonthGroup[] {
   const groups: MonthGroup[] = [];
   for (const post of posts) {
     const key = post.date.slice(0, 7);
@@ -31,7 +31,7 @@ function groupByMonth(posts: BlogPost[]): MonthGroup[] {
   return groups;
 }
 
-export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogPost[] }) {
+export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogSummary[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");

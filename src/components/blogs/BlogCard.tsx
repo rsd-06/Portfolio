@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { BlogPost } from "@/lib/mdx";
+import type { BlogSummary } from "@/lib/mdx";
 import { useState } from "react";
+import { ShareButton } from "./ShareSheet";
 
-export default function BlogCard({ blog }: { blog: BlogPost }) {
+// Format in UTC: "2026-10-19" parses as UTC midnight, so formatting in the
+// visitor's timezone printed Oct 18 west of UTC and mismatched the server HTML.
+const formatDate = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+
+export default function BlogCard({ blog }: { blog: BlogSummary }) {
   const [hovered, setHovered] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -16,60 +22,67 @@ export default function BlogCard({ blog }: { blog: BlogPost }) {
   };
 
   return (
-    <Link href={`/blogs/${blog.slug}`} onClick={handleClick}>
-      <motion.div
-        onHoverStart={() => setHovered(true)}
-        onHoverEnd={() => setHovered(false)}
-        className="group relative flex flex-col gap-4 py-8 border-b border-[color-mix(in_srgb,var(--color-text)_10%,transparent)]"
-        style={{ cursor: "pointer" }}
-      >
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-8">
-          <div className="flex flex-col gap-3 max-w-2xl">
-            <h3 
-              className="f-display text-3xl md:text-4xl transition-colors duration-300 cursor-text select-text"
-              style={{
-                color: hovered ? "var(--color-text)" : "color-mix(in srgb, var(--color-text) 80%, transparent)",
-                letterSpacing: "-0.02em"
-              }}
+    // The share button is a sibling of the link, not inside it: a <button>
+    // nested in an <a> is invalid HTML.
+    <div className="relative">
+      <Link href={`/blogs/${blog.slug}`} onClick={handleClick}>
+        <motion.div
+          onHoverStart={() => setHovered(true)}
+          onHoverEnd={() => setHovered(false)}
+          className="group relative flex flex-col gap-4 py-8 pr-12 md:pr-14 border-b border-[color-mix(in_srgb,var(--color-text)_10%,transparent)]"
+          style={{ cursor: "pointer" }}
+        >
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 md:gap-8">
+            <div className="flex flex-col gap-3 max-w-2xl">
+              <h3
+                className="f-display text-3xl md:text-4xl transition-colors duration-300 cursor-text select-text"
+                style={{
+                  color: hovered ? "var(--color-text)" : "color-mix(in srgb, var(--color-text) 80%, transparent)",
+                  letterSpacing: "-0.02em"
+                }}
+              >
+                {blog.title}
+              </h3>
+
+              <p
+                className="f-mono text-sm leading-relaxed"
+                style={{
+                  color: "color-mix(in srgb, var(--color-text) 60%, transparent)",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {blog.excerpt}
+              </p>
+            </div>
+
+            <div
+              className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 md:gap-2 f-mono text-xs uppercase tracking-widest shrink-0"
+              style={{ color: "color-mix(in srgb, var(--color-text) 50%, transparent)" }}
             >
-              {blog.title}
-            </h3>
-            
-            <p 
-              className="f-mono text-sm leading-relaxed"
-              style={{
-                color: "color-mix(in srgb, var(--color-text) 60%, transparent)",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
-              {blog.excerpt}
-            </p>
+              <span>{formatDate(blog.date)}</span>
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-text-primary opacity-30 hidden md:block"></span>
+                {blog.category}
+              </span>
+              <span>{blog.readTime}</span>
+            </div>
           </div>
 
-          <div 
-            className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-4 md:gap-2 f-mono text-xs uppercase tracking-widest shrink-0"
-            style={{ color: "color-mix(in srgb, var(--color-text) 50%, transparent)" }}
-          >
-            <span>{new Date(blog.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
-            <span className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-text-primary opacity-30 hidden md:block"></span>
-              {blog.category}
-            </span>
-            <span>{blog.readTime}</span>
-          </div>
-        </div>
-
-        {/* Subtle Animated Hover Underline */}
-        <motion.div 
-          className="absolute bottom-[-1px] left-0 h-[1px] bg-text-primary"
-          initial={{ width: "0%" }}
-          animate={{ width: hovered ? "100%" : "0%" }}
-          transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
-        />
-      </motion.div>
-    </Link>
+          {/* Subtle Animated Hover Underline */}
+          <motion.div
+            className="absolute bottom-[-1px] left-0 h-[1px] bg-text-primary"
+            initial={{ width: "0%" }}
+            animate={{ width: hovered ? "100%" : "0%" }}
+            transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+          />
+        </motion.div>
+      </Link>
+      <div className="absolute top-6 right-0">
+        <ShareButton post={blog} variant="icon" />
+      </div>
+    </div>
   );
 }

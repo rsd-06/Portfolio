@@ -1,13 +1,15 @@
-import { getBlogBySlug, getBlogSlugs, getAllBlogs } from "@/lib/mdx";
+import { getBlogBySlug, getBlogSlugs, getAllBlogs, toSummary } from "@/lib/mdx";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
 import { Metadata } from "next";
+import { isValidElement, type ReactNode } from "react";
 import { CodeBlock } from "@/components/blogs/CodeBlock";
 import BlogTOC from "@/components/blogs/BlogTOC";
 import ScrollProgressTracker from "@/components/about/ScrollProgressTracker";
 import JsonLd from "@/components/seo/JsonLd";
-import { AUTHOR, absoluteUrl, ogImageUrl, pageMetadata } from "@/lib/seo";
+import { AUTHOR, absoluteUrl, blogCardUrl, pageMetadata } from "@/lib/seo";
+import { ShareButton } from "@/components/blogs/ShareSheet";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -23,6 +25,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       description: blog.excerpt,
       eyebrow: blog.category,
       article: { publishedTime: blog.date, tags: [blog.category] },
+      image: blogCardUrl(blog.slug),
+      alternates: { "text/markdown": `/blogs/${blog.slug}.md` },
     });
   } catch {
     return { title: "Blog Not Found" };
@@ -41,7 +45,7 @@ export default async function BlogDetailPage(props: Props) {
   try {
     const params = await props.params;
     blog = getBlogBySlug(params.slug);
-  } catch (error) {
+  } catch {
     notFound();
   }
 
@@ -50,10 +54,10 @@ export default async function BlogDetailPage(props: Props) {
   const nextBlog = currentIndex >= 0 && currentIndex < allBlogs.length - 1 ? allBlogs[currentIndex + 1] : null;
   const prevBlog = currentIndex > 0 ? allBlogs[currentIndex - 1] : null;
 
-  const extractText = (children: any): string => {
-    if (typeof children === 'string') return children;
+  const extractText = (children: ReactNode): string => {
+    if (typeof children === 'string' || typeof children === 'number') return String(children);
     if (Array.isArray(children)) return children.map(extractText).join('');
-    if (children?.props?.children) return extractText(children.props.children);
+    if (isValidElement<{ children?: ReactNode }>(children)) return extractText(children.props.children);
     return '';
   };
 
@@ -68,10 +72,14 @@ export default async function BlogDetailPage(props: Props) {
     return { level, text, id: generateId(text) };
   });
 
+  const sharePost = toSummary(blog);
+  const url = absoluteUrl(`/blogs/${blog.slug}`);
+  const wordCount = blog.content.split(/\s+/).filter(Boolean).length;
+
   const components = {
     pre: CodeBlock,
-    h2: ({ children }: any) => <h2 id={generateId(extractText(children))} className="text-3xl font-semibold mt-24 mb-10 tracking-tight text-text-primary">{children}</h2>,
-    h3: ({ children }: any) => <h3 id={generateId(extractText(children))} className="text-xl md:text-2xl font-medium mt-16 mb-6 tracking-tight text-text-primary opacity-90">{children}</h3>,
+    h2: ({ children }: { children?: ReactNode }) => <h2 id={generateId(extractText(children))} className="text-3xl font-semibold mt-24 mb-10 tracking-tight text-text-primary">{children}</h2>,
+    h3: ({ children }: { children?: ReactNode }) => <h3 id={generateId(extractText(children))} className="text-xl md:text-2xl font-medium mt-16 mb-6 tracking-tight text-text-primary opacity-90">{children}</h3>,
   };
 
   return (
@@ -79,17 +87,36 @@ export default async function BlogDetailPage(props: Props) {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: blog.title,
-          description: blog.excerpt,
-          datePublished: blog.date,
-          url: absoluteUrl(`/blogs/${blog.slug}`),
-          mainEntityOfPage: absoluteUrl(`/blogs/${blog.slug}`),
-          articleSection: blog.category,
-          image: absoluteUrl(ogImageUrl(blog.title, blog.category)),
-          author: { "@type": "Person", name: AUTHOR, url: absoluteUrl("/") },
-          publisher: { "@type": "Person", name: AUTHOR, url: absoluteUrl("/") },
-          inLanguage: "en-IN",
+          "@graph": [
+            {
+              "@type": "BlogPosting",
+              "@id": `${url}#post`,
+              headline: blog.title,
+              description: blog.excerpt,
+              datePublished: blog.date,
+              dateModified: blog.date,
+              url,
+              mainEntityOfPage: url,
+              articleSection: blog.category,
+              keywords: blog.category,
+              wordCount,
+              timeRequired: `PT${parseInt(blog.readTime, 10) || 5}M`,
+              image: { "@type": "ImageObject", url: absoluteUrl(blogCardUrl(blog.slug)), width: 1200, height: 630 },
+              author: { "@type": "Person", "@id": `${absoluteUrl("/")}/#person`, name: AUTHOR, url: absoluteUrl("/") },
+              publisher: { "@type": "Person", "@id": `${absoluteUrl("/")}/#person`, name: AUTHOR },
+              isPartOf: { "@type": "Blog", name: "rsd.exe — Blogs", url: absoluteUrl("/blogs") },
+              inLanguage: "en-IN",
+              encoding: { "@type": "MediaObject", encodingFormat: "text/markdown", contentUrl: absoluteUrl(`/blogs/${blog.slug}.md`) },
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+                { "@type": "ListItem", position: 2, name: "Blogs", item: absoluteUrl("/blogs") },
+                { "@type": "ListItem", position: 3, name: blog.title, item: url },
+              ],
+            },
+          ],
         }}
       />
       <ScrollProgressTracker />
@@ -105,7 +132,7 @@ export default async function BlogDetailPage(props: Props) {
         {/* Header - Takes full horizontal space */}
         <header className="flex flex-col gap-8 border-b border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] pb-16 pt-8">
           <div className="flex items-center justify-center gap-3 f-mono uppercase tracking-widest">
-            <span className="text-xs opacity-60">{new Date(blog.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+            <span className="text-xs opacity-60">{new Date(`${blog.date}T00:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}</span>
             <span className="text-xs opacity-60">·</span>
             <span className="opacity-90 font-medium text-text-primary text-base">[{blog.category}]</span>
             <span className="text-xs opacity-60">·</span>
@@ -114,6 +141,9 @@ export default async function BlogDetailPage(props: Props) {
           <h1 className="f-display text-4xl md:text-6xl lg:text-7xl font-light tracking-[-0.02em] leading-tight text-center w-full">
             {blog.title}
           </h1>
+          <div className="flex justify-center">
+            <ShareButton post={sharePost} />
+          </div>
         </header>
 
         {/* Content & TOC Layout */}
@@ -131,6 +161,10 @@ export default async function BlogDetailPage(props: Props) {
             style={{ color: "var(--color-text)" }}
           >
             <MDXRemote source={blog.content} components={components} />
+            <div className="mt-16 pt-8 border-t border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] flex flex-wrap items-center justify-between gap-4">
+              <p className="f-accent text-lg opacity-70 !mb-0">Found this useful? Pass it on.</p>
+              <ShareButton post={sharePost} />
+            </div>
           </article>
 
           {/* TOC Sidebar */}

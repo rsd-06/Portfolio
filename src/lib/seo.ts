@@ -21,7 +21,18 @@ type PageMeta = {
   /** Small label above the title on the generated share image. */
   eyebrow?: string;
   article?: { publishedTime: string; tags?: string[] };
+  /** A purpose-built share image (e.g. a post's article card); defaults to the generic /og card. */
+  image?: string;
+  /** Extra <link rel="alternate"> by MIME type, e.g. a post's markdown copy. */
+  alternates?: Record<string, string>;
 };
+
+// Lives here, not in the root layout: `alternates` merges shallowly, so a page
+// setting its canonical would drop a feed link inherited from the layout.
+const FEED = { "application/rss+xml": [{ url: "/rss.xml", title: "rsd.exe — Blogs" }] };
+
+/** The prerendered article card for a post (app/og/blog/[slug]). */
+export const blogCardUrl = (slug: string) => `/og/blog/${slug}`;
 
 export function ogImageUrl(title: string, eyebrow?: string) {
   const params = new URLSearchParams({ title });
@@ -29,15 +40,15 @@ export function ogImageUrl(title: string, eyebrow?: string) {
   return `/og?${params}`;
 }
 
-export function pageMetadata({ path, title, description, keywords, eyebrow, article }: PageMeta): Metadata {
+export function pageMetadata({ path, title, description, keywords, eyebrow, article, image: imageUrl, alternates }: PageMeta): Metadata {
   const fullTitle = path === "/" ? title : `${title} — ${SITE_NAME}`;
-  const image = { url: ogImageUrl(title, eyebrow), width: 1200, height: 630, alt: fullTitle };
+  const image = { url: imageUrl ?? ogImageUrl(title, eyebrow), width: 1200, height: 630, alt: fullTitle };
 
   return {
     title: path === "/" ? { absolute: title } : title,
     description,
     keywords,
-    alternates: { canonical: path },
+    alternates: { canonical: path, types: { ...FEED, ...alternates } },
     openGraph: {
       title: fullTitle,
       description,

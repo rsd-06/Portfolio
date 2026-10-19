@@ -1,4 +1,4 @@
-import { getAllBlogs } from "@/lib/mdx";
+import { getAllBlogs, toSummary } from "@/lib/mdx";
 import BlogsLayout from "@/components/blogs/BlogsLayout";
 import { pageMetadata } from "@/lib/seo";
 
@@ -11,7 +11,9 @@ export const metadata = pageMetadata({
 });
 
 export default function BlogsPage() {
-  const blogs = getAllBlogs();
+  // Summaries only: the list is a client component, and passing whole posts
+  // shipped every post body to the browser.
+  const blogs = getAllBlogs().map(toSummary);
 
   return (
     <main className="min-h-screen bg-base-bg text-text-primary overflow-hidden relative">

@@ -62,12 +62,28 @@ for (const url of urls) {
     catch { fail(path, "JSON-LD does not parse"); }
   }
   if (path.startsWith("/blogs/") && !types.includes("BlogPosting")) fail(path, "no BlogPosting JSON-LD");
+  if (path.startsWith("/blogs/")) {
+    const slug = path.slice("/blogs/".length);
+    if (meta(html, "property", "og:image") !== `${origin}/og/blog/${slug}`) fail(path, "og:image is not the post's article card");
+    if (!html.includes(`href="${origin}/blogs/${slug}.md"`)) fail(path, "no text/markdown alternate link");
+  }
+  if (!html.includes(`href="${origin}/rss.xml"`)) fail(path, "no RSS alternate link");
   if (path.startsWith("/projects/") && !types.includes("SoftwareSourceCode")) fail(path, "no SoftwareSourceCode JSON-LD");
 }
 
 const llms = await get("/llms.txt");
 if (llms.status !== 200 || !llms.type.startsWith("text/plain")) fail("/llms.txt", `HTTP ${llms.status} ${llms.type}`);
 else for (const slug of blogSlugs) if (!llms.body.includes(`/blogs/${slug}`)) fail("/llms.txt", `missing /blogs/${slug}`);
+
+const rss = await get("/rss.xml");
+if (rss.status !== 200 || !rss.type.includes("rss+xml")) fail("/rss.xml", `HTTP ${rss.status} ${rss.type}`);
+for (const slug of blogSlugs) {
+  if (!rss.body.includes(`${origin}/blogs/${slug}</link>`)) fail("/rss.xml", `missing ${slug}`);
+  const md = await get(`/blogs/${slug}.md`);
+  if (md.status !== 200 || !md.type.startsWith("text/markdown")) fail(`/blogs/${slug}.md`, `HTTP ${md.status} ${md.type}`);
+  const card = await get(`/og/blog/${slug}`);
+  if (card.status !== 200 || card.type !== "image/png") fail(`/og/blog/${slug}`, `HTTP ${card.status} ${card.type}`);
+}
 
 console.log(`checked ${urls.length} sitemap URLs on ${base} (canonical origin ${origin})`);
 if (failures.length) {

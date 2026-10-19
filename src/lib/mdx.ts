@@ -14,6 +14,18 @@ export type BlogPost = {
   content: string;
 };
 
+/** A post without its body: what lists, cards and the share sheet need. */
+export type BlogSummary = Omit<BlogPost, "content">;
+
+export const toSummary = (p: BlogPost): BlogSummary => ({
+  slug: p.slug,
+  title: p.title,
+  date: p.date,
+  category: p.category,
+  readTime: p.readTime,
+  excerpt: p.excerpt,
+});
+
 // Ensure directory exists
 if (!fs.existsSync(contentDirectory)) {
   fs.mkdirSync(contentDirectory, { recursive: true });

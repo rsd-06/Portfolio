@@ -29,6 +29,7 @@ export function buildLlmsTxt({ full }: { full: boolean }): string {
     `- [Blogs](${absoluteUrl("/blogs")}): writing`,
     `- [ProtoSem](${absoluteUrl("/protosem")}): ${PROGRAM_META.paradigm} apprenticeship log at ${PROGRAM_META.company}`,
     `- [Contact](${absoluteUrl("/contact")})`,
+    `- [RSS feed](${absoluteUrl("/rss.xml")}): every post`,
     "",
     "## Projects"
   );
@@ -41,7 +42,9 @@ export function buildLlmsTxt({ full }: { full: boolean }): string {
 
   out.push("", "## Writing");
   for (const b of blogs) {
-    out.push(`- [${b.title}](${absoluteUrl(`/blogs/${b.slug}`)}): ${b.excerpt} (${b.date})`);
+    out.push(
+      `- [${b.title}](${absoluteUrl(`/blogs/${b.slug}`)}): ${b.excerpt} (${b.date}; markdown: ${absoluteUrl(`/blogs/${b.slug}.md`)})`
+    );
   }
 
   out.push("", "## ProtoSem weeks");

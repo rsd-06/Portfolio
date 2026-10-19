@@ -15,6 +15,13 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
 
+  // /blogs/<slug>.md → the markdown copy of a post (app/blogs/[slug]/md).
+  // An afterFiles rewrite runs before dynamic routes, so it wins over the
+  // /blogs/[slug] page for the ".md" form.
+  async rewrites() {
+    return [{ source: "/blogs/:slug([a-z0-9-]+).md", destination: "/blogs/:slug/md" }];
+  },
+
   // No rule for /_next/static: Next already serves hashed production chunks as
   // immutable, and a custom immutable header also applied in dev, where chunk
   // URLs don't change between edits, so browsers kept running stale code.

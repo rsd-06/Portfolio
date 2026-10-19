@@ -27,7 +27,9 @@ A navigation map: **route → section → component → data/hook/lib**. Use it 
 | Tech stack icons (About + Home) | `src/components/about/TechStack.tsx` (`TECH_STACK`) |
 | Hobby cards | `src/components/about/HobbiesSection.tsx` (`HOBBY_CARDS`) |
 | Page title / description / canonical / OG / Twitter | `pageMetadata()` in `src/lib/seo.ts`, called by every route's `metadata` / `generateMetadata` |
-| Share image (og:image) design | `src/app/og/route.tsx` (`/og?title=…&eyebrow=…`) |
+| Share image (og:image) design | Pages: `src/app/og/route.tsx` (`/og?title=…`). Posts: `src/app/og/blog/[slug]/route.tsx` (article card, prerendered) |
+| A post's share artwork | `src/lib/artwork.ts` (motif per category, seeded by slug) → `components/blogs/renderArtwork.tsx` |
+| Share sheet / share buttons | `src/components/blogs/ShareSheet.tsx` (`ShareButton`) |
 | Structured data | `src/app/layout.tsx` (Person + WebSite graph), post and project pages (`<JsonLd>`) |
 | What LLMs read | `src/lib/llms.ts` → `/llms.txt`, `/llms-full.txt` |
 | No-JavaScript fallback | `NO_JS_CSS` in `src/app/layout.tsx` |
@@ -86,7 +88,10 @@ Defined in `src/app/layout.tsx` (Server Component). Render order:
 | `/api/github/repo?owner&repo` | `src/app/api/github/repo/route.ts` | Route handler, `revalidate: 86400` | Last-30-day commit counts (token optional) |
 | `/sitemap.xml` | `src/app/sitemap.ts` | Metadata route | Static routes + every project + every blog post (real `lastModified`) + every `DOCUMENTED` week, base = `SITE_URL` |
 | `/robots.txt` | `src/app/robots.ts` | Metadata route | Allow all (AI crawlers included), disallow `/api/`; sitemap URL from `SITE_URL` |
-| `/og` | `src/app/og/route.tsx` | Route handler (`next/og`) | 1200×630 share card |
+| `/og` | `src/app/og/route.tsx` | Route handler (`next/og`) | 1200×630 share card for non-post pages |
+| `/og/blog/[slug]` | `src/app/og/blog/[slug]/route.tsx` | SSG route handler (`next/og`, fonts from `assets/fonts`) | Per-post article card: title, excerpt, meta, generative artwork |
+| `/rss.xml` | `src/app/rss.xml/route.ts` | Static | RSS 2.0 feed of every post |
+| `/blogs/[slug].md` | `src/app/blogs/[slug]/md/route.ts` via rewrite in `next.config.ts` | SSG | The post as plain markdown (llms.txt convention) |
 | `/llms.txt`, `/llms-full.txt` | `src/app/llms.txt/route.ts`, `src/app/llms-full.txt/route.ts` | Static route handlers | Site summary for LLMs; `-full` adds project write-ups and post bodies |
 | `/manifest.webmanifest` | `src/app/manifest.ts` | Metadata route | |
 
@@ -192,7 +197,8 @@ Files: `src/components/projects/{ProjectsView,ProjectsHero,GitHubActivityGrid,Vi
 |---|---|---|
 | Loader | `src/lib/mdx.ts` | `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` (date desc). Reads `src/content/blogs/*.mdx` with gray-matter. Defaults for missing frontmatter. |
 | List UI | `src/components/blogs/BlogsLayout.tsx` | Search (title+excerpt), category chips (one swipeable row on phones), newest/oldest sort, grouped by month by default (`groupByMonth`, keyed on `YYYY-MM`) with a flat toggle. |
-| Card | `src/components/blogs/BlogCard.tsx` | Suppresses navigation while text is selected. |
+| Card | `src/components/blogs/BlogCard.tsx` | Suppresses navigation while text is selected. Share icon is a sibling of the link (never nest a button in an `<a>`). Dates formatted in UTC. |
+| Share | `src/components/blogs/ShareSheet.tsx` | `ShareButton` (pill or icon) opens a sheet with the animated article card (same artwork as the og:image), native share where supported, copy link, X, LinkedIn, WhatsApp, Reddit, email, and a PNG download of the card. |
 | Detail | `src/app/blogs/[slug]/page.tsx` | Headings parsed from raw markdown (`## `, `### `) → ids via `generateId`; custom `h2`/`h3`/`pre` MDX components; typography via arbitrary `[&_p]:` variants on `<article>`. |
 | TOC | `src/components/blogs/BlogTOC.tsx` | Single IntersectionObserver; topmost visible heading wins. `lg+` only. |
 | Code | `src/components/blogs/CodeBlock.tsx` | Copy button. (Different from the ProtoSem `CodeBlock`.) |
@@ -269,7 +275,8 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 | `src/lib/breakpoints.ts` | `BREAKPOINTS`, `up()`, `below()` (−0.02px) | useMediaQuery |
 | `src/lib/heroVideo.ts` | `HERO_VIDEO` (poster, desktop[], mobile[]) | HeroVideo |
 | `src/lib/site.ts` | `SITE_URL` | layout (`metadataBase`, JSON-LD), sitemap, robots, `data/projects.ts` |
-| `src/lib/mdx.ts` | `BlogPost`, `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes, sitemap, llms |
+| `src/lib/mdx.ts` | `BlogPost`, `BlogSummary` + `toSummary()` (no body, for client components), `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes, sitemap, llms, rss |
+| `src/lib/artwork.ts` | `artworkFor(slug, category)`, `motifFor`, `Shape` | og/blog card, share sheet |
 | `src/lib/seo.ts` | `pageMetadata()`, `ogImageUrl()`, `absoluteUrl()`, `SITE_NAME`, `AUTHOR` | every route, `/og`, JSON-LD |
 | `src/lib/llms.ts` | `buildLlmsTxt()`, `llmsResponse()` | `/llms.txt`, `/llms-full.txt` |
 | `src/components/seo/JsonLd.tsx` | `JsonLd` (escapes `<`) | layout, post and project pages |
@@ -365,3 +372,10 @@ Later: floating interactive pet; `Navbar.tsx` `WORDS` "Entrepreneur.". Dropped: 
 - **`skillsync.vercel.app` is an unrelated site.** The link is removed.
 - **Production leaked a dev hint** ("GitHub 401 · Add GITHUB_TOKEN to .env.local"). Visitors now see a quiet fallback.
 - **`next.config.ts` sent `immutable` for `/_next/static` in dev too**, pinning stale client code. The rule is removed, since Next handles production itself.
+
+### Fixed 2026-10-19 (fourth pass)
+
+- **Hydration error on the home page (`data-loader` missing on the client)** was the browser running dev chunks cached under the old `immutable` header. It isn't a code bug: a fresh client hydrates cleanly. One hard reload (Ctrl+Shift+R) clears it for good.
+- **Latent production hydration mismatch.** `BlogCard` formatted date-only strings in the visitor's timezone (`2026-10-19` → "Oct 18" west of UTC vs "Oct 19" on the server). Date-only strings are now formatted with `timeZone: "UTC"`.
+- **`/blogs` shipped every post body to the browser.** The list now receives `BlogSummary` objects.
+

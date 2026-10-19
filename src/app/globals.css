@@ -645,6 +645,38 @@ img {
   user-drag: none;
   -webkit-touch-callout: none; /* iOS Safari long-press menu */
 }
+
+/* ─── Share-card artwork (components/blogs/renderArtwork) ────────────────
+   Shapes fade/scale in, strokes draw on, staggered by --i; --o is the
+   shape's final opacity. The whole piece then drifts gently. */
+.art-in {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: art-in 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation-delay: calc(var(--i) * 70ms + 150ms);
+}
+.art-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: art-draw 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation-delay: calc(var(--i) * 90ms + 100ms);
+}
+.art-float {
+  animation: art-float 7s ease-in-out 1.6s infinite;
+}
+@keyframes art-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: var(--o, 1); transform: scale(1); }
+}
+@keyframes art-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes art-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
+}
+
 /* ─── Reduced motion ──────────────────────────────────────────────────────
    Covers CSS transitions/animations only. The JS half lives in
    LenisProvider (smooth scroll is skipped entirely) and HeroVideo (poster
