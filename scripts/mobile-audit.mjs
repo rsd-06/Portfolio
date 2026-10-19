@@ -8,6 +8,9 @@
 //   BROWSER=path/to/chrome.exe to override the browser.
 //   NOJS=1 renders with page JavaScript disabled (what crawlers and no-JS
 //   visitors get) — every animated section must still be readable.
+//   FOCUS="css selector" also saves a viewport shot scrolled to that element
+//   (<route>.focus.jpg), for sections too deep in a long page's full shot.
+//   WIDTH=1280 HEIGHT=800 audit at another viewport.
 
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
@@ -56,7 +59,9 @@ const evaluate = async (expression) =>
   (await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true })).result.value;
 
 await send("Page.enable");
-await send("Emulation.setDeviceMetricsOverride", { width: 375, height: 812, deviceScaleFactor: 2, mobile: true });
+const vw = Number(process.env.WIDTH ?? 375);
+const vh = Number(process.env.HEIGHT ?? 812);
+await send("Emulation.setDeviceMetricsOverride", { width: vw, height: vh, deviceScaleFactor: vw > 500 ? 1 : 2, mobile: vw <= 500 });
 await send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
 const noJs = process.env.NOJS === "1";
 if (noJs) await send("Emulation.setScriptExecutionDisabled", { value: true });
@@ -110,10 +115,25 @@ for (const route of routes) {
   const { cssContentSize } = await send("Page.getLayoutMetrics");
   const shot = await send("Page.captureScreenshot", {
     format: "jpeg", quality: 70, captureBeyondViewport: true,
-    clip: { x: 0, y: 0, width: 375, height: Math.min(cssContentSize.height, 12000), scale: 1 },
+    clip: { x: 0, y: 0, width: vw, height: Math.min(cssContentSize.height, 12000), scale: 1 },
   });
-  const file = join(outDir, (noJs ? "nojs-" : "") + (route === "/" ? "home" : route.slice(1).replace(/\//g, "_")) + ".jpg");
+  const stem = join(outDir, (noJs ? "nojs-" : "") + (route === "/" ? "home" : route.slice(1).replace(/\//g, "_")));
+  const file = stem + ".jpg";
   writeFileSync(file, Buffer.from(shot.data, "base64"));
+  if (process.env.FOCUS && !noJs) {
+    const found = await evaluate(`(async () => {
+      const el = document.querySelector(${JSON.stringify(process.env.FOCUS)});
+      if (!el) return false;
+      const y = el.getBoundingClientRect().top + scrollY - 90;
+      (window.__rsd_lenis ? window.__rsd_lenis.scrollTo(y, { immediate: true }) : window.scrollTo(0, y));
+      await new Promise((r) => setTimeout(r, 2500));
+      return true;
+    })()`);
+    if (found) {
+      const focus = await send("Page.captureScreenshot", { format: "jpeg", quality: 75 });
+      writeFileSync(stem + ".focus.jpg", Buffer.from(focus.data, "base64"));
+    } else console.log(`     FOCUS selector not found on ${route}`);
+  }
   const bad = res.overflow.length + res.hidden.length;
   failures += bad ? 1 : 0;
   console.log(`${bad ? "FAIL" : "ok  "} ${route}  (${res.height}px tall) → ${file}`);

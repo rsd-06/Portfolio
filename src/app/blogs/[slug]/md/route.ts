@@ -3,7 +3,7 @@
 // next.config.ts) — the llms.txt convention for giving LLMs clean text
 // instead of a styled page.
 
-import { getAllBlogs, getBlogBySlug } from "@/lib/mdx";
+import { getAllBlogs, getBlogBySlug, sourceUrl } from "@/lib/mdx";
 import { AUTHOR, absoluteUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
@@ -29,7 +29,7 @@ By ${AUTHOR} · ${post.date} · ${post.category} · ${post.readTime}
 Canonical: ${absoluteUrl(`/blogs/${post.slug}`)}
 
 ${post.content.trim()}
-`;
+${post.sources.length ? `\n## Sources\n\n${post.sources.map((s) => `- ${s.title}${s.type === "youtube" ? (s.creator ? ` — ${s.creator}` : "") : s.author ? ` — ${s.author}` : ""}: ${sourceUrl(s)}`).join("\n")}\n` : ""}`;
 
   return new Response(body, { headers: { "Content-Type": "text/markdown; charset=utf-8" } });
 }

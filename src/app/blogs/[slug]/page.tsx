@@ -1,4 +1,4 @@
-import { getBlogBySlug, getBlogSlugs, getAllBlogs, toSummary } from "@/lib/mdx";
+import { getBlogBySlug, getBlogSlugs, getAllBlogs, sourceUrl, toSummary } from "@/lib/mdx";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import ScrollProgressTracker from "@/components/about/ScrollProgressTracker";
 import JsonLd from "@/components/seo/JsonLd";
 import { AUTHOR, absoluteUrl, blogCardUrl, pageMetadata } from "@/lib/seo";
 import { ShareButton } from "@/components/blogs/ShareSheet";
+import PostSources from "@/components/blogs/PostSources";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -107,6 +108,23 @@ export default async function BlogDetailPage(props: Props) {
               isPartOf: { "@type": "Blog", name: "rsd.exe — Blogs", url: absoluteUrl("/blogs") },
               inLanguage: "en-IN",
               encoding: { "@type": "MediaObject", encodingFormat: "text/markdown", contentUrl: absoluteUrl(`/blogs/${blog.slug}.md`) },
+              ...(blog.sources.length ? { isBasedOn: blog.sources.map(sourceUrl) } : {}),
+              ...(blog.sources.some((s) => s.type === "youtube")
+                ? {
+                    video: blog.sources.flatMap((s) =>
+                      s.type === "youtube"
+                        ? [{
+                            "@type": "VideoObject",
+                            name: s.title,
+                            ...(s.creator ? { author: { "@type": "Organization", name: s.creator } } : {}),
+                            embedUrl: `https://www.youtube-nocookie.com/embed/${s.id}`,
+                            contentUrl: `https://www.youtube.com/watch?v=${s.id}`,
+                            thumbnailUrl: `https://i.ytimg.com/vi/${s.id}/hqdefault.jpg`,
+                          }]
+                        : []
+                    ),
+                  }
+                : {}),
             },
             {
               "@type": "BreadcrumbList",
@@ -161,6 +179,7 @@ export default async function BlogDetailPage(props: Props) {
             style={{ color: "var(--color-text)" }}
           >
             <MDXRemote source={blog.content} components={components} />
+            <PostSources sources={blog.sources} />
             <div className="mt-16 pt-8 border-t border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] flex flex-wrap items-center justify-between gap-4">
               <p className="f-accent text-lg opacity-70 !mb-0">Found this useful? Pass it on.</p>
               <ShareButton post={sharePost} />
@@ -175,34 +194,38 @@ export default async function BlogDetailPage(props: Props) {
           
         </div>
 
-        {/* Bottom Nav */}
-        <div className="flex w-full items-center justify-between border-t border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] mt-12 pt-12 pb-8 max-w-7xl mx-auto">
-          <div className="flex-1 flex justify-start text-left">
+        {/* Bottom nav: previous left, back to blogs centred, next right. On
+            phones previous/next share a row and "back" sits centred below. */}
+        <nav
+          aria-label="More posts"
+          className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10 items-start w-full border-t border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] mt-12 pt-12 pb-8 max-w-7xl mx-auto"
+        >
+          <div className="flex justify-start text-left">
             {prevBlog ? (
               <Link href={`/blogs/${prevBlog.slug}`} className="f-mono text-sm uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity flex flex-col items-start gap-2">
-                <span className="opacity-70 font-medium">Previous</span>
+                <span className="opacity-70 font-medium">← Previous</span>
                 <span className="text-base font-bold">[{prevBlog.title}]</span>
               </Link>
             ) : (
-              <span className="f-mono text-sm uppercase tracking-widest opacity-50 font-medium hidden md:inline">Start of Blogs</span>
+              <span className="f-mono text-sm uppercase tracking-widest opacity-50 font-medium">Start of Blogs</span>
             )}
           </div>
-          <div className="flex-1 flex justify-start text-left md:justify-center md:text-center">
+          <div className="col-span-2 md:col-span-1 order-last md:order-none flex justify-center self-center">
+            <Link href="/blogs" className="f-mono text-sm uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity font-medium inline-flex items-center min-h-[44px]">
+              Back to blogs
+            </Link>
+          </div>
+          <div className="flex justify-end text-right">
             {nextBlog ? (
-              <Link href={`/blogs/${nextBlog.slug}`} className="f-mono text-sm uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity flex flex-col items-start md:items-center gap-2">
-                <span className="opacity-70 font-medium">Next</span>
+              <Link href={`/blogs/${nextBlog.slug}`} className="f-mono text-sm uppercase tracking-widest opacity-90 hover:opacity-100 transition-opacity flex flex-col items-end gap-2">
+                <span className="opacity-70 font-medium">Next →</span>
                 <span className="text-base font-bold">[{nextBlog.title}]</span>
               </Link>
             ) : (
-              <span className="f-mono text-sm uppercase tracking-widest opacity-70 font-medium">End of Blogs</span>
+              <span className="f-mono text-sm uppercase tracking-widest opacity-50 font-medium">End of Blogs</span>
             )}
           </div>
-          <div className="flex-1 flex justify-end text-right">
-            <Link href="/blogs" className="f-mono text-sm uppercase tracking-widest opacity-80 hover:opacity-100 transition-opacity font-medium">
-              Back to blogs →
-            </Link>
-          </div>
-        </div>
+        </nav>
 
       </div>
     </main>

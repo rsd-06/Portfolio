@@ -6,7 +6,7 @@
 import { PROJECTS } from "@/data/projects";
 import { DOCUMENTED, PROGRAM_META } from "@/data/protosem";
 import { CONTACT_EMAIL, SOCIAL } from "@/data/socials";
-import { getAllBlogs } from "@/lib/mdx";
+import { getAllBlogs, sourceUrl } from "@/lib/mdx";
 import { absoluteUrl } from "@/lib/seo";
 
 export function buildLlmsTxt({ full }: { full: boolean }): string {
@@ -71,6 +71,7 @@ export function buildLlmsTxt({ full }: { full: boolean }): string {
     out.push("", "---", "", "# Posts");
     for (const b of blogs) {
       out.push("", `## ${b.title}`, `URL: ${absoluteUrl(`/blogs/${b.slug}`)} · ${b.date} · ${b.category}`, "", b.content.trim());
+      if (b.sources.length) out.push("", "Sources: " + b.sources.map((s) => `${s.title} (${sourceUrl(s)})`).join("; "));
     }
   }
 
