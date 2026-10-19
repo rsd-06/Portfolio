@@ -18,8 +18,12 @@ const PROFILES = process.env.GDM_PROFILES ?? "D:/dev-tools/demo-profiles";
 const EDITOR = ".ProseMirror";
 const signedIn = `Boolean(window.Clerk && window.Clerk.user)`;
 
-const A_TEXT = "Meeting notes, 19 Oct\nThe real-time layer is Liveblocks; Convex stores the document.\n";
-const B_TEXT = "Action items: ship the demo, then write the README. ";
+// A lays the page out, then both write at once in different places: A under
+// the heading, B in the list at the bottom.
+const OUTLINE = "Meeting notes, 19 Oct\n\nAction items\n";
+const A_TEXT = "\nThe real-time layer is Liveblocks; Convex stores the document.";
+const B_TEXT = "- Ship the demo\nWrite the README\nInvite the team";
+const CTRL = 2;
 
 async function setup(studio) {
   const [a, b] = await Promise.all(["a", "b"].map((p) => studio.open({ width: 900, height: 1000, headless: false, profile: join(PROFILES, `gdm-${p}`) })));
@@ -42,15 +46,24 @@ export default async function googledocsmini(studio) {
     await d.waitFor(`Boolean(document.querySelector(${JSON.stringify(EDITOR)}))`, 30000);
   }
 
-  await Promise.all([a.record(), b.record()]);
-  await a.wait(1500);
+  // Start every run from an empty document.
   await a.click(EDITOR);
-  await a.key("End", "End", 35, 2); // Ctrl+End: start at the end of the document
+  await a.key("a", "KeyA", 65, CTRL, ["selectAll"]);
+  await a.key("Backspace", "Backspace", 8);
+  await a.wait(2000);
+
+  await Promise.all([a.record(), b.record()]);
+  await a.wait(1200);
+  await a.type(OUTLINE, 12);
+  await a.wait(500);
+  // B joins at the bottom; A goes back to the end of the heading line.
   await b.click(EDITOR);
-  await b.key("Home", "Home", 36, 2); // Ctrl+Home: the other account starts at the top
-  await a.wait(800);
-  // Both type at the same time, each sees the other's cursor and text arrive.
-  await Promise.all([a.type(A_TEXT, 11), b.wait(1200).then(() => b.type(B_TEXT, 9))]);
+  await b.key("End", "End", 35, CTRL, ["moveToEndOfDocument"]);
+  await a.key("Home", "Home", 36, CTRL, ["moveToBeginningOfDocument"]);
+  await a.key("End", "End", 35, 0, ["moveToEndOfLine"]);
+  await a.wait(700);
+  // Both type at the same time; each sees the other's cursor and text arrive.
+  await Promise.all([a.type(A_TEXT, 11), b.wait(600).then(() => b.type(B_TEXT, 9))]);
   await a.wait(2500);
   await a.shot(`${OUT}/02.jpg`);
   await b.shot(`${OUT}/03.jpg`);

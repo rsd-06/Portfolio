@@ -159,7 +159,7 @@ page.tsx
 | `periodyx` | 03 | ✔ | 6 jpgs (+ unused `01.gif`), `demo.mp4` (31 s) | public |
 | `gitpr-evaluation-env` | 04 | ✔ | 3 images, `demo.mp4` (24 s) | public |
 | `skillsync` | 05 | — | 4 screenshots (feed, matching, team board), `demo.mp4` (40 s); no live URL | public |
-| `googledocsmini` | 06 | — | 1 screenshot; two-account demo pending (needs sign-in) | public |
+| `googledocsmini` | 06 | — | 3 stills + two-account demo video | public |
 | `portfolio` | 07 | — | home, About, share card, `demo.mp4` (53 s) | public |
 
 Demos are recorded with `npm run demo:record -- <scenario>` (`scripts/record-demo.mjs`, scenarios in `scripts/demos/`). Each scenario drives a real browser with wheel, mouse and key input, writes stills next to the video, and encodes 1440×900 H.264 with no audio. Re-run one after the UI it shows changes.
@@ -309,7 +309,7 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 |---|---|
 | `hero.jpg`, `heroVideo.{webm,mp4}`, `heroVideoMobile.{webm,mp4}` | `lib/heroVideo.ts` |
 | `assets/homePageImages/{macbook,iPhone14}.png` | MacMonitorSection |
-| `assets/projects/<slug>/*` (incl. `demo.mp4` for every project but Google Docs Mini) | `data/projects.ts` (`_shared/placeholder.jpg` is no longer referenced) |
+| `assets/projects/<slug>/*` (incl. `demo.mp4` for every project) | `data/projects.ts` (`_shared/placeholder.jpg` is no longer referenced) |
 | `assets/aboutPageImages/**`, `assets/aboutPage/hobbyIcons/*` | About sections |
 | `assets/protoSemPage/**` | Week 0 / Week 7 |
 | `assets/socialMediaIcons/*_icon.png` (incl. `leetcode_icon.png`) | HeroStatic, AboutHero, contact strip |
@@ -328,11 +328,9 @@ Repo-only (not served): `docs/blog-sources/*.md` — research notes for future b
 1. **Real-phone check.** The emulated audit (`npm run audit:mobile`, with and without JS) passes on every route.
 2. **Production `GITHUB_TOKEN`** on Vercel is rejected (live /projects reported GitHub 401). Owner must replace it.
 3. **Google Search Console** verification and sitemap submission (owner).
-4. **Google Docs Mini demo**: two-account side-by-side recording; the owner signs in once (`GDM_SETUP=1 npm run demo:record -- googledocsmini`).
-5. **Domain move** to `sudharshan-r.dev` once bought.
-6. **New hero montage** with `-KeepAudio`, then `HERO_VIDEO.hasAudio = true`.
-7. **Owner review** of the 13 posts dated 2026-10-19.
-8. **SatSaathi** (other repo): commit the landing fixes left in its working tree, mixed into the owner's uncommitted restyle.
+4. **Domain move** to `sudharshan-r.dev` once bought.
+5. **New hero montage** with `-KeepAudio`, then `HERO_VIDEO.hasAudio = true`.
+6. **Owner review** of the 13 posts dated 2026-10-19.
 
 Later: floating interactive pet; `Navbar.tsx` `WORDS` "Entrepreneur.". Dropped: dark mode.
 

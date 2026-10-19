@@ -218,7 +218,10 @@ export const PROJECTS: Project[] = [
     completion: 100,
     images:     [
       "/assets/projects/googleDocsClone/01.png",
+      "/assets/projects/googleDocsClone/02.jpg",
+      "/assets/projects/googleDocsClone/03.jpg",
     ],
+    video:      "/assets/projects/googleDocsClone/demo.mp4",
     featured:   false,
     tags:       ["real-time", "full-stack", "collaboration", "saas"],
   },

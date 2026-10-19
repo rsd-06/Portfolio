@@ -14,15 +14,6 @@
    import the site from Search Console in Bing Webmaster Tools. Re-run `npm run check:seo`
    against production after each deploy.
 
-[] Google Docs Mini demo: two accounts editing one document side by side.
-   Needs you to sign in, once:
-     GDM_SETUP=1 npm run demo:record -- googledocsmini
-   opens two Edge windows on saved profiles (D:\dev-tools\demo-profiles).
-   Sign into a different account in each, put both in one Clerk organisation,
-   switch both to it, create a document there, close the windows. Then:
-     GDM_DOC=<document url> npm run demo:record -- googledocsmini
-   and add video + the two new stills to the googledocsmini entry.
-
 [] Switch the domain to sudharshan-r.dev once bought: add it in Vercel →
    Domains, set NEXT_PUBLIC_BASE_URL=https://sudharshan-r.dev (or change the
    fallback in src/lib/site.ts), redirect sudharshan-r.vercel.app and
@@ -38,11 +29,6 @@
    2026-10-19). They were drafted from the sources listed in each post and
    spot-checked against them, but they are in your voice: confirm the personal
    lines ("what I take from it") say what you actually think.
-
-[] SatSaathi: commit the landing fixes sitting in the sat_saathi working tree
-   (Tamil headline overflow at 1440px and on phones, phone header overflow,
-   jammed example-trace rows). They are mixed into your uncommitted landing
-   restyle, so they were left for you to commit with it.
 
 --- later ---
 [] Floating interactive pet (in the spirit of Meta's "dots"). Small, clean and
@@ -75,5 +61,7 @@
 [x] Post sources: YouTube embeds and article cards at the end of posts
 [x] Post footer nav: previous left, back to blogs centred, next right
 [x] SatSaathi repo public: linked, with its commit grid
+[x] SatSaathi phone header and Tamil headline fixes pushed (d856bec); the
+   trace-row fix had already landed upstream
 [x] Demo videos + stills: SatSaathi, PeriodyX, PR Eval, SkillSync, rsd.exe
     (npm run demo:record); SkillSync screenshots from a local run

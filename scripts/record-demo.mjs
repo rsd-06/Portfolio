@@ -169,8 +169,11 @@ async function open({ width = 1440, height = 900, headless = true, profile } = {
         await sleep(1000 / cps);
       }
     },
-    async key(key, code = key, keyCode = 0, modifiers = 0) {
-      await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: keyCode, modifiers });
+    // `commands` names the editing command a shortcut stands for (e.g.
+    // "selectAll", "moveToEndOfDocument"): CDP key events with modifiers do
+    // not trigger them on their own.
+    async key(key, code = key, keyCode = 0, modifiers = 0, commands) {
+      await send("Input.dispatchKeyEvent", { type: "keyDown", key, code, windowsVirtualKeyCode: keyCode, modifiers, ...(commands ? { commands } : {}) });
       await send("Input.dispatchKeyEvent", { type: "keyUp", key, code, windowsVirtualKeyCode: keyCode, modifiers });
     },
     async shot(file, { quality = 85 } = {}) {

@@ -194,7 +194,7 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 - [ ] Verify on a real phone (emulated audit passes).
 - [ ] Production `GITHUB_TOKEN` on Vercel is rejected (401); replace it.
 - [ ] Google Search Console: verify the site and submit the sitemap.
-- [ ] Google Docs Mini two-account demo (owner signs in once; see `scripts/demos/googledocsmini.mjs`).
+- [x] Google Docs Mini two-account demo (`GDM_DOC=<url> npm run demo:record -- googledocsmini`; the saved profiles are already signed in).
 - [ ] Commit the SatSaathi landing fixes left in the sat_saathi working tree.
 - [ ] Move to `sudharshan-r.dev` once bought.
 - [ ] New hero montage encoded with `-KeepAudio`, then `hasAudio: true`.
