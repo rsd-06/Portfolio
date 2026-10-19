@@ -64,7 +64,7 @@ Defined in `src/app/layout.tsx` (Server Component). Render order:
 | ScrollResetOnRouteChange | `src/components/providers/ScrollResetOnRouteChange.tsx` | `useLenis`, `usePathname` | Distinguishes back/forward (popstate) from fresh nav; defers to `__rsd_restoreScrollY` when set. |
 | GlobalSetup | `src/components/providers/GlobalSetup.tsx` | — | Image protection; pairs with the `img {}` rule in globals.css. |
 | GrainOverlay | `src/components/ui/GrainOverlay.tsx` | `.grain-overlay` CSS | |
-| Navbar | `src/components/layout/Navbar.tsx` | `useScrollLock`, framer-motion | Links: Projects, About, Blogs, ProtoSem, Contact, Resume (`/Sudharshan_R_Resume.pdf`, new tab). Dark variant on `/contact`. Rotating `WORDS` every 4 s. Mobile overlay locks scroll. |
+| Navbar | `src/components/layout/Navbar.tsx` | `useScrollLock`, framer-motion | Links: Projects, About, Blogs, ProtoSem, Contact, Resume (`/Sudharshan_R_Resume.pdf`, new tab). Dark variant on `/contact`. Rotating `WORDS` every 4 s. Full link row and words show at ≥1024px; below that (phones and tablets) the hamburger + overlay, which locks scroll. |
 | ConditionalFooter → GlobalFooter | `src/components/layout/{ConditionalFooter,GlobalFooter}.tsx` | `.footer-*` CSS | Curved top via `.footer-global::before`. "Code. Build. Grow." |
 | CustomCursor | `src/components/ui/CustomCursor.tsx` | `useIsTouch`, `.cursor-dot/.cursor-ring` | Returns null on coarse pointers. |
 

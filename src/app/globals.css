@@ -454,7 +454,8 @@ body {
 .nav-links {
   display: none;
 }
-@media (min-width: 768px) {
+/* The full link row needs ~1024px; tablets get the hamburger like phones. */
+@media (min-width: 1024px) {
   .nav-links {
     display: flex;
     gap: 2rem;
@@ -501,7 +502,7 @@ body {
   cursor: pointer;
   z-index: 101;
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .nav-hamburger {
     display: none;
   }

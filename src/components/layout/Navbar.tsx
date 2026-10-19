@@ -93,7 +93,7 @@ export default function Navbar() {
         </nav>
 
         {/* Desktop right — rotating words */}
-        <div className="hidden md:flex items-center">
+        <div className="hidden lg:flex items-center">
           {/* Rotating descriptor */}
           <div
             className="rotating-words-wrap"
