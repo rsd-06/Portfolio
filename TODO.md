@@ -13,15 +13,14 @@
    https://sudharshan-r.vercel.app/sitemap.xml. Re-run `npm run check:seo`
    against production after each deploy.
 
-[] Demo videos for the remaining projects (Project.video). CodeCritter has its
-   launch video; SatSaathi, PeriodyX, PR Eval, SkillSync, Google Docs Mini and
-   rsd.exe need a 15–30 s screen recording each (needs real usage, e.g. a
-   signed-in walkthrough). Encode small: 720p H.264, no audio.
-
-[] SkillSync and Google Docs Mini have one screenshot each. SkillSync has no
-   live deployment of its own (skillsync.vercel.app belongs to an unrelated
-   site, so the link was removed); Google Docs Mini's live site only shows a
-   Clerk sign-in in development mode. Capture in-app screenshots when signed in.
+[] Google Docs Mini demo: two accounts editing one document side by side.
+   Needs you to sign in, once:
+     GDM_SETUP=1 npm run demo:record -- googledocsmini
+   opens two Edge windows on saved profiles (D:\dev-tools\demo-profiles).
+   Sign into a different account in each, put both in one Clerk organisation,
+   switch both to it, create a document there, close the windows. Then:
+     GDM_DOC=<document url> npm run demo:record -- googledocsmini
+   and add video + the two new stills to the googledocsmini entry.
 
 [] Switch the domain to sudharshan-r.dev once bought: add it in Vercel →
    Domains, set NEXT_PUBLIC_BASE_URL=https://sudharshan-r.dev (or change the
@@ -39,8 +38,10 @@
    spot-checked against them, but they are in your voice: confirm the personal
    lines ("what I take from it") say what you actually think.
 
-[] SatSaathi UI bug (in the sat_saathi repo, not here): the Tamil landing
-   headline overflows under the image at 1440px wide.
+[] SatSaathi: commit the landing fixes sitting in the sat_saathi working tree
+   (Tamil headline overflow at 1440px and on phones, phone header overflow,
+   jammed example-trace rows). They are mixed into your uncommitted landing
+   restyle, so they were left for you to commit with it.
 
 --- later ---
 [] Floating interactive pet (in the spirit of Meta's "dots"). Small, clean and
@@ -70,3 +71,8 @@
     un-featured; all placeholder images replaced
 [x] Mobile pass: all routes clean at 375px (npm run audit:mobile)
 [x] Project moved to D:\Projects\Portfolio
+[x] Post sources: YouTube embeds and article cards at the end of posts
+[x] Post footer nav: previous left, back to blogs centred, next right
+[x] SatSaathi repo public: linked, with its commit grid
+[x] Demo videos + stills: SatSaathi, PeriodyX, PR Eval, SkillSync, rsd.exe
+    (npm run demo:record); SkillSync screenshots from a local run

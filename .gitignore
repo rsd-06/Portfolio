@@ -49,3 +49,6 @@ public/_next-video
 
 # mobile-audit screenshots
 /.mobile-audit
+
+# record-demo staging frames
+/.demo-frames

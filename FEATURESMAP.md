@@ -155,12 +155,14 @@ page.tsx
 | Slug | index | featured | Media | Repo |
 |---|---|---|---|---|
 | `codecritter` | 01 | ✔ | launch poster + 3 screenshots, `demo.mp4` (20 s) | public |
-| `satsaathi` | 02 | ✔ | 3 screenshots (EN, HI landing; sign-in) | **private** (no `repoUrl`) |
-| `periodyx` | 03 | ✔ | 4 jpgs (+ unused `01.gif`) | public |
-| `gitpr-evaluation-env` | 04 | ✔ | `gitpr/01.png` | public |
-| `skillsync` | 05 | — | 1 screenshot; no live URL | public |
-| `googledocsmini` | 06 | — | 1 screenshot | public |
-| `portfolio` | 07 | — | home + About captures | public |
+| `satsaathi` | 02 | ✔ | 5 screenshots (EN/HI landing, sign-in, flood slider, Tamil), `demo.mp4` (46 s) | public |
+| `periodyx` | 03 | ✔ | 6 jpgs (+ unused `01.gif`), `demo.mp4` (31 s) | public |
+| `gitpr-evaluation-env` | 04 | ✔ | 3 images, `demo.mp4` (24 s) | public |
+| `skillsync` | 05 | — | 4 screenshots (feed, matching, team board), `demo.mp4` (40 s); no live URL | public |
+| `googledocsmini` | 06 | — | 1 screenshot; two-account demo pending (needs sign-in) | public |
+| `portfolio` | 07 | — | home, About, share card, `demo.mp4` (53 s) | public |
+
+Demos are recorded with `npm run demo:record -- <scenario>` (`scripts/record-demo.mjs`, scenarios in `scripts/demos/`). Each scenario drives a real browser with wheel, mouse and key input, writes stills next to the video, and encodes 1440×900 H.264 with no audio. Re-run one after the UI it shows changes.
 
 `repoUrl` is optional: when absent, cards say "private repo", and the commit grid and JSON-LD `codeRepository` are skipped.
 
@@ -198,8 +200,9 @@ Files: `src/components/projects/{ProjectsView,ProjectsHero,GitHubActivityGrid,Vi
 | Loader | `src/lib/mdx.ts` | `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` (date desc). Reads `src/content/blogs/*.mdx` with gray-matter. Defaults for missing frontmatter. |
 | List UI | `src/components/blogs/BlogsLayout.tsx` | Search (title+excerpt), category chips (one swipeable row on phones), newest/oldest sort, grouped by month by default (`groupByMonth`, keyed on `YYYY-MM`) with a flat toggle. |
 | Card | `src/components/blogs/BlogCard.tsx` | Suppresses navigation while text is selected. Share icon is a sibling of the link (never nest a button in an `<a>`). Dates formatted in UTC. |
+| Sources | `src/components/blogs/PostSources.tsx` | Server component after the post body: `sources:` frontmatter rendered as lazy youtube-nocookie players (two columns when several) and article cards (image, publisher, date, author). The same list feeds JSON-LD `isBasedOn` / `video`, the `.md` copy and `llms-full.txt`. |
 | Share | `src/components/blogs/ShareSheet.tsx` | `ShareButton` (pill or icon) opens a sheet with the animated article card (same artwork as the og:image), native share where supported, copy link, X, LinkedIn, WhatsApp, Reddit, email, and a PNG download of the card. |
-| Detail | `src/app/blogs/[slug]/page.tsx` | Headings parsed from raw markdown (`## `, `### `) → ids via `generateId`; custom `h2`/`h3`/`pre` MDX components; typography via arbitrary `[&_p]:` variants on `<article>`. |
+| Detail | `src/app/blogs/[slug]/page.tsx` | Headings parsed from raw markdown (`## `, `### `) → ids via `generateId`; custom `h2`/`h3`/`pre` MDX components; typography via arbitrary `[&_p]:` variants on `<article>`. Footer nav: previous left, "Back to blogs" centred, next right (phones: previous/next in one row, back below). |
 | TOC | `src/components/blogs/BlogTOC.tsx` | Single IntersectionObserver; topmost visible heading wins. `lg+` only. |
 | Code | `src/components/blogs/CodeBlock.tsx` | Copy button. (Different from the ProtoSem `CodeBlock`.) |
 
@@ -275,7 +278,7 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 | `src/lib/breakpoints.ts` | `BREAKPOINTS`, `up()`, `below()` (−0.02px) | useMediaQuery |
 | `src/lib/heroVideo.ts` | `HERO_VIDEO` (poster, desktop[], mobile[]) | HeroVideo |
 | `src/lib/site.ts` | `SITE_URL` | layout (`metadataBase`, JSON-LD), sitemap, robots, `data/projects.ts` |
-| `src/lib/mdx.ts` | `BlogPost`, `BlogSummary` + `toSummary()` (no body, for client components), `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes, sitemap, llms, rss |
+| `src/lib/mdx.ts` | `BlogPost`, `BlogSummary` + `toSummary()` (no body or sources, for client components), `PostSource` + `sourceUrl()`, `getBlogSlugs`, `getBlogBySlug`, `getAllBlogs` | blogs routes, sitemap, llms, rss |
 | `src/lib/artwork.ts` | `artworkFor(slug, category)`, `motifFor`, `Shape` | og/blog card, share sheet |
 | `src/lib/seo.ts` | `pageMetadata()`, `ogImageUrl()`, `absoluteUrl()`, `SITE_NAME`, `AUTHOR` | every route, `/og`, JSON-LD |
 | `src/lib/llms.ts` | `buildLlmsTxt()`, `llmsResponse()` | `/llms.txt`, `/llms-full.txt` |
@@ -306,7 +309,7 @@ Footer hidden here (ConditionalFooter); Navbar switches to `.nav-dark`.
 |---|---|
 | `hero.jpg`, `heroVideo.{webm,mp4}`, `heroVideoMobile.{webm,mp4}` | `lib/heroVideo.ts` |
 | `assets/homePageImages/{macbook,iPhone14}.png` | MacMonitorSection |
-| `assets/projects/<slug>/*` (incl. `codecritter/demo.mp4`) | `data/projects.ts` (`_shared/placeholder.jpg` is no longer referenced) |
+| `assets/projects/<slug>/*` (incl. `demo.mp4` for every project but Google Docs Mini) | `data/projects.ts` (`_shared/placeholder.jpg` is no longer referenced) |
 | `assets/aboutPageImages/**`, `assets/aboutPage/hobbyIcons/*` | About sections |
 | `assets/protoSemPage/**` | Week 0 / Week 7 |
 | `assets/socialMediaIcons/*_icon.png` (incl. `leetcode_icon.png`) | HeroStatic, AboutHero, contact strip |
@@ -325,11 +328,11 @@ Repo-only (not served): `docs/blog-sources/*.md` — research notes for future b
 1. **Real-phone check.** The emulated audit (`npm run audit:mobile`, with and without JS) passes on every route.
 2. **Production `GITHUB_TOKEN`** on Vercel is rejected (live /projects reported GitHub 401). Owner must replace it.
 3. **Google Search Console** verification and sitemap submission (owner).
-4. **Demo videos** for every project except CodeCritter; more screenshots for SkillSync and Google Docs Mini.
+4. **Google Docs Mini demo**: two-account side-by-side recording; the owner signs in once (`GDM_SETUP=1 npm run demo:record -- googledocsmini`).
 5. **Domain move** to `sudharshan-r.dev` once bought.
 6. **New hero montage** with `-KeepAudio`, then `HERO_VIDEO.hasAudio = true`.
 7. **Owner review** of the 13 posts dated 2026-10-19.
-8. **SatSaathi** (other repo): the Tamil landing headline overflows at 1440px.
+8. **SatSaathi** (other repo): commit the landing fixes left in its working tree, mixed into the owner's uncommitted restyle.
 
 Later: floating interactive pet; `Navbar.tsx` `WORDS` "Entrepreneur.". Dropped: dark mode.
 

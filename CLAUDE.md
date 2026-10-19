@@ -31,7 +31,8 @@ There is **no unit-test suite**. Verification is `npm run lint`, `npm run build`
 |---|---|
 | `npm run check:blogs` | Every post has full frontmatter and compiles as MDX (no stray `{` or `<`). No server needed. |
 | `npm run check:seo [baseUrl]` | Every sitemap URL has a title, a 50+ char description, a canonical equal to its own URL, OG and Twitter tags, an OG image, and JSON-LD (BlogPosting or SoftwareSourceCode where relevant); every post is in the sitemap and in `/llms.txt`. |
-| `npm run audit:mobile [baseUrl] [routes…]` | Headless Edge at 375×812 in real time: no element past the right edge, no on-screen text stuck invisible. `NOJS=1` audits the no-JavaScript render. Screenshots land in `.mobile-audit/`. |
+| `npm run audit:mobile [baseUrl] [routes…]` | Headless Edge at 375×812 in real time: no element past the right edge, no on-screen text stuck invisible. `NOJS=1` audits the no-JavaScript render, `WIDTH`/`HEIGHT` change the viewport, `FOCUS="<selector>"` also saves a viewport shot at that element. Screenshots land in `.mobile-audit/`. It can't see one element overlapping another, so look at the shots. |
+| `npm run demo:record -- <scenario>` | Records `scripts/demos/<scenario>.mjs` into `public/assets/projects/<slug>/demo.mp4` plus stills (needs ffmpeg). Long waits go through `d.compress()`; still stretches are capped at 3 s. Record the portfolio against `npm run build && npm run start`, not dev (dev badge, slow first compiles). |
 
 In Git Bash, prefix route arguments with `MSYS_NO_PATHCONV=1` or `/` becomes a Windows path. The Claude preview pane does not paint while it's hidden (requestAnimationFrame runs at 0 fps), so animation-dependent checks there are inconclusive. Use `audit:mobile`.
 `npm run lint` currently exits non-zero on a **pre-existing baseline** (37 errors / 34 warnings, see FEATURESMAP §13 "Still open"). The bar is: no *new* problems in files you touch, and fix old ones there when it's cheap. `npm run build` must pass.
@@ -156,14 +157,20 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 2. Put images in `public/assets/projects/<slug>/` (`01.png`, `02.jpg`, …). `images[0]` is the card/hero image. Use `/assets/projects/_shared/placeholder.jpg` only temporarily.
 3. `featured: true` puts it on the home horizontal rail (array order is rail and grid order; keep `index` matching position).
 4. Omit `repoUrl` for a private repo: cards then say "private repo", and the commit grid and `codeRepository` are skipped. Never link a repo or `liveUrl` you haven't opened yourself. `skillsync.vercel.app` turned out to be someone else's site.
-5. `video` (optional) is a short muted demo, used for the card hover preview and on the detail page with `images[0]` as poster.
+5. `video` (optional) is a short muted demo, used for the card hover preview and on the detail page with `images[0]` as poster. Record it with a scenario in `scripts/demos/` (see §1) rather than by hand, so it can be re-recorded.
 6. Static params, sitemap, `/llms.txt`, JSON-LD, prev/next nav and marquee pick it up automatically.
 
 **Add a blog post**
 1. Create `src/content/blogs/<slug>.mdx` with frontmatter `title`, `date` (`YYYY-MM-DD`), `excerpt`, `category` (UPPERCASE), `readTime` (`"N MIN READ"`).
 2. Use `##` / `###` for headings (they feed the TOC; ids are generated from heading text). Fenced code renders via `CodeBlock`.
 3. MDX treats `{`, `}` and `<` in prose as code. Put maths and set notation in backticks. Run `npm run check:blogs`.
-4. Attribute sources in the first line (`*Notes on [title](url) by creator.*`), paraphrase rather than transcribe, and only state what the source says. The blog list groups by the `YYYY-MM` of `date`. The sitemap, `/llms.txt` and the post's JSON-LD pick it up automatically.
+4. Attribute sources in the first line (`*Notes on [title](url) by creator.*`), paraphrase rather than transcribe, and only state what the source says. List them in frontmatter too, so they render at the end of the post (`PostSources`) and reach crawlers and LLMs:
+   ```yaml
+   sources:
+     - { type: youtube, id: Uj3_KqkI9Zo, title: "The Infinite Hotel Paradox", creator: TED-Ed }
+     - { type: article, url: "https://…", title: "…", author: "…", publisher: "…", date: 2025-10-04, description: "…", image: "https://…/og.jpg" }
+   ```
+   Invalid entries (bad YouTube id, non-http URL, no title) are skipped with a warning. The blog list groups by the `YYYY-MM` of `date`. The sitemap, `/llms.txt` and the post's JSON-LD pick it up automatically.
 
 **Document a ProtoSem week**
 1. In `src/data/protosem.ts`, add the week to `DOCUMENTED_WEEKS` (`status: "completed"` or `"current"`); update `PROGRAM_META.currentWeekId` as the program advances.
@@ -189,7 +196,8 @@ Fluid type scale in `:root`: `--text-xs … --text-3xl`, plus `text-2xs` and `te
 - [ ] Verify on a real phone (emulated audit passes).
 - [ ] Production `GITHUB_TOKEN` on Vercel is rejected (401); replace it.
 - [ ] Google Search Console: verify the site and submit the sitemap.
-- [ ] Demo videos for every project except CodeCritter; more screenshots for SkillSync and Google Docs Mini.
+- [ ] Google Docs Mini two-account demo (owner signs in once; see `scripts/demos/googledocsmini.mjs`).
+- [ ] Commit the SatSaathi landing fixes left in the sat_saathi working tree.
 - [ ] Move to `sudharshan-r.dev` once bought.
 - [ ] New hero montage encoded with `-KeepAudio`, then `hasAudio: true`.
 - [ ] Owner review of the 13 posts dated 2026-10-19.

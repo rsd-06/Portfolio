@@ -5,64 +5,27 @@
 // and saves a full-page screenshot per route.
 //
 //   node scripts/mobile-audit.mjs [baseUrl] [route ...]
-//   BROWSER=path/to/chrome.exe to override the browser.
+//   BROWSER=path/to/chrome.exe to override the browser (see lib/cdp.mjs).
 //   NOJS=1 renders with page JavaScript disabled (what crawlers and no-JS
 //   visitors get) — every animated section must still be readable.
 //   FOCUS="css selector" also saves a viewport shot scrolled to that element
 //   (<route>.focus.jpg), for sections too deep in a long page's full shot.
 //   WIDTH=1280 HEIGHT=800 audit at another viewport.
 
-import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { launch } from "./lib/cdp.mjs";
 
 const base = (process.argv[2] ?? "http://localhost:3000").replace(/\/$/, "");
 const routes = process.argv.slice(3).length
   ? process.argv.slice(3)
   : ["/", "/about", "/projects", "/projects/codecritter", "/blogs", "/blogs/the-infinite-hotel-paradox", "/protosem", "/protosem/week-7", "/contact"];
-const browser =
-  process.env.BROWSER ??
-  ["C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "C:/Program Files/Google/Chrome/Application/chrome.exe"].find(existsSync);
-if (!browser) throw new Error("No Edge/Chrome found; set BROWSER");
 
 const outDir = join(process.cwd(), ".mobile-audit");
 mkdirSync(outDir, { recursive: true });
-const profile = join(tmpdir(), `mobile-audit-${process.pid}`);
-const port = 9300 + (process.pid % 500);
-const proc = spawn(browser, [
-  "--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`,
-  "--no-first-run", "--disable-sync", "--hide-scrollbars", "about:blank",
-], { stdio: "ignore" });
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-let target;
-for (let i = 0; i < 50 && !target; i++) {
-  await sleep(200);
-  try { target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === "page"); } catch {}
-}
-const ws = new WebSocket(target.webSocketDebuggerUrl);
-await new Promise((r) => ws.addEventListener("open", r, { once: true }));
-let id = 0;
-const pending = new Map();
-ws.addEventListener("message", (e) => {
-  const msg = JSON.parse(e.data);
-  if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
-});
-const send = (method, params = {}) =>
-  new Promise((resolve, reject) => {
-    const n = ++id;
-    pending.set(n, (m) => (m.error ? reject(new Error(`${method}: ${m.error.message}`)) : resolve(m.result)));
-    ws.send(JSON.stringify({ id: n, method, params }));
-  });
-const evaluate = async (expression) =>
-  (await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true })).result.value;
-
-await send("Page.enable");
 const vw = Number(process.env.WIDTH ?? 375);
 const vh = Number(process.env.HEIGHT ?? 812);
-await send("Emulation.setDeviceMetricsOverride", { width: vw, height: vh, deviceScaleFactor: vw > 500 ? 1 : 2, mobile: vw <= 500 });
-await send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+const { send, evaluate, close, sleep } = await launch({ width: vw, height: vh });
 const noJs = process.env.NOJS === "1";
 if (noJs) await send("Emulation.setScriptExecutionDisabled", { value: true });
 
@@ -141,6 +104,5 @@ for (const route of routes) {
   for (const [k, v] of res.hidden) console.log(`     invisible  ${k}  "${v}"`);
 }
 
-ws.close();
-proc.kill();
+close();
 process.exit(failures ? 1 : 0);
