@@ -58,6 +58,12 @@ const inter = Inter({
   preload: false,  // ← body fallback; browser has system sans-serif anyway
 });
 
+// Vercel once held the .env.example placeholder (G-XXXXXXXXXX), which loaded
+// gtag for a property that does not exist. Only a real-looking ID turns it on.
+const GA_ID = /^G-(?!X+$)[A-Z0-9]+$/.test(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "")
+  ? process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  : undefined;
+
 /* ── Metadata ────────────────────────────────────────────────── */
 export const viewport: Viewport = {
   themeColor: "#F5F4F0",
@@ -123,7 +129,7 @@ export const metadata: Metadata = {
   // page's <head>, so they are public by design and live here rather than in
   // Vercel secrets.
   verification: {
-    google: "bXv91YFMS7jJaOD7XNBr5gCVJgwGSNL4bBsJG9K9Dcs",
+    google: "m-AXjVdPeojXDGULKfLZL0ZTnHodNjDbcj0BMu2tqhg",
     other: { "msvalidate.01": "A79F05DA43CF7AE483ABAA1EA0F5A656" },
   },
   robots: {
@@ -238,10 +244,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-base-bg text-text-primary antialiased" suppressHydrationWarning>
         {/* Google Analytics via Environment Variable */}
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        {GA_ID && (
           <>
             <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
               strategy="afterInteractive"
             />
             <Script id="google-analytics" strategy="afterInteractive">
@@ -249,7 +255,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+                gtag('config', '${GA_ID}', {
                   page_path: window.location.pathname,
                 });
               `}

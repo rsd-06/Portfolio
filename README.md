@@ -69,7 +69,7 @@ Here is a quick reference for common tasks in this repository:
 ```bash
 npm run dev
 ```
-> *Needs `GITHUB_TOKEN` in `.env.local` for the GitHub activity grid. Optional: `NEXT_PUBLIC_BASE_URL` (defaults to `https://sudharshan-r.vercel.app`) and `NEXT_PUBLIC_GA_MEASUREMENT_ID`.*
+> *Needs `GITHUB_TOKEN` in `.env.local` for the GitHub activity grid. Optional: `NEXT_PUBLIC_GA_MEASUREMENT_ID`.*
 
 ### Compress a New Hero Video
 Keep the raw master **outside** `public/` and pass its path:
