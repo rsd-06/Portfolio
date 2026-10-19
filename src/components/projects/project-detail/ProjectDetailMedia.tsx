@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState, useCallback } from "react";
+import { Maximize2, Pause, Play, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import { useScrollLock } from "@/hooks/useScrollLock";
 
@@ -14,113 +15,93 @@ interface Props {
 }
 
 /* ── Video Player ── */
+function Btn({ onClick, label, children }: { onClick: () => void; label: string; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      aria-label={label}
+      title={label}
+      className="inline-flex items-center justify-center size-8 rounded-full text-white/75 hover:text-white hover:bg-white/10 transition-colors"
+    >
+      {children}
+    </button>
+  );
+}
+
+// One set of controls drives whichever video is on screen. The enlarged view
+// plays its own <video>; the controls once only had a ref to the inline one,
+// so rewind, pause and mute acted on a video hidden behind the overlay.
 function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const inlineRef = useRef<HTMLVideoElement>(null);
+  const bigRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(true);
   const [enlarged, setEnlarged] = useState(false);
 
-  const togglePlay = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.paused) { v.play(); setPlaying(true); }
-    else { v.pause(); setPlaying(false); }
-  }, []);
+  const active = () => (enlarged ? bigRef.current : inlineRef.current);
 
-  const toggleMute = useCallback(() => {
-    const v = videoRef.current;
+  const togglePlay = () => {
+    const v = active();
+    if (!v) return;
+    if (v.paused) { v.play().catch(() => {}); setPlaying(true); }
+    else { v.pause(); setPlaying(false); }
+  };
+
+  const toggleMute = () => {
+    const v = active();
     if (!v) return;
     v.muted = !v.muted;
     setMuted(v.muted);
-  }, []);
+  };
 
-  const rewind = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.currentTime = Math.max(0, v.currentTime - 10);
+  const rewind = () => {
+    const v = active();
+    if (v) v.currentTime = Math.max(0, v.currentTime - 10);
+  };
+
+  // Hand playback over between the two videos so the enlarged one picks up
+  // where the inline one was, with the same play and sound state.
+  const open = () => {
+    inlineRef.current?.pause();
+    setEnlarged(true);
+  };
+  const close = useCallback(() => {
+    const big = bigRef.current, inline = inlineRef.current;
+    if (big && inline) {
+      inline.currentTime = big.currentTime;
+      inline.muted = big.muted;
+      if (!big.paused) inline.play().catch(() => {});
+    }
+    setEnlarged(false);
   }, []);
+  const onBigReady = () => {
+    const big = bigRef.current, inline = inlineRef.current;
+    if (!big) return;
+    if (inline) big.currentTime = inline.currentTime;
+    big.muted = muted;
+    if (playing) big.play().catch(() => {});
+  };
 
   // Locks Lenis too, not just body overflow.
   useScrollLock(enlarged);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && enlarged) setEnlarged(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && enlarged) close(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [enlarged]);
+  }, [enlarged, close]);
 
-  const ControlBtn = ({
-    onClick,
-    label,
-    children,
-  }: {
-    onClick: () => void;
-    label: string;
-    children: React.ReactNode;
-  }) => (
-    <button
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
-      aria-label={label}
-      style={{
-        background: "rgba(0,0,0,0.45)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        color: "rgba(255,255,255,0.85)",
-        borderRadius: "6px",
-        padding: "5px 10px",
-        fontSize: "11px",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-        backdropFilter: "blur(8px)",
-        letterSpacing: "0.04em",
-        fontFamily: "var(--font-mono, monospace)",
-        transition: "background 0.2s",
-      }}
-    >
-      {children}
-    </button>
-  );
-
-  const videoEl = (
-    // Browser extensions (speed controllers, downloaders) tag <video> elements
-    // before React hydrates (e.g. data-video="0"), which React reports as a
-    // mismatch. This silences attribute mismatches on this element only.
-    <video
-      suppressHydrationWarning
-      ref={videoRef}
-      src={src}
-      poster={poster}
-      autoPlay
-      muted
-      loop
-      playsInline
-      style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
-      onContextMenu={(e) => e.preventDefault()}
-    />
-  );
-
-  const controls = (
-    <div
-      style={{
-        position: "absolute",
-        bottom: "clamp(0.75rem, 2vw, 1.25rem)",
-        left: "50%",
-        transform: "translateX(-50%)",
-        display: "flex",
-        gap: "8px",
-        alignItems: "center",
-        zIndex: 10,
-      }}
-    >
-      <ControlBtn onClick={rewind} label="Rewind 10s">⟪ 10s</ControlBtn>
-      <ControlBtn onClick={togglePlay} label={playing ? "Pause" : "Play"}>
-        {playing ? "⏸ Pause" : "▶ Play"}
-      </ControlBtn>
-      <ControlBtn onClick={toggleMute} label={muted ? "Unmute" : "Mute"}>
-        {muted ? "🔇 Unmute" : "🔊 Mute"}
-      </ControlBtn>
-      <ControlBtn onClick={() => setEnlarged(true)} label="Enlarge video">⤢ Enlarge</ControlBtn>
+  const controls = (withEnlarge: boolean) => (
+    <div className="absolute bottom-3 right-3 z-10 flex items-center gap-0.5 rounded-full bg-black/45 p-1 backdrop-blur-md ring-1 ring-white/10">
+      <Btn onClick={rewind} label="Back 10 seconds"><RotateCcw size={15} strokeWidth={1.75} /></Btn>
+      <Btn onClick={togglePlay} label={playing ? "Pause" : "Play"}>
+        {playing ? <Pause size={15} strokeWidth={1.75} /> : <Play size={15} strokeWidth={1.75} />}
+      </Btn>
+      <Btn onClick={toggleMute} label={muted ? "Unmute" : "Mute"}>
+        {muted ? <VolumeX size={15} strokeWidth={1.75} /> : <Volume2 size={15} strokeWidth={1.75} />}
+      </Btn>
+      {withEnlarge && <Btn onClick={open} label="Enlarge"><Maximize2 size={15} strokeWidth={1.75} /></Btn>}
     </div>
   );
 
@@ -128,8 +109,22 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
     <>
       {/* Inline video */}
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#0a0a0a", borderRadius: "10px", overflow: "hidden" }}>
-        {videoEl}
-        {controls}
+        {/* Browser extensions (speed controllers, downloaders) tag <video>
+            elements before React hydrates (e.g. data-video="0"), which React
+            reports as a mismatch. This silences it on this element only. */}
+        <video
+          suppressHydrationWarning
+          ref={inlineRef}
+          src={src}
+          poster={poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+          onContextMenu={(e) => e.preventDefault()}
+        />
+        {controls(true)}
       </div>
 
       {/* Enlarged lightbox */}
@@ -140,7 +135,7 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            onClick={() => setEnlarged(false)}
+            onClick={close}
             style={{
               position: "fixed",
               inset: 0,
@@ -172,26 +167,20 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
             >
               <video
                 suppressHydrationWarning
+                ref={bigRef}
                 src={src}
                 poster={poster}
-                autoPlay
                 loop
                 playsInline
-                muted={muted}
+                muted
+                onLoadedMetadata={onBigReady}
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 onContextMenu={(e) => e.preventDefault()}
               />
-              {/* Lightbox controls */}
-              <div style={{ position: "absolute", bottom: "1.25rem", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px" }}>
-                <ControlBtn onClick={rewind} label="Rewind 10s">⟪ 10s</ControlBtn>
-                <ControlBtn onClick={togglePlay} label={playing ? "Pause" : "Play"}>
-                  {playing ? "⏸ Pause" : "▶ Play"}
-                </ControlBtn>
-                <ControlBtn onClick={toggleMute} label={muted ? "Unmute" : "Mute"}>
-                  {muted ? "🔇 Unmute" : "🔊 Mute"}
-                </ControlBtn>
-                <ControlBtn onClick={() => setEnlarged(false)} label="Close">✕ Close</ControlBtn>
+              <div className="absolute top-3 right-3 z-10 rounded-full bg-black/45 p-1 backdrop-blur-md ring-1 ring-white/10">
+                <Btn onClick={close} label="Close"><X size={16} strokeWidth={1.75} /></Btn>
               </div>
+              {controls(false)}
             </motion.div>
           </motion.div>
         )}
