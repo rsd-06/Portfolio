@@ -38,7 +38,7 @@ const formatDate = (date: string) =>
 function ArticleCard({ post }: { post: BlogSummary }) {
   return (
     <div
-      className="flex flex-col sm:flex-row overflow-hidden rounded-2xl border bg-white"
+      className="keep-light flex flex-col sm:flex-row overflow-hidden rounded-2xl border bg-white"
       style={{ borderColor: "var(--border-subtle)", color: "var(--text-primary)" }}
     >
       <div className="flex-1 flex flex-col justify-between gap-6 p-5 sm:p-7 min-w-0">

@@ -5,6 +5,7 @@ import type { BlogSummary } from "@/lib/mdx";
 import BlogCard from "./BlogCard";
 import { motion } from "framer-motion";
 import ScrollProgressTracker from "@/components/about/ScrollProgressTracker";
+import BlogsThemeToggle from "./BlogsThemeToggle";
 
 type MonthGroup = { key: string; label: string; posts: BlogSummary[] };
 
@@ -73,14 +74,16 @@ export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogSummar
       <ScrollProgressTracker />
 
       <div className="max-w-7xl mx-auto w-full flex flex-col gap-16">
-        {/* Header section */}
-        <div className="flex flex-col gap-6">
-          <h1 className="f-display text-5xl md:text-7xl font-light tracking-[-0.03em]">
-            Blogs & Thoughts
+        {/* Header: set like the home page's rsd.exe wordmark (same face,
+            weight and tracking), sized so the line fits a laptop width. */}
+        <div className="flex flex-col items-center gap-6 text-center">
+          <h1 className="f-display text-[clamp(2.75rem,9vw,8.5rem)] tracking-[-0.04em] font-black leading-[0.95] text-balance">
+            Blogs &amp; <sup className="text-[0.32em] tracking-[-0.01em] align-super">other</sup> Thoughts
           </h1>
           <p className="f-mono text-sm md:text-base opacity-60 max-w-2xl">
             A collection of technical articles, design thoughts, and personal musings.
           </p>
+          <BlogsThemeToggle />
         </div>
 
         {/* Filter / Search Bar */}

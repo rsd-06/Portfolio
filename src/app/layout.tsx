@@ -19,6 +19,7 @@ import { SITE_URL } from "@/lib/site";
 import { CONTACT_EMAIL, SAME_AS } from "@/data/socials";
 import { ogImageUrl } from "@/lib/seo";
 import JsonLd from "@/components/seo/JsonLd";
+import { BLOGS_THEME_SCRIPT } from "@/lib/blogsTheme";
 
 /* ── Google Fonts via next/font (zero CLS) ───────────────────── */
 // Only Cormorant is preloaded — it's used in the loader screen, so it must be
@@ -241,6 +242,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <noscript>
           <style>{NO_JS_CSS}</style>
         </noscript>
+        <script dangerouslySetInnerHTML={{ __html: BLOGS_THEME_SCRIPT }} />
       </head>
       <body className="bg-base-bg text-text-primary antialiased" suppressHydrationWarning>
         {/* Google Analytics via Environment Variable */}

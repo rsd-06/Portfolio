@@ -219,6 +219,38 @@ html, body {
   --accent-text: #3B1FBF;
 }
 
+/* /blogs dark theme. Only the blogs index sets this attribute (see
+   BlogsThemeToggle), and it is removed on the way out. The ink and paper
+   match the footer and /contact. */
+html[data-blogs-theme="dark"] {
+  color-scheme: dark;
+  --bg-base: #111111;
+  --bg-surface: #181817;
+  --bg-soft: #22221F;
+  --text-primary: #F5F4F0;
+  --text-secondary: #C9C7C0;
+  --text-muted: #8F8D87;
+  --border-subtle: #2C2C29;
+  --accent-soft: #6E5BC4;
+  --accent-text: #B19EEF;
+  --background: #111111;
+  --foreground: #F5F4F0;
+}
+
+/* Pictures of light artefacts (the share sheet's preview of the og:image)
+   keep the light palette inside the dark theme. */
+html[data-blogs-theme="dark"] .keep-light {
+  --bg-base: #FBF9F6;
+  --bg-surface: #F6F4F0;
+  --bg-soft: #EDE9E2;
+  --text-primary: #1F1F1F;
+  --text-secondary: #4A4A4A;
+  --text-muted: #737373;
+  --border-subtle: #E2E2DF;
+  --accent-soft: #B19EEF;
+  --accent-text: #3B1FBF;
+}
+
 
 html.lenis {
   height: auto;
