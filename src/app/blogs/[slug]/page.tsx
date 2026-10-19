@@ -11,6 +11,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import { AUTHOR, absoluteUrl, blogCardUrl, pageMetadata } from "@/lib/seo";
 import { ShareButton } from "@/components/blogs/ShareSheet";
 import PostSources from "@/components/blogs/PostSources";
+import BlogsThemeToggle from "@/components/blogs/BlogsThemeToggle";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -139,13 +140,21 @@ export default async function BlogDetailPage(props: Props) {
       />
       <ScrollProgressTracker />
       <div className="flex flex-col gap-16">
-        {/* Back Link */}
-        <Link 
-          href="/blogs" 
-          className="f-mono text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity flex items-center gap-2 w-fit"
-        >
-          ← Back to blogs
-        </Link>
+        {/* Back link, and this post's theme toggle: top-right on phones and
+            tablets; from lg up it is fixed in the left margin, vertically
+            centred, so it stays in reach while reading. */}
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href="/blogs"
+            className="f-mono text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity flex items-center gap-2 w-fit"
+          >
+            ← Back to blogs
+          </Link>
+          <BlogsThemeToggle
+            slug={blog.slug}
+            className="opacity-70 hover:opacity-100 lg:fixed lg:z-50 lg:top-1/2 lg:-translate-y-1/2 lg:left-[max(0.375rem,calc(var(--page-px)/2_-_1.25rem))] lg:bg-[color-mix(in_srgb,var(--color-base-bg)_85%,transparent)] lg:backdrop-blur-sm"
+          />
+        </div>
 
         {/* Header - Takes full horizontal space */}
         <header className="flex flex-col gap-8 border-b border-[color-mix(in_srgb,var(--color-text)_10%,transparent)] pb-16 pt-8">

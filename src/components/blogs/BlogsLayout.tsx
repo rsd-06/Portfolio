@@ -79,11 +79,11 @@ export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogSummar
         <div className="flex flex-col items-center gap-6 text-center">
           <h1 className="f-display text-[clamp(2.75rem,9vw,8.5rem)] tracking-[-0.04em] font-black leading-[0.95] text-balance">
             Blogs{" "}
-            {/* "other" hangs above the ampersand's shoulder and takes no width,
-                so "Thoughts" keeps a normal word gap from "&". */}
-            <span className="relative">
+            {/* "other" floats above the gap after "&", clear of the T's cap
+                line, and takes no width; the small margin opens that gap. */}
+            <span className="relative mr-[0.14em]">
               &amp;
-              <span className="absolute left-[46%] bottom-[3.15em] text-[0.3em] tracking-[-0.01em] whitespace-nowrap">other</span>
+              <span className="absolute left-[82%] bottom-[3.15em] text-[0.3em] tracking-[-0.01em] whitespace-nowrap">other</span>
             </span>{" "}
             Thoughts
           </h1>
