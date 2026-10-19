@@ -50,10 +50,11 @@ export default function BlogsThemeToggle() {
       type="button"
       onClick={toggle}
       aria-pressed={dark}
-      className="inline-flex items-center gap-2.5 f-mono text-xs uppercase tracking-widest px-4 py-2 rounded-full border border-[color-mix(in_srgb,var(--color-text)_20%,transparent)] hover:bg-[color-mix(in_srgb,var(--color-text)_6%,transparent)] transition-colors"
+      aria-label="Dark mode"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className="inline-flex items-center justify-center size-10 rounded-full border border-[color-mix(in_srgb,var(--color-text)_20%,transparent)] hover:bg-[color-mix(in_srgb,var(--color-text)_6%,transparent)] transition-colors"
     >
-      <Icon size={14} strokeWidth={1.5} aria-hidden="true" />
-      {dark ? "Light mode" : "Dark mode"}
+      <Icon size={16} strokeWidth={1.5} aria-hidden="true" />
     </button>
   );
 }

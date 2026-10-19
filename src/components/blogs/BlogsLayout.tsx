@@ -78,9 +78,16 @@ export default function BlogsLayout({ initialBlogs }: { initialBlogs: BlogSummar
             weight and tracking), sized so the line fits a laptop width. */}
         <div className="flex flex-col items-center gap-6 text-center">
           <h1 className="f-display text-[clamp(2.75rem,9vw,8.5rem)] tracking-[-0.04em] font-black leading-[0.95] text-balance">
-            Blogs &amp; <sup className="text-[0.32em] tracking-[-0.01em] align-super">other</sup> Thoughts
+            Blogs{" "}
+            {/* "other" hangs above the ampersand's shoulder and takes no width,
+                so "Thoughts" keeps a normal word gap from "&". */}
+            <span className="relative">
+              &amp;
+              <span className="absolute left-[46%] bottom-[3.15em] text-[0.3em] tracking-[-0.01em] whitespace-nowrap">other</span>
+            </span>{" "}
+            Thoughts
           </h1>
-          <p className="f-mono text-sm md:text-base opacity-60 max-w-2xl">
+          <p className="f-mono italic text-sm md:text-base opacity-60 max-w-2xl">
             A collection of technical articles, design thoughts, and personal musings.
           </p>
           <BlogsThemeToggle />
