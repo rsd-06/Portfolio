@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { ArrowUpRight, MapPin } from "lucide-react";
 
 export default function LocationSection() {
     return (
@@ -42,9 +42,19 @@ export default function LocationSection() {
                     Coimbatore, Tamil Nadu — the textile city.
                 </p>
 
-                <p className="mt-8 inline-flex items-center gap-2 f-mono text-xs uppercase tracking-[0.16em] text-text-primary opacity-75">
-                    <MapPin size={13} strokeWidth={1.5} aria-hidden="true" />
-                    Studying at Kumaraguru College of Technology
+                <p className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-text-primary">
+                    <MapPin size={13} strokeWidth={1.5} aria-hidden="true" className="opacity-60" />
+                    <span className="f-accent italic text-base opacity-70">studying at</span>
+                    <a
+                        href="https://kct.ac.in/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Kumaraguru College of Technology (opens in new tab)"
+                        className="group inline-flex items-center gap-1 f-mono text-xs uppercase tracking-[0.14em] font-medium underline decoration-[color-mix(in_srgb,var(--color-text)_25%,transparent)] underline-offset-4 hover:decoration-current transition-colors"
+                    >
+                        Kumaraguru College of Technology
+                        <ArrowUpRight size={13} strokeWidth={1.75} aria-hidden="true" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
                 </p>
             </motion.div>
             </section>

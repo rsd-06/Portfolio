@@ -180,7 +180,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       "@id": `${SITE_URL}/#kct`,
       "name": "Kumaraguru College of Technology",
       "alternateName": ["KCT", "Kumaraguru"],
-      "url": "https://www.kct.ac.in",
+      "url": "https://kct.ac.in/",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Coimbatore",
