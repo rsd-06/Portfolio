@@ -237,6 +237,17 @@ html[data-blogs-theme="dark"] {
   --foreground: #F5F4F0;
 }
 
+/* The footer is ink-on-paper inverted (#111 on light pages). On a dark blogs
+   page it would vanish into the background, so it flips to paper. Its curved
+   top edge is drawn in --bg-base and keeps working unchanged. */
+html[data-blogs-theme="dark"] .footer-global {
+  background: #F5F4F0;
+  color: #111111;
+}
+html[data-blogs-theme="dark"] .footer-bottom-bar {
+  border-top-color: rgba(17, 17, 17, 0.12);
+}
+
 /* Pictures of light artefacts (the share sheet's preview of the og:image)
    keep the light palette inside the dark theme. */
 html[data-blogs-theme="dark"] .keep-light {
