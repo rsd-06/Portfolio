@@ -15,14 +15,26 @@ interface Props {
 }
 
 /* ── Video Player ── */
+// Enlarge (inline) or close (enlarged): one glass button in the top-right corner.
+function CornerBtn({ onClick, label, children }: { onClick: () => void; label: string; children: React.ReactNode }) {
+  return (
+    <div className={`absolute top-3 right-3 z-10 p-0.5 ${GLASS}`}>
+      <Btn onClick={onClick} label={label}>{children}</Btn>
+    </div>
+  );
+}
+
+// Frosted glass over the video: a light wash, a strong blur and a faint
+// rim, so it reads on dark and bright frames alike.
+const GLASS = "rounded-full bg-white/10 backdrop-blur-xl backdrop-saturate-150 ring-1 ring-inset ring-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.25)]";
+
 function Btn({ onClick, label, children }: { onClick: () => void; label: string; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       aria-label={label}
-      title={label}
-      className="inline-flex items-center justify-center size-8 rounded-full text-white/75 hover:text-white hover:bg-white/10 transition-colors"
+      className="inline-flex items-center justify-center size-9 rounded-full text-white/85 hover:text-white hover:bg-white/15 active:scale-95 transition-[color,background-color,transform] [&_svg]:drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
     >
       {children}
     </button>
@@ -92,19 +104,20 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [enlarged, close]);
 
-  const controls = (withEnlarge: boolean) => (
-    <div className="absolute bottom-3 right-3 z-10 flex items-center gap-0.5 rounded-full bg-black/45 p-1 backdrop-blur-md ring-1 ring-white/10">
-      <Btn onClick={rewind} label="Back 10 seconds"><RotateCcw size={15} strokeWidth={1.75} /></Btn>
+  const ICON = { size: 16, strokeWidth: 1.75 } as const;
+  const controls = (
+    <div className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 p-1 ${GLASS}`}>
+      <Btn onClick={rewind} label="Back 10 seconds"><RotateCcw {...ICON} /></Btn>
       <Btn onClick={togglePlay} label={playing ? "Pause" : "Play"}>
-        {playing ? <Pause size={15} strokeWidth={1.75} /> : <Play size={15} strokeWidth={1.75} />}
+        {playing
+          ? <Pause size={16} strokeWidth={0} fill="currentColor" />
+          : <Play size={16} strokeWidth={0} fill="currentColor" className="translate-x-[1px]" />}
       </Btn>
       <Btn onClick={toggleMute} label={muted ? "Unmute" : "Mute"}>
-        {muted ? <VolumeX size={15} strokeWidth={1.75} /> : <Volume2 size={15} strokeWidth={1.75} />}
+        {muted ? <VolumeX {...ICON} /> : <Volume2 {...ICON} />}
       </Btn>
-      {withEnlarge && <Btn onClick={open} label="Enlarge"><Maximize2 size={15} strokeWidth={1.75} /></Btn>}
     </div>
   );
-
   return (
     <>
       {/* Inline video */}
@@ -124,7 +137,8 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
           style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
           onContextMenu={(e) => e.preventDefault()}
         />
-        {controls(true)}
+        <CornerBtn onClick={open} label="Enlarge"><Maximize2 size={15} strokeWidth={1.75} /></CornerBtn>
+        {controls}
       </div>
 
       {/* Enlarged lightbox */}
@@ -177,10 +191,8 @@ function VideoPlayer({ src, poster }: { src: string; poster?: string }) {
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
                 onContextMenu={(e) => e.preventDefault()}
               />
-              <div className="absolute top-3 right-3 z-10 rounded-full bg-black/45 p-1 backdrop-blur-md ring-1 ring-white/10">
-                <Btn onClick={close} label="Close"><X size={16} strokeWidth={1.75} /></Btn>
-              </div>
-              {controls(false)}
+              <CornerBtn onClick={close} label="Close"><X size={17} strokeWidth={1.75} /></CornerBtn>
+              {controls}
             </motion.div>
           </motion.div>
         )}
