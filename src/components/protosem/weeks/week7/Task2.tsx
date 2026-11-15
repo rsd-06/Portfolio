@@ -4,9 +4,10 @@
 // Task 02 — Adafruit IO dashboard & MQTT.
 
 import { Wifi, Cloud, Plug, Lightbulb, Radio, Inbox, Send } from "lucide-react";
-import { WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, VideoFigure, Gallery, SpecList, Pipeline } from "../blocks";
+import { WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, SpecList, Pipeline } from "../blocks";
 import { Sub, Diagram, ProblemList, CollapsibleCode, RepoFiles, PinTable } from "./blocks";
 import { DIAGRAMS, PHOTOS, VIDEOS } from "./media";
+import { MediaWall } from "./MediaWall";
 import { T2_SKETCH } from "./code";
 
 export default function Task2() {
@@ -173,22 +174,31 @@ export default function Task2() {
       />
 
       <Sub>Photographs of the hardware setup</Sub>
-      <Gallery
-        columns={3}
-        items={[
-          { src: PHOTOS.labPoster, alt: "Lab bench with laptops, relay boards and mains bulbs wired up for the cloud relay task", caption: "The bench: laptops, relay modules and the mains bulbs.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOn, alt: "The bulb lit after the ON command from the cloud dashboard", caption: "ON published — the relay closes and the bulb lights.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOff, alt: "The bulb dark after the OFF command", caption: "OFF published — relay open, bulb dark.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.breadboardRelay, alt: "Breadboard with the relay module, a status LED and a push button wired to the ESP32", caption: "The relay module on the breadboard, wired to the ESP32 (the module’s red LED shows it is powered).", aspect: "4/3", fit: "cover" },
+      <MediaWall
+        columns={2}
+        aspect="16/10"
+        tiles={[
+          { kind: "image", src: PHOTOS.labPoster, alt: "Lab bench with laptops, relay boards and mains bulbs wired up for the cloud relay task", label: "The bench", caption: "Laptops, relay modules and the mains bulbs.", fit: "cover" },
+          { kind: "image", src: PHOTOS.breadboardRelay, alt: "Breadboard with the relay module, a status LED and a push button wired to the ESP32", label: "Relay module", caption: "The relay module on the breadboard, wired to the ESP32 (its red LED shows it is powered)." },
+          { kind: "image", src: PHOTOS.bulbOn, alt: "The bulb lit after the ON command from the cloud dashboard", label: "ON", caption: "ON published — the relay closes and the bulb lights.", fit: "cover" },
+          { kind: "image", src: PHOTOS.bulbOff, alt: "The bulb dark after the OFF command", label: "OFF", caption: "OFF published — relay open, bulb dark.", fit: "cover" },
         ]}
       />
 
       <Sub>Screenshots of the Adafruit IO dashboard</Sub>
-      <Diagram
-        src={PHOTOS.adafruitFeeds}
+      <MediaWall
+        columns={2}
         aspect="4/3"
-        alt="Adafruit IO Feeds page listing the feeds Light bulb, Welcome Feed, bulb-control and esp, with the esp feed’s last value OFF"
-        caption="The Feeds page in Adafruit IO: the esp feed (key esp) with its last value OFF and a recorded time, next to the other feeds in the account."
+        tiles={[
+          { kind: "image", src: PHOTOS.adafruitFeeds, alt: "Adafruit IO Feeds page listing the feeds Light bulb, Welcome Feed, bulb-control and esp, with the esp feed’s last value OFF", label: "Adafruit IO · Feeds", caption: "The Feeds page, photographed from the lab laptop." },
+          { kind: "note", eyebrow: "What the screenshot shows", title: "The esp feed", body: (
+            <ul className="list-disc pl-4 space-y-1.5">
+              <li>Feed name and key are both <code>esp</code> — the key is what <code>io.feed(&quot;esp&quot;)</code> looks up.</li>
+              <li>Last value <code>OFF</code>, with how long ago it was recorded.</li>
+              <li>Other feeds in the account (<code>light-bulb</code>, <code>bulb-control</code>) are earlier experiments and are not used by this sketch.</li>
+            </ul>
+          ) },
+        ]}
       />
       <Diagram
         {...DIAGRAMS.t2DashboardLayout}
@@ -202,17 +212,13 @@ export default function Task2() {
         control path no longer depends on the laptop and the board sharing a network, only on both reaching the
         internet.
       </Prose>
-      <VideoFigure
-        src={VIDEOS.relayBulb.src}
-        poster={VIDEOS.relayBulb.poster}
-        caption="Working demonstration — relay, breadboard and the mains bulb being switched from the cloud dashboard."
-        maxWidth="720px"
-      />
-      <VideoFigure
-        src={VIDEOS.bulbPhone.src}
-        poster={VIDEOS.bulbPhone.poster}
-        caption="Second demonstration — the bulb switching on and off while the operator works from a phone, with no cable between the controller and the rig."
-        maxWidth="720px"
+      <MediaWall
+        columns={2}
+        aspect="16/9"
+        tiles={[
+          { kind: "video", src: VIDEOS.relayBulb.src, poster: VIDEOS.relayBulb.poster, alt: "Relay, breadboard and the mains bulb being switched from the cloud dashboard", label: "Clip 01 · Dashboard", caption: "Relay, breadboard and the mains bulb being switched from the cloud dashboard." },
+          { kind: "video", src: VIDEOS.bulbPhone.src, poster: VIDEOS.bulbPhone.poster, alt: "The bulb switching on and off while the operator works from a phone", label: "Clip 02 · From a phone", caption: "The bulb switching on and off while the operator works from a phone — no cable between the controller and the rig." },
+        ]}
       />
 
       <Sub>Problems encountered during MQTT / cloud setup & solutions implemented</Sub>

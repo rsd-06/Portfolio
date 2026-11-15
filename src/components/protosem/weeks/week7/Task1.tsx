@@ -5,10 +5,11 @@
 
 import { Globe, Server, FileCode2, Wifi } from "lucide-react";
 import {
-  WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, VideoFigure, Gallery, CodeBlock, SpecList, Pipeline,
+  WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, CodeBlock, SpecList, Pipeline,
 } from "../blocks";
 import { Sub, Diagram, ProblemList, CollapsibleCode, RepoFiles, PinTable } from "./blocks";
 import { DIAGRAMS, PHOTOS, VIDEOS } from "./media";
+import { MediaWall } from "./MediaWall";
 import { T1_SKETCH, T1_HTML } from "./code";
 
 export default function Task1() {
@@ -175,39 +176,47 @@ export default function Task1() {
       </Callout>
 
       <Sub>Photographs of the physical setup</Sub>
-      <Gallery
+      <MediaWall
         columns={3}
-        items={[
-          { src: PHOTOS.esp32On, alt: "ESP32 development board connected by USB with its blue on-board LED lit", caption: "GPIO 2 high — the LED on the board, powered over USB.", aspect: "3/4", fit: "cover" },
-          { src: PHOTOS.arduinoUpload, alt: "Arduino IDE showing the handleLEDOn function and a verified firmware upload", caption: "Flashing the sketch — write verified, board resetting over RTS.", aspect: "3/4", fit: "cover" },
-          { src: PHOTOS.webUi, alt: "Laptop showing the ESP32 LED Control page with ON and OFF buttons", caption: "The laptop used as the controller, showing the page served by the board.", aspect: "3/4", fit: "cover" },
-          { src: PHOTOS.playgroundUi, alt: "A hand holding the ESP32 board with its LED lit in front of a laptop showing the ESP32 LED page, state ON", caption: "Board in hand, page on the laptop — the page reports state ON while the board’s LED is lit.", aspect: "4/3", fit: "cover" },
-          { src: PHOTOS.breadboardRelay, alt: "ESP32 connected by jumper wires to a breadboard with a relay module, a green LED and a push button", caption: "Breadboard side of the build: ESP32 wired to a relay module, an LED and a push button.", aspect: "4/3", fit: "cover" },
+        aspect="1/1"
+        tiles={[
+          { kind: "image", src: PHOTOS.esp32On, alt: "ESP32 development board connected by USB with its blue on-board LED lit", label: "The board", caption: "GPIO 2 high — the LED on the board, powered over USB.", fit: "cover" },
+          { kind: "image", src: PHOTOS.playgroundUi, alt: "A hand holding the ESP32 board with its LED lit in front of a laptop showing the ESP32 LED page, state ON", label: "Board + page", caption: "Board in hand, page on the laptop — the page reports state ON while the board’s LED is lit." },
+          { kind: "image", src: PHOTOS.breadboardRelay, alt: "ESP32 connected by jumper wires to a breadboard with a relay module, a green LED and a push button", label: "Breadboard", caption: "The breadboard side of the build: ESP32 wired to a relay module, an LED and a push button." },
         ]}
       />
 
       <Sub>Screenshots of the web interface</Sub>
-      <Gallery
-        columns={2}
-        items={[
-          { src: PHOTOS.webUi, alt: "Browser showing the ESP32 LED Control page with ON and OFF buttons, address bar at 192.168.4.1", caption: "The control page: title, description and the green ON / red OFF buttons.", aspect: "3/4", fit: "cover" },
-          { src: PHOTOS.arduinoUpload, alt: "Arduino IDE output pane after a successful upload", caption: "IDE output confirming the upload before the page was opened.", aspect: "3/4", fit: "cover" },
-          { src: PHOTOS.playgroundUi, alt: "Browser page titled ESP32 LED with a robot face, a current-state field showing ON and Turn On / Turn Off buttons, address 192.168.137.186", caption: "A second, styled version of the page served from the board in station mode (address 192.168.137.186, a hotspot-assigned IP).", aspect: "16/9", fit: "cover" },
+      <MediaWall
+        columns={3}
+        aspect="3/4"
+        tiles={[
+          { kind: "image", src: PHOTOS.webUi, alt: "Browser showing the ESP32 LED Control page with ON and OFF buttons, address bar at 192.168.4.1", label: "192.168.4.1", caption: "The control page: title, description and the green ON / red OFF buttons." },
+          { kind: "image", src: PHOTOS.arduinoUpload, alt: "Arduino IDE output pane after a successful upload", label: "Arduino IDE", caption: "IDE output confirming the upload before the page was opened." },
+          { kind: "note", eyebrow: "Reading the screenshots", title: "Same server, two addresses", body: (
+            <>
+              <p><code>192.168.4.1</code> is the board&rsquo;s own access point; <code>192.168.137.186</code> (the styled page in the photo above) is an address handed out by a hotspot when the board joins as a station.</p>
+              <p className="mt-2">Either way the page, the two buttons and the request flow are the same.</p>
+            </>
+          ) },
         ]}
       />
 
       <Sub>Video — LED ON / OFF control from the webpage</Sub>
-      <VideoFigure
-        src={VIDEOS.ledWeb.src}
-        poster={VIDEOS.ledWeb.poster}
-        caption="Demo — pressing ON and OFF in the browser, with the board’s LED responding in real time."
-        maxWidth="380px"
-      />
-      <VideoFigure
-        src={VIDEOS.ledWebBoard.src}
-        poster={VIDEOS.ledWebBoard.poster}
-        caption="Second recording — the page at 192.168.4.1 next to the board, so the on-board LED and the browser can be seen together."
-        maxWidth="380px"
+      <MediaWall
+        columns={3}
+        aspect="9/13"
+        tiles={[
+          { kind: "video", src: VIDEOS.ledWeb.src, poster: VIDEOS.ledWeb.poster, alt: "Pressing ON and OFF in the browser while the board's LED responds", label: "Clip 01 · Browser", caption: "Pressing ON and OFF in the browser, with the board’s LED responding in real time." },
+          { kind: "video", src: VIDEOS.ledWebBoard.src, poster: VIDEOS.ledWebBoard.poster, alt: "The page at 192.168.4.1 next to the board", label: "Clip 02 · Board + page", caption: "The page at 192.168.4.1 next to the board, so the on-board LED and the browser can be seen together." },
+          { kind: "note", eyebrow: "What to watch", title: "Request in, LED out", body: (
+            <ul className="list-disc pl-4 space-y-1.5">
+              <li>A button press is one HTTP request to <code>/on</code> or <code>/off</code>.</li>
+              <li>The LED changes as soon as the handler runs — no page reload is needed to see it.</li>
+              <li>Clips play on their own while on screen; tap one to pause, or use full screen for detail.</li>
+            </ul>
+          ) },
+        ]}
       />
 
       <Sub>Problems encountered & how they were solved</Sub>

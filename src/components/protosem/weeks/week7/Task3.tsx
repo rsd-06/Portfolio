@@ -4,9 +4,10 @@
 // Task 03 — IFTTT + Adafruit IO IoT automation (no new firmware).
 
 import { Mic, Zap, Cloud, Cpu } from "lucide-react";
-import { WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, VideoFigure, Gallery, SpecList, Pipeline } from "../blocks";
+import { WeekSection, Prose, Term, ArrowList, Callout, CardGrid, ChipRow, SpecList, Pipeline } from "../blocks";
 import { Sub, Diagram, ProblemList, RepoFiles, PinTable } from "./blocks";
 import { DIAGRAMS, PHOTOS, VIDEOS } from "./media";
+import { MediaWall } from "./MediaWall";
 
 export default function Task3() {
   return (
@@ -140,11 +141,15 @@ export default function Task3() {
         alt="IFTTT configuration: voice trigger phrase on the IF THIS side, Adafruit IO feed esp with value ON on the THEN THAT side"
         caption="IFTTT configuration, applet by applet — the trigger and the action it performs."
       />
-      <Diagram
-        src={PHOTOS.adafruitFeeds}
+      <MediaWall
+        columns={2}
         aspect="4/3"
-        alt="Adafruit IO Feeds page with the esp feed, and an IFTTT applet-creation tab open in the browser tab bar"
-        caption="Adafruit IO’s Feeds page — the esp feed that both the dashboard and the applets write to. An IFTTT “Create” tab is open alongside it in the browser."
+        tiles={[
+          { kind: "image", src: PHOTOS.adafruitFeeds, alt: "Adafruit IO Feeds page with the esp feed, and an IFTTT applet-creation tab open in the browser tab bar", label: "Adafruit IO · Feeds", caption: "The Feeds page on the lab laptop, with an IFTTT “Create” tab open beside it." },
+          { kind: "note", eyebrow: "Why this feed", title: "One feed, several writers", body: (
+            <p>The applets write to the same <code>esp</code> feed the dashboard uses in Task 2, so the firmware cannot tell who published a value — it only sees <code>ON</code> or <code>OFF</code> arrive on the feed.</p>
+          ) },
+        ]}
       />
       <Diagram
         {...DIAGRAMS.t2DashboardLayout}
@@ -153,21 +158,26 @@ export default function Task3() {
       />
 
       <Sub>Photographs of the working prototype</Sub>
-      <Gallery
+      <MediaWall
         columns={3}
-        items={[
-          { src: PHOTOS.labPoster, alt: "Lab bench with the relay modules and bulbs used for the voice automation", caption: "Same rig as Task 2 — the voice layer adds no hardware.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOn, alt: "Bulb lit after an ON value reaches the feed", caption: "End of the chain: the feed value is ON and the bulb is lit.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOff, alt: "Bulb dark after an OFF value reaches the feed", caption: "End of the chain: the feed value is OFF and the bulb is dark.", aspect: "16/9", fit: "cover" },
+        aspect="4/3"
+        tiles={[
+          { kind: "image", src: PHOTOS.labPoster, alt: "Lab bench with the relay modules and bulbs used for the voice automation", label: "The rig", caption: "Same rig as Task 2 — the voice layer adds no hardware.", fit: "cover" },
+          { kind: "image", src: PHOTOS.bulbOn, alt: "Bulb lit after an ON value reaches the feed", label: "ON", caption: "End of the chain: the feed value is ON and the bulb is lit.", fit: "cover" },
+          { kind: "image", src: PHOTOS.bulbOff, alt: "Bulb dark after an OFF value reaches the feed", label: "OFF", caption: "End of the chain: the feed value is OFF and the bulb is dark.", fit: "cover" },
         ]}
       />
 
       <Sub>Video — the complete automation</Sub>
-      <VideoFigure
-        src={VIDEOS.relayBulb.src}
-        poster={VIDEOS.relayBulb.poster}
-        caption="The same relay-and-bulb rig as Task 2. The voice path ends exactly here: only how the ON/OFF value is produced changes, not what the bulb does. (A recording of your own voice command can replace this clip.)"
-        maxWidth="720px"
+      <MediaWall
+        columns={2}
+        aspect="16/9"
+        tiles={[
+          { kind: "video", src: VIDEOS.relayBulb.src, poster: VIDEOS.relayBulb.poster, alt: "The relay-and-bulb rig switching", label: "The last hop", caption: "The same relay-and-bulb rig as Task 2." },
+          { kind: "note", eyebrow: "The last hop", title: "Same bulb, different start", body: (
+            <p>Whatever produced the <code>ON</code>/<code>OFF</code> value — the dashboard or a spoken phrase through IFTTT — the final hop is identical: the value reaches the ESP32 and the relay switches. This clip shows that last hop on the rig from Task 2.</p>
+          ) },
+        ]}
       />
 
       <Sub>Automation tested under different conditions</Sub>
