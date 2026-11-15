@@ -247,7 +247,7 @@ protosem/[slug]/page.tsx
 |---|---|---|---|
 | 0 — Orientation & Reflection | `weeks/Week0Content.tsx` | Yes (WeekShell, WeekSection, Prose + local InlineLink/MoreLink) | `public/assets/protoSemPage/{personalityTest,zenComic}.png` |
 | 1 — Tech-Talk & 5S | `weeks/Week1Content.tsx` | Yes (WeekShell, WeekSection, Prose, ArrowList, CardGrid, ChipRow, Callout) | — |
-| 7 — IoT & Embedded Systems | `weeks/Week7Content.tsx` | Yes (fullest example: media + technical blocks) | `public/assets/protoSemPage/week7/*` (jpeg, mp4 + poster) |
+| 7 — IoT & Embedded Systems | `weeks/Week7Content.tsx` (shell + overview + wrap-up) → `weeks/week7/Task1–5.tsx`, `weeks/week7/TaskNav.tsx` (floating task bar, ids `overview`, `task-1…5`, `wrap-up`), `weeks/week7/blocks.tsx` (Sub, Diagram, CollapsibleCode, RepoFiles, PinTable, ProblemList), `weeks/week7/code.ts` (sketch/dashboard source), `weeks/week7/media.ts` (diagram/photo/video map + `REPO`) | Yes (fullest example: media + technical blocks; h3s mirror the IoT evaluation checklist) | `public/assets/protoSemPage/week7/*` (jpeg, mp4 + poster, bulb-on/off) and `week7/diagrams/*.png` (16 task diagrams); code lives in `rsd-06/Forge_IOT` |
 
 ---
 

@@ -44,9 +44,9 @@ const DOCUMENTED_WEEKS: ProtoSemWeek[] = [
     title: "Week 7 — IoT & Embedded Systems",
     heading: "IoT & Embedded Systems",
     excerpt:
-      "Built a smart-home stack on the ESP32 — local HTTP control, MQTT over the cloud, voice triggers, then a sensor-driven Firebase dashboard.",
+      "Built a smart-home stack on the ESP32 in five tasks — local HTTP control, MQTT over the cloud, voice triggers, a Firebase dashboard, then automatic lighting with logged history and CSV export.",
     status: "completed",
-    tags: ["ESP32", "MQTT", "Firebase", "Embedded"],
+    tags: ["ESP32", "MQTT", "Firebase", "Embedded", "IoT"],
   },
 ];
 
