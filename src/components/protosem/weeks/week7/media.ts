@@ -29,11 +29,16 @@ export const PHOTOS = {
   labPoster: `${BASE}/demo-relay-bulb-poster.jpg`,
   bulbOn: `${BASE}/bulb-on.jpg`,
   bulbOff: `${BASE}/bulb-off.jpg`,
+  playgroundUi: `${BASE}/esp32-playground-ui.jpg`,
+  breadboardRelay: `${BASE}/breadboard-relay.jpg`,
+  adafruitFeeds: `${BASE}/adafruit-feeds.jpg`,
 } as const;
 
 export const VIDEOS = {
   ledWeb: { src: `${BASE}/demo-led-web.mp4`, poster: `${BASE}/demo-led-web-poster.jpg` },
   relayBulb: { src: `${BASE}/demo-relay-bulb.mp4`, poster: `${BASE}/demo-relay-bulb-poster.jpg` },
+  ledWebBoard: { src: `${BASE}/demo-led-web-board.mp4`, poster: `${BASE}/demo-led-web-board-poster.jpg` },
+  bulbPhone: { src: `${BASE}/demo-bulb-phone.mp4`, poster: `${BASE}/demo-bulb-phone-poster.jpg` },
 } as const;
 
 export const REPO = "https://github.com/rsd-06/Forge_IOT";

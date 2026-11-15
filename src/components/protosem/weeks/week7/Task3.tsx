@@ -141,6 +141,12 @@ export default function Task3() {
         caption="IFTTT configuration, applet by applet — the trigger and the action it performs."
       />
       <Diagram
+        src={PHOTOS.adafruitFeeds}
+        aspect="4/3"
+        alt="Adafruit IO Feeds page with the esp feed, and an IFTTT applet-creation tab open in the browser tab bar"
+        caption="Adafruit IO’s Feeds page — the esp feed that both the dashboard and the applets write to. An IFTTT “Create” tab is open alongside it in the browser."
+      />
+      <Diagram
         {...DIAGRAMS.t2DashboardLayout}
         alt="Adafruit IO feed and dashboard: the esp feed receiving ON and OFF values written by the applets"
         caption="Adafruit IO side: the same esp feed and toggle block, now also written to by the applets."
@@ -151,8 +157,8 @@ export default function Task3() {
         columns={3}
         items={[
           { src: PHOTOS.labPoster, alt: "Lab bench with the relay modules and bulbs used for the voice automation", caption: "Same rig as Task 2 — the voice layer adds no hardware.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOn, alt: "Bulb lit after a spoken ON command", caption: "Voice command ON — bulb lit.", aspect: "16/9", fit: "cover" },
-          { src: PHOTOS.bulbOff, alt: "Bulb off after a spoken OFF command", caption: "Voice command OFF — bulb dark.", aspect: "16/9", fit: "cover" },
+          { src: PHOTOS.bulbOn, alt: "Bulb lit after an ON value reaches the feed", caption: "End of the chain: the feed value is ON and the bulb is lit.", aspect: "16/9", fit: "cover" },
+          { src: PHOTOS.bulbOff, alt: "Bulb dark after an OFF value reaches the feed", caption: "End of the chain: the feed value is OFF and the bulb is dark.", aspect: "16/9", fit: "cover" },
         ]}
       />
 
@@ -160,7 +166,7 @@ export default function Task3() {
       <VideoFigure
         src={VIDEOS.relayBulb.src}
         poster={VIDEOS.relayBulb.poster}
-        caption="The same relay-and-bulb rig. The voice path ends exactly here: only how the ON/OFF value is produced changes, not what the bulb does."
+        caption="The same relay-and-bulb rig as Task 2. The voice path ends exactly here: only how the ON/OFF value is produced changes, not what the bulb does. (A recording of your own voice command can replace this clip.)"
         maxWidth="720px"
       />
 

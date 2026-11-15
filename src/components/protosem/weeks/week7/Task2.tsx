@@ -179,10 +179,17 @@ export default function Task2() {
           { src: PHOTOS.labPoster, alt: "Lab bench with laptops, relay boards and mains bulbs wired up for the cloud relay task", caption: "The bench: laptops, relay modules and the mains bulbs.", aspect: "16/9", fit: "cover" },
           { src: PHOTOS.bulbOn, alt: "The bulb lit after the ON command from the cloud dashboard", caption: "ON published — the relay closes and the bulb lights.", aspect: "16/9", fit: "cover" },
           { src: PHOTOS.bulbOff, alt: "The bulb dark after the OFF command", caption: "OFF published — relay open, bulb dark.", aspect: "16/9", fit: "cover" },
+          { src: PHOTOS.breadboardRelay, alt: "Breadboard with the relay module, a status LED and a push button wired to the ESP32", caption: "The relay module on the breadboard, wired to the ESP32 (the module’s red LED shows it is powered).", aspect: "4/3", fit: "cover" },
         ]}
       />
 
       <Sub>Screenshots of the Adafruit IO dashboard</Sub>
+      <Diagram
+        src={PHOTOS.adafruitFeeds}
+        aspect="4/3"
+        alt="Adafruit IO Feeds page listing the feeds Light bulb, Welcome Feed, bulb-control and esp, with the esp feed’s last value OFF"
+        caption="The Feeds page in Adafruit IO: the esp feed (key esp) with its last value OFF and a recorded time, next to the other feeds in the account."
+      />
       <Diagram
         {...DIAGRAMS.t2DashboardLayout}
         alt="Adafruit IO dashboard layout: toggle block with ON and OFF values, stream block and feed settings for the esp feed"
@@ -199,6 +206,12 @@ export default function Task2() {
         src={VIDEOS.relayBulb.src}
         poster={VIDEOS.relayBulb.poster}
         caption="Working demonstration — relay, breadboard and the mains bulb being switched from the cloud dashboard."
+        maxWidth="720px"
+      />
+      <VideoFigure
+        src={VIDEOS.bulbPhone.src}
+        poster={VIDEOS.bulbPhone.poster}
+        caption="Second demonstration — the bulb switching on and off while the operator works from a phone, with no cable between the controller and the rig."
         maxWidth="720px"
       />
 

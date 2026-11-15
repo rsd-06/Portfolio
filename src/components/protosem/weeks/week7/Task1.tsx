@@ -181,6 +181,8 @@ export default function Task1() {
           { src: PHOTOS.esp32On, alt: "ESP32 development board connected by USB with its blue on-board LED lit", caption: "GPIO 2 high — the LED on the board, powered over USB.", aspect: "3/4", fit: "cover" },
           { src: PHOTOS.arduinoUpload, alt: "Arduino IDE showing the handleLEDOn function and a verified firmware upload", caption: "Flashing the sketch — write verified, board resetting over RTS.", aspect: "3/4", fit: "cover" },
           { src: PHOTOS.webUi, alt: "Laptop showing the ESP32 LED Control page with ON and OFF buttons", caption: "The laptop used as the controller, showing the page served by the board.", aspect: "3/4", fit: "cover" },
+          { src: PHOTOS.playgroundUi, alt: "A hand holding the ESP32 board with its LED lit in front of a laptop showing the ESP32 LED page, state ON", caption: "Board in hand, page on the laptop — the page reports state ON while the board’s LED is lit.", aspect: "4/3", fit: "cover" },
+          { src: PHOTOS.breadboardRelay, alt: "ESP32 connected by jumper wires to a breadboard with a relay module, a green LED and a push button", caption: "Breadboard side of the build: ESP32 wired to a relay module, an LED and a push button.", aspect: "4/3", fit: "cover" },
         ]}
       />
 
@@ -190,6 +192,7 @@ export default function Task1() {
         items={[
           { src: PHOTOS.webUi, alt: "Browser showing the ESP32 LED Control page with ON and OFF buttons, address bar at 192.168.4.1", caption: "The control page: title, description and the green ON / red OFF buttons.", aspect: "3/4", fit: "cover" },
           { src: PHOTOS.arduinoUpload, alt: "Arduino IDE output pane after a successful upload", caption: "IDE output confirming the upload before the page was opened.", aspect: "3/4", fit: "cover" },
+          { src: PHOTOS.playgroundUi, alt: "Browser page titled ESP32 LED with a robot face, a current-state field showing ON and Turn On / Turn Off buttons, address 192.168.137.186", caption: "A second, styled version of the page served from the board in station mode (address 192.168.137.186, a hotspot-assigned IP).", aspect: "16/9", fit: "cover" },
         ]}
       />
 
@@ -198,6 +201,12 @@ export default function Task1() {
         src={VIDEOS.ledWeb.src}
         poster={VIDEOS.ledWeb.poster}
         caption="Demo — pressing ON and OFF in the browser, with the board’s LED responding in real time."
+        maxWidth="380px"
+      />
+      <VideoFigure
+        src={VIDEOS.ledWebBoard.src}
+        poster={VIDEOS.ledWebBoard.poster}
+        caption="Second recording — the page at 192.168.4.1 next to the board, so the on-board LED and the browser can be seen together."
         maxWidth="380px"
       />
 
