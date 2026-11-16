@@ -8,9 +8,11 @@
 // The floating task bar (./week7/TaskNav.tsx) targets the section ids defined there:
 // overview, task-1 … task-5, wrap-up.
 
-import { Cpu, Cloud, Mic, Database, LineChart } from "lucide-react";
+import { Cpu, Cloud, Mic, Database, LineChart, ExternalLink } from "lucide-react";
+import { SiGithub } from "react-icons/si";
+import { motion } from "framer-motion";
 
-import { WeekShell, WeekSection, Prose, Term, Callout, CardGrid, StatRow, ArrowList } from "./blocks";
+import { WeekShell, WeekSection, Prose, Term, Callout, CardGrid, StatRow, ArrowList, fadeUp } from "./blocks";
 import TaskNav from "./week7/TaskNav";
 import Task1 from "./week7/Task1";
 import Task2 from "./week7/Task2";
@@ -27,6 +29,60 @@ export default function Week7Content() {
         slug="week-7"
         subtitle="Five tasks, one system — from a light switch on the local network to a sensor-driven, self-logging dashboard in the cloud."
       >
+        {/* ── Top GitHub Repository Link ──────────────────────── */}
+        <motion.div variants={fadeUp} className="-mb-8">
+          <a
+            href={REPO}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Forge_IOT GitHub repository (opens in new tab)"
+            className="group flex items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl border transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
+            style={{
+              background:
+                "linear-gradient(135deg, color-mix(in srgb, var(--accent-main) 8%, var(--bg-surface)) 0%, var(--bg-surface) 100%)",
+              borderColor: "color-mix(in srgb, var(--accent-main) 30%, var(--border-subtle))",
+              textDecoration: "none",
+            }}
+          >
+            <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+              {/* Black and white GitHub icon */}
+              <div
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-black text-white flex items-center justify-center shrink-0 shadow-sm border border-white/10 group-hover:scale-105 transition-transform duration-200"
+                aria-hidden="true"
+              >
+                <SiGithub size={22} className="text-white fill-white" />
+              </div>
+
+              <div className="min-w-0 flex flex-col">
+                <span
+                  className="f-mono uppercase tracking-wider font-semibold"
+                  style={{ fontSize: "var(--text-2xs)", color: "var(--accent-main)" }}
+                >
+                  GitHub Repository
+                </span>
+                <span
+                  className="f-mono font-medium truncate text-sm sm:text-base md:text-lg text-[var(--text-primary)] group-hover:text-[var(--accent-main)] transition-colors"
+                >
+                  https://github.com/rsd-06/Forge_IOT
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="hidden sm:inline-flex items-center gap-1.5 f-mono px-3.5 py-1.5 rounded-lg border shrink-0 transition-colors"
+              style={{
+                fontSize: "var(--text-xs)",
+                background: "var(--bg-base)",
+                borderColor: "var(--border-subtle)",
+                color: "var(--text-secondary)",
+              }}
+            >
+              <span>View Code</span>
+              <ExternalLink size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </div>
+          </a>
+        </motion.div>
+
         {/* ── Overview ─────────────────────────────────────────── */}
         <WeekSection eyebrow="OVERVIEW" id="overview" title="The Week in One Line">
           <Prose>
