@@ -206,7 +206,7 @@ Files: `src/components/projects/{ProjectsView,ProjectsHero,GitHubActivityGrid,Vi
 | TOC | `src/components/blogs/BlogTOC.tsx` | Single IntersectionObserver; topmost visible heading wins. `lg+` only. |
 | Code | `src/components/blogs/CodeBlock.tsx` | Copy button. (Different from the ProtoSem `CodeBlock`.) |
 
-Posts (15): `the-architecture-of-modern-portfolio` (2026-07-24), `www-vs-internet` (2026-08-02), and 13 dated 2026-10-19: `the-infinite-hotel-paradox`, `the-mom-test`, `why-warm-countries-are-poorer`, `justice-sandel-lectures-1-6`, `india-at-50-arundhati-roy-salman-rushdie`, `hinduism-is-actually-cool`, `universe-25-calhoun`, `on-the-heights-of-despair`, `what-claude-thinks-beneath-the-surface`, `cisc-vs-risc-von-neumann-vs-harvard`, `spec-driven-development`, `github-actions-explained`, `how-a-tyre-company-invented-michelin-stars`. Each opens with its source link. Validate with `npm run check:blogs`.
+Posts (15): `the-architecture-of-modern-portfolio` (2026-07-24), `www-vs-internet` (2026-08-02), and 13 dated 2026-10-19: `the-infinite-hotel-paradox`, `the-mom-test`, `why-warm-countries-are-poorer`, `justice-lectures-by-sandel` (renamed from `justice-sandel-lectures-1-6`, which 308-redirects; next.config.ts), `india-at-50-arundhati-roy-salman-rushdie`, `hinduism-is-actually-cool`, `universe-25-calhoun`, `on-the-heights-of-despair`, `what-claude-thinks-beneath-the-surface`, `cisc-vs-risc-von-neumann-vs-harvard`, `spec-driven-development`, `github-actions-explained`, `how-a-tyre-company-invented-michelin-stars`. Each opens with its source link. Validate with `npm run check:blogs`.
 
 ---
 

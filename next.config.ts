@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
     return [{ source: "/blogs/:slug([a-z0-9-]+).md", destination: "/blogs/:slug/md" }];
   },
 
+  // Renamed posts keep their old links working. Redirects run before the .md
+  // rewrite, so the markdown copy needs its own rule.
+  async redirects() {
+    return [
+      { source: "/blogs/justice-sandel-lectures-1-6", destination: "/blogs/justice-lectures-by-sandel", permanent: true },
+      { source: "/blogs/justice-sandel-lectures-1-6.md", destination: "/blogs/justice-lectures-by-sandel.md", permanent: true },
+    ];
+  },
+
   // No rule for /_next/static: Next already serves hashed production chunks as
   // immutable, and a custom immutable header also applied in dev, where chunk
   // URLs don't change between edits, so browsers kept running stale code.
